@@ -28,71 +28,81 @@ calc_grammar = """
 
 
 @v_args(inline=True)    # Affects the signatures of the methods
-# class MakeAssemblyTree(Visitor):
 class MakeAssemblyTree(Transformer):
     # from operator import add, sub, mul, truediv as div, neg
     from operator import neg
     number = int
 
+
     def __init__(self, file):
         self.vars = {}
         self.file = file
+        self.cur_ops = []
+
+    def write_to_file(self):
+        print(self.cur_ops)
+        for line in self.cur_ops:
+            self.file.write(line)
 
     def add(self, a,b):
         if a is None and b is None:
-            self.file.write('\tcall Int:plus\n')
+            self.cur_ops.append('\tcall Int:plus\n')
         elif a is None:
-            self.file.write(f'\tconst {b}\n')
-            self.file.write('\tcall Int:plus\n')
+            self.cur_ops.append(f'\tconst {b}\n')
+            self.cur_ops.append('\tcall Int:plus\n')
         elif b is None:
-            self.file.write(f'\tconst {a}\n')
-            self.file.write('\tcall Int:plus\n')
+            self.cur_ops.append(f'\tconst {a}\n')
+            self.cur_ops.append('\tcall Int:plus\n')
         else:
-            self.file.write(f'\tconst {a}\n')
-            self.file.write(f'\tconst {b}\n')
-            self.file.write('\tcall Int:plus\n')
+            self.cur_ops.append(f'\tconst {a}\n')
+            self.cur_ops.append(f'\tconst {b}\n')
+            self.cur_ops.append('\tcall Int:plus\n')
+
         print(f'Adding {a}, {b}')
+
     def sub(self, a,b):
         if a is None and b is None:
-            self.file.write('\tcall Int:minus\n')
+            self.cur_ops.append('\tcall Int:minus\n')
         elif a is None:
-            self.file.write(f'\tconst {b}\n')
-            self.file.write('\tcall Int:minus\n')
+            self.cur_ops.append(f'\tconst {b}\n')
+            self.cur_ops.append('\tcall Int:minus\n')
         elif b is None:
-            self.file.write(f'\tconst {a}\n')
-            self.file.write('\tcall Int:minus\n')
+            self.cur_ops.insert(0, f'\tconst {a}\n')
+            self.cur_ops.append('\tcall Int:minus\n')
         else:
-            self.file.write(f'\tconst {a}\n')
-            self.file.write(f'\tconst {b}\n')
-            self.file.write('\tcall Int:minus\n')
+            self.cur_ops.append(f'\tconst {a}\n')
+            self.cur_ops.append(f'\tconst {b}\n')
+            self.cur_ops.append('\tcall Int:minus\n')
         print(f'Subtracting {a}, {b}')
+
     def mul(self, a,b):
         if a is None and b is None:
-            self.file.write('\tcall Int:times\n')
+            self.cur_ops.append('\tcall Int:times\n')
         elif a is None:
-            self.file.write(f'\tconst {b}\n')
-            self.file.write('\tcall Int:times\n')
+            self.cur_ops.append(f'\tconst {b}\n')
+            self.cur_ops.append('\tcall Int:times\n')
         elif b is None:
-            self.file.write(f'\tconst {a}\n')
-            self.file.write('\tcall Int:times\n')
+            self.cur_ops.append(f'\tconst {a}\n')
+            self.cur_ops.append('\tcall Int:times\n')
         else:
-            self.file.write(f'\tconst {a}\n')
-            self.file.write(f'\tconst {b}\n')
-            self.file.write('\tcall Int:times\n')
+            self.cur_ops.append(f'\tconst {a}\n')
+            self.cur_ops.append(f'\tconst {b}\n')
+            self.cur_ops.append('\tcall Int:times\n')
+
         print(f'Multiplying {a}, {b}')
     def div(self, a,b):
         if a is None and b is None:
-            self.file.write('\tcall Int:divide\n')
+            self.cur_ops.append('\tcall Int:divide\n')
         elif a is None:
-            self.file.write(f'\tconst {b}\n')
-            self.file.write('\tcall Int:divide\n')
+            self.cur_ops.append(f'\tconst {b}\n')
+            self.cur_ops.append('\tcall Int:divide\n')
         elif b is None:
-            self.file.write(f'\tconst {a}\n')
-            self.file.write('\tcall Int:divide\n')
+            self.cur_ops.insert(0, f'\tconst {a}\n')
+            self.cur_ops.append('\tcall Int:divide\n')
         else:
-            self.file.write(f'\tconst {a}\n')
-            self.file.write(f'\tconst {b}\n')
-            self.file.write('\tcall Int:divide\n')
+            self.cur_ops.append(f'\tconst {a}\n')
+            self.cur_ops.append(f'\tconst {b}\n')
+            self.cur_ops.append('\tcall Int:divide\n')
         print(f'Dividing {a}, {b}')
 
     def assign_var(self, name, value):
@@ -122,8 +132,9 @@ def main(path_to_file):
             file.write('\n')
             file.write('.method $constructor\n')
             # breakpoint()
-            # MakeAssemblyTree(file).transform(calc(s))
-            MakeAssemblyTree(file).visit(calc(s))
+            tree = MakeAssemblyTree(file)
+            tree.transform(calc(s))
+            tree.write_to_file()
             print(calc(s))
             print(calc(s).pretty())
             file.write('\tcall Int:print\n')
