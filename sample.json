@@ -1,0 +1,50 @@
+{
+    "class_name": "Sample",
+    "super": "Obj",
+    "methods": [
+        "$constructor",
+        "string",
+        "print",
+        "equals"
+    ],
+    "fields": [],
+    "n_fields": 0,
+    "n_methods": 4,
+    "n_inherited": 4,
+    "constants": [
+        {
+            "kind": "i",
+            "value": "4"
+        },
+        {
+            "kind": "i",
+            "value": "2"
+        },
+        {
+            "kind": "i",
+            "value": "3"
+        }
+    ],
+    "code": [
+        {
+            "name": "$constructor",
+            "slot": 0,
+            "code": [
+                1,
+                0,
+                1,
+                1,
+                1,
+                2,
+                2,
+                7,
+                2,
+                5,
+                2,
+                2,
+                7,
+                0
+            ]
+        }
+    ]
+}

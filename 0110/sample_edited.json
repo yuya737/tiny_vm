@@ -1,0 +1,56 @@
+{
+    "class_name": "Sample",
+    "super": "Obj",
+    "methods": [
+        "$constructor",
+        "string",
+        "print",
+        "equals",
+        "added"
+    ],
+    "fields": [],
+    "n_fields": 0,
+    "n_methods": 5,
+    "n_inherited": 4,
+    "constants": [
+        {
+            "kind": "i",
+            "value": "418"
+        },
+        {
+            "kind": "i",
+            "value": "383"
+        },
+        {
+            "kind": "s",
+            "value": "I added a method!\n"
+        }
+    ],
+    "code": [
+        {
+            "name": "$constructor",
+            "slot": 0,
+            "code": [
+                1,
+                0,
+                1,
+                1,
+                2,
+                5,
+                2,
+                2,
+                0
+            ]
+        },
+        {
+            "name": "added",
+            "slot": 4,
+            "code": [
+                1,
+                2,
+                5,
+                0
+            ]
+        }
+    ]
+}

@@ -1,0 +1,294 @@
+*INFO* : Initiating loader
+*DEBUG* : Allocating a new object of type String
+
+*INFO* : Load from sample.json
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Literal 4 internal 0 remapped to 2
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Literal 2 internal 1 remapped to 3
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Literal 3 internal 2 remapped to 4
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Literal 5 internal 3 remapped to 5
+*INFO* : Class Sample extends Obj
+*INFO* : Class Sample has 4 methods and 0 fields
+*DEBUG* : Op: 1 (const)
+*DEBUG* : Op: 1 (const)
+*DEBUG* : Op: 2 (call)
+*DEBUG* : Op: 9 (store)
+*DEBUG* : Op: 1 (const)
+*DEBUG* : Op: 1 (const)
+*DEBUG* : Op: 2 (call)
+*DEBUG* : Op: 8 (load)
+*DEBUG* : Op: 2 (call)
+*DEBUG* : Op: 7 (pop)
+*DEBUG* : Op: 0 (halt)
+*INFO* : Code Loaded.
+*INFO* : Patched in call to constructor of 'Sample'
+*INFO* : Dumping constants
+*DEBUG* : Constant 1: String
+*DEBUG* : Value: |No main program loaded!
+|
+*DEBUG* : Constant 2: Int
+*DEBUG* : Value: 4
+*DEBUG* : Constant 3: Int
+*DEBUG* : Value: 2
+*DEBUG* : Constant 4: Int
+*DEBUG* : Value: 3
+*DEBUG* : Constant 5: Int
+*DEBUG* : Value: 5
+*DEBUG* : Fetched [0] (0x10458db50 : new)
+*DEBUG* : Step:  new
+*DEBUG* : Fetched [1] (0x600000611ac0 : Unknown thing: 0x600000611ac0)
+*DEBUG* : Allocating a new object of type Sample
+
+*DEBUG* : ===
+*DEBUG* : -fp-> 0 : (int) 0
+*DEBUG* :       1 : (Sample object) 0x600001114440
+*DEBUG* : ===
+*DEBUG* : Fetched [2] (0x10458d84c : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [3] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [16] (0x10458d800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [17] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* : -fp-> 1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x600001311160
+*DEBUG* : ===
+*DEBUG* : Fetched [18] (0x10458d800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [19] (0x100000003 : (int) 3)
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x600001311160
+*DEBUG* :       5 : (Int object) 0x600001311180
+*DEBUG* : ===
+*DEBUG* : Fetched [20] (0x10458d84c : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [21] (0x600000000005 : (int) 5)
+*DEBUG* : ===
+*DEBUG* :       4 : (Int object) 0x600001311160
+*DEBUG* : -fp-> 5 : (Int object) 0x600001311180
+*DEBUG* :       6 : Unknown thing: 0x1045951f0
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x10458d9b4 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x600001311160
+*DEBUG* : -fp-> 5 : (Int object) 0x600001311180
+*DEBUG* :       6 : Unknown thing: 0x1045951f0
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       4 : (Int object) 0x600001311160
+*DEBUG* : -fp-> 5 : (Int object) 0x600001311180
+*DEBUG* :       6 : Unknown thing: 0x1045951f0
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x10458d8fc (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x10458e444 (Unknown thing: 0x10458e444)
+*DEBUG* : Adding integer values: 2 + 4
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Native method returned Int
+
+*DEBUG* : ===
+*DEBUG* : -fp-> 5 : (Int object) 0x600001311180
+*DEBUG* :       6 : Unknown thing: 0x1045951f0
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000013111e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x10458d9d8 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x1 ((int) 1)
+*DEBUG* : ===
+*DEBUG* : -fp-> 1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000013111e0
+*DEBUG* : ===
+*DEBUG* : Fetched [22] (0x10458dbfc : store)
+*DEBUG* : Step:  store
+*DEBUG* : Fetched [23] (0x600000000004 : (int) 4)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [24] (0x10458d800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [25] (0x100000004 : (int) 4)
+*DEBUG* : ===
+*DEBUG* : -fp-> 1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000013111a0
+*DEBUG* : ===
+*DEBUG* : Fetched [26] (0x10458d800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [27] (0x100000005 : (int) 5)
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000013111a0
+*DEBUG* :       5 : (Int object) 0x6000013111c0
+*DEBUG* : ===
+*DEBUG* : Fetched [28] (0x10458d84c : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [29] (0x600000000007 : (int) 7)
+*DEBUG* : ===
+*DEBUG* :       4 : (Int object) 0x6000013111a0
+*DEBUG* : -fp-> 5 : (Int object) 0x6000013111c0
+*DEBUG* :       6 : Unknown thing: 0x104595230
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x10458d9b4 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000013111a0
+*DEBUG* : -fp-> 5 : (Int object) 0x6000013111c0
+*DEBUG* :       6 : Unknown thing: 0x104595230
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       4 : (Int object) 0x6000013111a0
+*DEBUG* : -fp-> 5 : (Int object) 0x6000013111c0
+*DEBUG* :       6 : Unknown thing: 0x104595230
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x10458d8fc (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x10458e608 (Unknown thing: 0x10458e608)
+*DEBUG* : Multiplying integer values: 5 * 3
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Native method returned Int
+
+*DEBUG* : ===
+*DEBUG* : -fp-> 5 : (Int object) 0x6000013111c0
+*DEBUG* :       6 : Unknown thing: 0x104595230
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x600001311200
+*DEBUG* : ===
+*DEBUG* : Fetched 0x10458d9d8 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x1 ((int) 1)
+*DEBUG* : ===
+*DEBUG* : -fp-> 1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x600001311200
+*DEBUG* : ===
+*DEBUG* : Fetched [30] (0x10458dbb4 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [31] (0x600000000004 : (int) 4)
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x600001311200
+*DEBUG* :       5 : (Int object) 0x6000013111c0
+*DEBUG* : ===
+*DEBUG* : Fetched [32] (0x10458d84c : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [33] (0x600000000007 : (int) 7)
+*DEBUG* : ===
+*DEBUG* :       4 : (Int object) 0x600001311200
+*DEBUG* : -fp-> 5 : (Int object) 0x6000013111c0
+*DEBUG* :       6 : Unknown thing: 0x104595250
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x10458d9b4 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x600001311200
+*DEBUG* : -fp-> 5 : (Int object) 0x6000013111c0
+*DEBUG* :       6 : Unknown thing: 0x104595250
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       4 : (Int object) 0x600001311200
+*DEBUG* : -fp-> 5 : (Int object) 0x6000013111c0
+*DEBUG* :       6 : Unknown thing: 0x104595250
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x10458d8fc (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x10458e608 (Unknown thing: 0x10458e608)
+*DEBUG* : Multiplying integer values: 5 * 15
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Native method returned Int
+
+*DEBUG* : ===
+*DEBUG* : -fp-> 5 : (Int object) 0x6000013111c0
+*DEBUG* :       6 : Unknown thing: 0x104595250
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x600001311220
+*DEBUG* : ===
+*DEBUG* : Fetched 0x10458d9d8 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x1 ((int) 1)
+*DEBUG* : ===
+*DEBUG* : -fp-> 1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x600001311220
+*DEBUG* : ===
+*DEBUG* : Fetched [34] (0x10458db8c : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [35] (0x10458d83c : halt)
+*DEBUG* : Step:  halt
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Sample object) 0x600001114440
+*DEBUG* :       2 : Unknown thing: 0x104595160
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*INFO* : Ran

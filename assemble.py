@@ -159,7 +159,7 @@ class InstructionSet:
 # with all the class things depending on reading
 # OTHER json files.  (So we get separate compilation
 # after all).  Create stub symbol files for built-ins.
-# So assembler does a lot of the symbolic -> numeric resolution. 
+# So assembler does a lot of the symbolic -> numeric resolution.
 
 # Instruction set is a global
 INSTRS = InstructionSet("opdefs.txt")
@@ -341,7 +341,7 @@ INSTR_PAT = re.compile(r"""
     (\s+ (?P<operand>     # Operands are integers, quoted strings, or names
          [0-9]+           # Integers are strings of digits
        |
-         ["](             # String begins and ends with quote 
+         ["](             # String begins and ends with quote
            ([\\].)  |           # Anything escaped
            [^"\\]               # Anything but a quote or escape
          )*["]
@@ -353,7 +353,7 @@ INSTR_PAT = re.compile(r"""
 
 # Directive:  Name this class
 CLASS_DECL_PAT = re.compile(r"""
-[.]class \s+ 
+[.]class \s+
 (?P<class_name> \w+ )[:](?P<super_name> \w+)
 \s*
 """, re.VERBOSE)

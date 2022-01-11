@@ -1,9 +1,7 @@
 /*
  * The built-in classes of Quack
  * (incomplete implementation)
- *
- */
-#include <stdio.h>
+ * */ #include <stdio.h>
 #include <stdlib.h>  /* Malloc lives here   */
 #include <string.h>  /* For strcpy */
 
@@ -495,6 +493,7 @@ obj_ref nothing = (obj_ref) &nothing_struct;
  *    PLUS
  *    LESS
  *    (add more later)
+ *    ADD
  * =================
  */
 
@@ -621,6 +620,71 @@ vm_Word method_Int_plus[] = {
         {.intval = 1}
 };
 
+/* Int:minus (new native_method) */
+obj_ref native_Int_minus(void ) {
+    obj_ref this = vm_fp->obj;
+    assert_is_type(this, the_class_Int);
+    obj_Int this_int = (obj_Int) this;
+    obj_ref other = (vm_fp - 1)->obj;
+    assert_is_type(other, the_class_Int);
+    obj_Int other_int = (obj_Int) other;
+    log_debug("Subtracting integer values: %d - %d",
+           this_int->value, other_int->value);
+    obj_ref sum = new_int(this_int->value - other_int->value);
+    return sum;
+}
+
+vm_Word method_Int_minus[] = {
+        {.instr = vm_op_enter},
+        {.instr = vm_op_call_native},
+        {.native = native_Int_minus},
+        {.instr = vm_op_return},
+        {.intval = 1}
+};
+
+/* Int:times (new native_method) */
+obj_ref native_Int_times(void ) {
+    obj_ref this = vm_fp->obj;
+    assert_is_type(this, the_class_Int);
+    obj_Int this_int = (obj_Int) this;
+    obj_ref other = (vm_fp - 1)->obj;
+    assert_is_type(other, the_class_Int);
+    obj_Int other_int = (obj_Int) other;
+    log_debug("Multiplying integer values: %d * %d",
+           this_int->value, other_int->value);
+    obj_ref sum = new_int(this_int->value * other_int->value);
+    return sum;
+}
+
+vm_Word method_Int_times[] = {
+        {.instr = vm_op_enter},
+        {.instr = vm_op_call_native},
+        {.native = native_Int_times},
+        {.instr = vm_op_return},
+        {.intval = 1}
+};
+
+/* Int:divide (new native_method) */
+obj_ref native_Int_divide(void ) {
+    obj_ref this = vm_fp->obj;
+    assert_is_type(this, the_class_Int);
+    obj_Int this_int = (obj_Int) this;
+    obj_ref other = (vm_fp - 1)->obj;
+    assert_is_type(other, the_class_Int);
+    obj_Int other_int = (obj_Int) other;
+    log_debug("Dividing integer values: %d / %d",
+           this_int->value, other_int->value);
+    obj_ref sum = new_int(this_int->value / other_int->value);
+    return sum;
+}
+
+vm_Word method_Int_divide[] = {
+        {.instr = vm_op_enter},
+        {.instr = vm_op_call_native},
+        {.native = native_Int_divide},
+        {.instr = vm_op_return},
+        {.intval = 1}
+};
 /* The Int Class (a singleton) */
 struct  class_struct  the_class_Int_struct = {
         .header = {
@@ -634,7 +698,10 @@ struct  class_struct  the_class_Int_struct = {
                 method_Obj_print, // PRINT
                 method_Int_equals,  // EQUALS
                 method_Int_less, // LESS
-                method_Int_plus
+                method_Int_plus, // PLUS
+                method_Int_minus, // MINUS
+                method_Int_times, // TIMES
+                method_Int_divide // DIV
         }
  };
 
