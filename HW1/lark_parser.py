@@ -30,7 +30,7 @@ calc_grammar = """
 @v_args(inline=True)    # Affects the signatures of the methods
 class MakeAssemblyTree(Transformer):
     # from operator import add, sub, mul, truediv as div, neg
-    from operator import neg
+    # from operator import neg
     number = int
 
 
@@ -38,44 +38,64 @@ class MakeAssemblyTree(Transformer):
         self.vars = {}
         self.file = file
         self.cur_ops = []
+        self.top_index = 0
 
     def write_to_file(self):
         print(self.cur_ops)
         for line in self.cur_ops:
             self.file.write(line)
 
-    def add(self, a,b):
-        if a is None and b is None:
-            self.cur_ops.append('\tcall Int:plus\n')
-        elif a is None:
-            self.cur_ops.append(f'\tconst {b}\n')
-            self.cur_ops.append('\tcall Int:plus\n')
-        elif b is None:
-            self.cur_ops.append(f'\tconst {a}\n')
-            self.cur_ops.append('\tcall Int:plus\n')
+    def neg(self, a):
+        next_top_index = len(self.cur_ops)
+        if a is None:
+            self.cur_ops.insert(0, '\tconst 0\n')
+            self.cur_ops.append('\tcall Int:minus\n')
         else:
+            self.cur_ops.append('\tconst 0\n')
             self.cur_ops.append(f'\tconst {a}\n')
-            self.cur_ops.append(f'\tconst {b}\n')
-            self.cur_ops.append('\tcall Int:plus\n')
+            self.cur_ops.append('\tcall Int:minus\n')
+        self.top_index = next_top_index
+        print(f'Negating {a}')
+
+
+    def add(self, a,b):
+        temp_ops = []
+        next_top_index = len(self.cur_ops)
+        if a is None and b is None:
+            temp_ops.append('\tcall Int:plus\n')
+        elif a is None:
+            temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append('\tcall Int:plus\n')
+        elif b is None:
+            temp_ops.append(f'\tconst {a}\n')
+            temp_ops.append('\tcall Int:plus\n')
+        else:
+            temp_ops.append(f'\tconst {a}\n')
+            temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append('\tcall Int:plus\n')
+        self.top_index = next_top_index
 
         print(f'Adding {a}, {b}')
 
     def sub(self, a,b):
+        next_top_index = len(self.cur_ops)
         if a is None and b is None:
             self.cur_ops.append('\tcall Int:minus\n')
         elif a is None:
             self.cur_ops.append(f'\tconst {b}\n')
             self.cur_ops.append('\tcall Int:minus\n')
         elif b is None:
-            self.cur_ops.insert(0, f'\tconst {a}\n')
+            self.cur_ops.insert(self.top_index, f'\tconst {a}\n')
             self.cur_ops.append('\tcall Int:minus\n')
         else:
             self.cur_ops.append(f'\tconst {a}\n')
             self.cur_ops.append(f'\tconst {b}\n')
             self.cur_ops.append('\tcall Int:minus\n')
+        self.top_index = next_top_index
         print(f'Subtracting {a}, {b}')
 
     def mul(self, a,b):
+        next_top_index = len(self.cur_ops)
         if a is None and b is None:
             self.cur_ops.append('\tcall Int:times\n')
         elif a is None:
@@ -88,21 +108,25 @@ class MakeAssemblyTree(Transformer):
             self.cur_ops.append(f'\tconst {a}\n')
             self.cur_ops.append(f'\tconst {b}\n')
             self.cur_ops.append('\tcall Int:times\n')
+        self.top_index = next_top_index
 
         print(f'Multiplying {a}, {b}')
     def div(self, a,b):
+        next_top_index = len(self.cur_ops)
+        print(next_top_index)
         if a is None and b is None:
             self.cur_ops.append('\tcall Int:divide\n')
         elif a is None:
             self.cur_ops.append(f'\tconst {b}\n')
             self.cur_ops.append('\tcall Int:divide\n')
         elif b is None:
-            self.cur_ops.insert(0, f'\tconst {a}\n')
+            self.cur_ops.insert(self.top_index, f'\tconst {a}\n')
             self.cur_ops.append('\tcall Int:divide\n')
         else:
             self.cur_ops.append(f'\tconst {a}\n')
             self.cur_ops.append(f'\tconst {b}\n')
             self.cur_ops.append('\tcall Int:divide\n')
+        self.top_index = next_top_index
         print(f'Dividing {a}, {b}')
 
     def assign_var(self, name, value):
