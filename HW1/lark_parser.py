@@ -26,6 +26,9 @@ calc_grammar = """
     %ignore WS_INLINE
 """
 
+def is_instr(val):
+    return isinstance(val, list)
+
 
 @v_args(inline=True)    # Affects the signatures of the methods
 class MakeAssemblyTree(Transformer):
@@ -38,7 +41,6 @@ class MakeAssemblyTree(Transformer):
         self.vars = {}
         self.file = file
         self.cur_ops = []
-        self.top_index = 0
 
     def write_to_file(self):
         print(self.cur_ops)
@@ -46,88 +48,107 @@ class MakeAssemblyTree(Transformer):
             self.file.write(line)
 
     def neg(self, a):
-        next_top_index = len(self.cur_ops)
-        if a is None:
-            self.cur_ops.insert(0, '\tconst 0\n')
-            self.cur_ops.append('\tcall Int:minus\n')
+        temp_ops = []
+        if is_instr(a):
+            temp_ops += a
+            temp_ops.insert(0, '\tconst 0\n')
+            temp_ops.append('\tcall Int:minus\n')
         else:
-            self.cur_ops.append('\tconst 0\n')
-            self.cur_ops.append(f'\tconst {a}\n')
-            self.cur_ops.append('\tcall Int:minus\n')
-        self.top_index = next_top_index
+            temp_ops.append('\tconst 0\n')
+            temp_ops.append(f'\tconst {a}\n')
+            temp_ops.append('\tcall Int:minus\n')
+        self.cur_ops = temp_ops
         print(f'Negating {a}')
+        return temp_ops
 
 
     def add(self, a,b):
         temp_ops = []
-        next_top_index = len(self.cur_ops)
-        if a is None and b is None:
+        if is_instr(a) and is_instr(b):
+            temp_ops += a
+            temp_ops += b
             temp_ops.append('\tcall Int:plus\n')
-        elif a is None:
+        elif is_instr(a):
+            temp_ops += a
             temp_ops.append(f'\tconst {b}\n')
             temp_ops.append('\tcall Int:plus\n')
-        elif b is None:
+        elif is_instr(b):
+            temp_ops += b
             temp_ops.append(f'\tconst {a}\n')
             temp_ops.append('\tcall Int:plus\n')
         else:
             temp_ops.append(f'\tconst {a}\n')
             temp_ops.append(f'\tconst {b}\n')
             temp_ops.append('\tcall Int:plus\n')
-        self.top_index = next_top_index
-
+        self.cur_ops = temp_ops
         print(f'Adding {a}, {b}')
+        return temp_ops
 
     def sub(self, a,b):
-        next_top_index = len(self.cur_ops)
-        if a is None and b is None:
-            self.cur_ops.append('\tcall Int:minus\n')
-        elif a is None:
-            self.cur_ops.append(f'\tconst {b}\n')
-            self.cur_ops.append('\tcall Int:minus\n')
-        elif b is None:
-            self.cur_ops.insert(self.top_index, f'\tconst {a}\n')
-            self.cur_ops.append('\tcall Int:minus\n')
+        temp_ops = []
+        if is_instr(a) and is_instr(b):
+            temp_ops += a
+            temp_ops += b
+            temp_ops.append('\tcall Int:minus\n')
+        elif is_instr(a):
+            temp_ops += a
+            temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append('\tcall Int:minus\n')
+        elif is_instr(b):
+            temp_ops += b
+            temp_ops.insert(0, f'\tconst {a}\n')
+            temp_ops.append('\tcall Int:minus\n')
         else:
-            self.cur_ops.append(f'\tconst {a}\n')
-            self.cur_ops.append(f'\tconst {b}\n')
-            self.cur_ops.append('\tcall Int:minus\n')
-        self.top_index = next_top_index
+            temp_ops.append(f'\tconst {a}\n')
+            temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append('\tcall Int:minus\n')
+        self.cur_ops = temp_ops
         print(f'Subtracting {a}, {b}')
+        return temp_ops
 
     def mul(self, a,b):
-        next_top_index = len(self.cur_ops)
-        if a is None and b is None:
-            self.cur_ops.append('\tcall Int:times\n')
-        elif a is None:
-            self.cur_ops.append(f'\tconst {b}\n')
-            self.cur_ops.append('\tcall Int:times\n')
-        elif b is None:
-            self.cur_ops.append(f'\tconst {a}\n')
-            self.cur_ops.append('\tcall Int:times\n')
+        temp_ops = []
+        if is_instr(a) and is_instr(b):
+            temp_ops += a
+            temp_ops += b
+            temp_ops.append('\tcall Int:times\n')
+        elif is_instr(a):
+            temp_ops += a
+            temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append('\tcall Int:times\n')
+        elif is_instr(b):
+            temp_ops += b
+            temp_ops.append(f'\tconst {a}\n')
+            temp_ops.append('\tcall Int:times\n')
         else:
-            self.cur_ops.append(f'\tconst {a}\n')
-            self.cur_ops.append(f'\tconst {b}\n')
-            self.cur_ops.append('\tcall Int:times\n')
-        self.top_index = next_top_index
-
+            temp_ops.append(f'\tconst {a}\n')
+            temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append('\tcall Int:times\n')
+        self.cur_ops = temp_ops
         print(f'Multiplying {a}, {b}')
+        return temp_ops
+
     def div(self, a,b):
-        next_top_index = len(self.cur_ops)
-        print(next_top_index)
-        if a is None and b is None:
-            self.cur_ops.append('\tcall Int:divide\n')
-        elif a is None:
-            self.cur_ops.append(f'\tconst {b}\n')
-            self.cur_ops.append('\tcall Int:divide\n')
-        elif b is None:
-            self.cur_ops.insert(self.top_index, f'\tconst {a}\n')
-            self.cur_ops.append('\tcall Int:divide\n')
+        temp_ops = []
+        if is_instr(a) and is_instr(b):
+            temp_ops += a
+            temp_ops += b
+            temp_ops.append('\tcall Int:divide\n')
+        elif is_instr(a):
+            temp_ops += a
+            temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append('\tcall Int:divide\n')
+        elif is_instr(b):
+            temp_ops += b
+            temp_ops.insert(0, f'\tconst {a}\n')
+            temp_ops.append('\tcall Int:divide\n')
         else:
-            self.cur_ops.append(f'\tconst {a}\n')
-            self.cur_ops.append(f'\tconst {b}\n')
-            self.cur_ops.append('\tcall Int:divide\n')
-        self.top_index = next_top_index
+            temp_ops.append(f'\tconst {a}\n')
+            temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append('\tcall Int:divide\n')
+        self.cur_ops = temp_ops
         print(f'Dividing {a}, {b}')
+        return temp_ops
 
     def assign_var(self, name, value):
         self.vars[name] = value
@@ -155,7 +176,6 @@ def main(path_to_file):
             file.write('.class Sample:Obj\n')
             file.write('\n')
             file.write('.method $constructor\n')
-            # breakpoint()
             tree = MakeAssemblyTree(file)
             tree.transform(calc(s))
             tree.write_to_file()
