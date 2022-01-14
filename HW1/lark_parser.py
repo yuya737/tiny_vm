@@ -26,14 +26,13 @@ calc_grammar = """
     %ignore WS_INLINE
 """
 
+# Test if a children is a instruction or not
 def is_instr(val):
     return isinstance(val, list)
 
 
 @v_args(inline=True)    # Affects the signatures of the methods
 class MakeAssemblyTree(Transformer):
-    # from operator import add, sub, mul, truediv as div, neg
-    # from operator import neg
     number = int
 
 
@@ -43,7 +42,6 @@ class MakeAssemblyTree(Transformer):
         self.cur_ops = []
 
     def write_to_file(self):
-        print(self.cur_ops)
         for line in self.cur_ops:
             self.file.write(line)
 
@@ -51,11 +49,11 @@ class MakeAssemblyTree(Transformer):
         temp_ops = []
         if is_instr(a):
             temp_ops += a
-            temp_ops.insert(0, '\tconst 0\n')
+            temp_ops.append('\tconst 0\n')
             temp_ops.append('\tcall Int:minus\n')
         else:
-            temp_ops.append('\tconst 0\n')
             temp_ops.append(f'\tconst {a}\n')
+            temp_ops.append('\tconst 0\n')
             temp_ops.append('\tcall Int:minus\n')
         self.cur_ops = temp_ops
         print(f'Negating {a}')
@@ -87,20 +85,20 @@ class MakeAssemblyTree(Transformer):
     def sub(self, a,b):
         temp_ops = []
         if is_instr(a) and is_instr(b):
-            temp_ops += a
             temp_ops += b
+            temp_ops += a
             temp_ops.append('\tcall Int:minus\n')
         elif is_instr(a):
+            temp_ops.insert(0, f'\tconst {b}\n')
             temp_ops += a
-            temp_ops.append(f'\tconst {b}\n')
             temp_ops.append('\tcall Int:minus\n')
         elif is_instr(b):
             temp_ops += b
-            temp_ops.insert(0, f'\tconst {a}\n')
+            temp_ops.append(f'\tconst {a}\n')
             temp_ops.append('\tcall Int:minus\n')
         else:
-            temp_ops.append(f'\tconst {a}\n')
             temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append(f'\tconst {a}\n')
             temp_ops.append('\tcall Int:minus\n')
         self.cur_ops = temp_ops
         print(f'Subtracting {a}, {b}')
@@ -131,20 +129,20 @@ class MakeAssemblyTree(Transformer):
     def div(self, a,b):
         temp_ops = []
         if is_instr(a) and is_instr(b):
-            temp_ops += a
             temp_ops += b
+            temp_ops += a
             temp_ops.append('\tcall Int:divide\n')
         elif is_instr(a):
+            temp_ops.insert(0, f'\tconst {b}\n')
             temp_ops += a
-            temp_ops.append(f'\tconst {b}\n')
             temp_ops.append('\tcall Int:divide\n')
         elif is_instr(b):
             temp_ops += b
-            temp_ops.insert(0, f'\tconst {a}\n')
+            temp_ops.append(f'\tconst {a}\n')
             temp_ops.append('\tcall Int:divide\n')
         else:
-            temp_ops.append(f'\tconst {a}\n')
             temp_ops.append(f'\tconst {b}\n')
+            temp_ops.append(f'\tconst {a}\n')
             temp_ops.append('\tcall Int:divide\n')
         self.cur_ops = temp_ops
         print(f'Dividing {a}, {b}')
@@ -161,12 +159,11 @@ class MakeAssemblyTree(Transformer):
             raise Exception("Variable not found: %s" % name)
 
 
-# calc_parser = Lark(calc_grammar, parser='lalr', transformer=CalculateTree())
-calc_parser = Lark(calc_grammar, parser='lalr')
-calc = calc_parser.parse
 
 
 def main(path_to_file):
+    calc_parser = Lark(calc_grammar, parser='lalr')
+    calc = calc_parser.parse
     while True:
         try:
             s = input('> ')
@@ -179,22 +176,14 @@ def main(path_to_file):
             tree = MakeAssemblyTree(file)
             tree.transform(calc(s))
             tree.write_to_file()
-            print(calc(s))
             print(calc(s).pretty())
             file.write('\tcall Int:print\n')
             file.write('\tpop\n')
             file.write('\thalt\n')
             file.close()
 
-
-def test():
-    print(calc("a = 1+2"))
-    print(calc("1+a*-3"))
-
-
 if __name__ == '__main__':
     if len(sys.argv) != 2:
         print('Usage: lark_parser.py [path/to/output.asm]')
         sys.exit(1)
-    # test()
     main(sys.argv[1])
