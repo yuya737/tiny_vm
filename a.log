@@ -1,0 +1,2114 @@
+*INFO* : This is the tiny VM
+
+Noisy debugging selected with -D
+Look in 'OBJ' for object modules
+*DEBUG* : Finished options, load library is OBJ
+
+*DEBUG* : There is at least one non-option argument
+
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Processing command line argument 4
+
+*INFO* : Loading OBJ/Pair.json
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Literal ,  internal 0 remapped to 5
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Literal 2 internal 1 remapped to 6
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Literal 4 internal 2 remapped to 7
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Literal Next line should be 2, the 'x' field of (2, 4)
+ internal 3 remapped to 8
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Literal 5 internal 4 remapped to 9
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Literal 
+ Next line should be 2, 4
+ internal 5 remapped to 10
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Literal 
+ internal 6 remapped to 11
+*INFO* : Class Pair extends Obj
+*INFO* : Class Pair has 5 methods and 2 fields
+*DEBUG* : Class Pair class object size 72 with 5 methods
+*DEBUG* : Objects of Pair size 32 with 2 fields
+*DEBUG* : Size of object header alone is 16 bytes
+
+*DEBUG* : [16] Op: 4 (enter)
+*DEBUG* : [17] Op: 9 (load)
+*DEBUG* : [18] Operand: 0
+*DEBUG* : [19] Op: 11 (load_field)
+*DEBUG* : [20] Operand: 0
+*DEBUG* : [21] Op: 2 (call)
+*DEBUG* : [22] Operand: 2
+*DEBUG* : [23] Op: 7 (pop)
+*DEBUG* : [24] Op: 1 (const)
+*DEBUG* : [25] Operand: 0
+*DEBUG* : [26] Op: 2 (call)
+*DEBUG* : [27] Operand: 2
+*DEBUG* : [28] Op: 7 (pop)
+*DEBUG* : [29] Op: 9 (load)
+*DEBUG* : [30] Operand: 0
+*DEBUG* : [31] Op: 11 (load_field)
+*DEBUG* : [32] Operand: 1
+*DEBUG* : [33] Op: 2 (call)
+*DEBUG* : [34] Operand: 2
+*DEBUG* : [35] Op: 5 (return)
+*DEBUG* : [36] Operand: 0
+*DEBUG* : [37] Op: 4 (enter)
+*DEBUG* : [38] Op: 9 (load)
+*DEBUG* : [39] Operand: -1
+*DEBUG* : [40] Op: 9 (load)
+*DEBUG* : [41] Operand: 0
+*DEBUG* : [42] Op: 11 (load_field)
+*DEBUG* : [43] Operand: 1
+*DEBUG* : [44] Op: 2 (call)
+*DEBUG* : [45] Operand: 5
+*DEBUG* : [46] Op: 9 (load)
+*DEBUG* : [47] Operand: 0
+*DEBUG* : [48] Op: 12 (store_field)
+*DEBUG* : [49] Operand: 1
+*DEBUG* : [50] Op: 1 (const)
+*DEBUG* : [51] Operand: -1
+*DEBUG* : [52] Op: 5 (return)
+*DEBUG* : [53] Operand: 1
+*DEBUG* : [54] Op: 4 (enter)
+*DEBUG* : [55] Op: 1 (const)
+*DEBUG* : [56] Operand: 1
+*DEBUG* : [57] Op: 9 (load)
+*DEBUG* : [58] Operand: 0
+*DEBUG* : [59] Op: 12 (store_field)
+*DEBUG* : [60] Operand: 0
+*DEBUG* : [61] Op: 1 (const)
+*DEBUG* : [62] Operand: 2
+*DEBUG* : [63] Op: 9 (load)
+*DEBUG* : [64] Operand: 0
+*DEBUG* : [65] Op: 12 (store_field)
+*DEBUG* : [66] Operand: 1
+*DEBUG* : [67] Op: 1 (const)
+*DEBUG* : [68] Operand: 3
+*DEBUG* : [69] Op: 2 (call)
+*DEBUG* : [70] Operand: 2
+*DEBUG* : [71] Op: 7 (pop)
+*DEBUG* : [72] Op: 9 (load)
+*DEBUG* : [73] Operand: 0
+*DEBUG* : [74] Op: 11 (load_field)
+*DEBUG* : [75] Operand: 0
+*DEBUG* : [76] Op: 2 (call)
+*DEBUG* : [77] Operand: 2
+*DEBUG* : [78] Op: 7 (pop)
+*DEBUG* : [79] Op: 9 (load)
+*DEBUG* : [80] Operand: 0
+*DEBUG* : [81] Op: 11 (load_field)
+*DEBUG* : [82] Operand: 1
+*DEBUG* : [83] Op: 2 (call)
+*DEBUG* : [84] Operand: 2
+*DEBUG* : [85] Op: 7 (pop)
+*DEBUG* : [86] Op: 1 (const)
+*DEBUG* : [87] Operand: 4
+*DEBUG* : [88] Op: 9 (load)
+*DEBUG* : [89] Operand: 0
+*DEBUG* : [90] Op: 2 (call)
+*DEBUG* : [91] Operand: 4
+*DEBUG* : [92] Op: 7 (pop)
+*DEBUG* : [93] Op: 9 (load)
+*DEBUG* : [94] Operand: 0
+*DEBUG* : [95] Op: 11 (load_field)
+*DEBUG* : [96] Operand: 1
+*DEBUG* : [97] Op: 2 (call)
+*DEBUG* : [98] Operand: 2
+*DEBUG* : [99] Op: 7 (pop)
+*DEBUG* : [100] Op: 1 (const)
+*DEBUG* : [101] Operand: 5
+*DEBUG* : [102] Op: 2 (call)
+*DEBUG* : [103] Operand: 2
+*DEBUG* : [104] Op: 7 (pop)
+*DEBUG* : [105] Op: 9 (load)
+*DEBUG* : [106] Operand: 0
+*DEBUG* : [107] Op: 2 (call)
+*DEBUG* : [108] Operand: 2
+*DEBUG* : [109] Op: 7 (pop)
+*DEBUG* : [110] Op: 1 (const)
+*DEBUG* : [111] Operand: 6
+*DEBUG* : [112] Op: 2 (call)
+*DEBUG* : [113] Operand: 2
+*DEBUG* : [114] Op: 5 (return)
+*DEBUG* : [115] Operand: 0
+*INFO* : Executing Pair
+
+*DEBUG* : Fetched [0] (0x104a7ccf4 : new)
+*DEBUG* : Step:  new
+*DEBUG* : Fetched [1] (0x6000016ecd70 : Unknown thing: 0x6000016ecd70)
+*DEBUG* : Allocating a new object of type Pair
+
+*DEBUG* : ===
+*DEBUG* : -fp-> 0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [2] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [3] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [54] (0x104a7cb00 : enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [55] (0x104a7c800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [56] (0x1170000100000006 : (int) 6)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* : ===
+*DEBUG* : Fetched [57] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [58] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [59] (0x104a7cf38 : store_field)
+*DEBUG* : Step:  store_field
+*DEBUG* : Fetched [60] (0x100000000 : (int) 0)
+*DEBUG* : Storing value of class Int into field 0 of type Pair
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [61] (0x104a7c800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [62] (0x1170000100000007 : (int) 7)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* : ===
+*DEBUG* : Fetched [63] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [64] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [65] (0x104a7cf38 : store_field)
+*DEBUG* : Step:  store_field
+*DEBUG* : Fetched [66] (0x100000001 : (int) 1)
+*DEBUG* : Storing value of class Int into field 1 of type Pair
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [67] (0x104a7c800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [68] (0x1170000100000008 : (int) 8)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (String object) 0x6000035e80a0
+*DEBUG* : ===
+*DEBUG* : Fetched [69] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [70] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e80a0
+*DEBUG* :       5 : Unknown thing: 0x104a85450
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e80a0
+*DEBUG* :       5 : Unknown thing: 0x104a85450
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e80a0
+*DEBUG* :       5 : Unknown thing: 0x104a85450
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d400 (Unknown thing: 0x104a7d400)
+*DEBUG* : **** PRINT |Next line should be 2, the 'x' field of (2, 4)
+| ****
+
+*DEBUG* : Native method returned Nothing
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e80a0
+*DEBUG* :       5 : Unknown thing: 0x104a85450
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [71] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [72] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [73] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [74] (0x104a7cea0 : load_field)
+*DEBUG* : Step:  load_field
+*DEBUG* : Fetched [75] (0x100000000 : (int) 0)
+*DEBUG* : Loading field 0 from Pair object
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* : ===
+*DEBUG* : Fetched [76] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [77] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cd98 (load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x1 ((int) 1)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d654 (Unknown thing: 0x104a7d654)
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Native method returned String
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (String object) 0x6000035e8160
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (String object) 0x6000035e8160
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x2 ((int) 2)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8160
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8160
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8160
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d400 (Unknown thing: 0x104a7d400)
+*DEBUG* : **** PRINT |2| ****
+
+*DEBUG* : Native method returned Nothing
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8160
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8060
+*DEBUG* :       5 : Unknown thing: 0x104a85488
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [78] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [79] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [80] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [81] (0x104a7cea0 : load_field)
+*DEBUG* : Step:  load_field
+*DEBUG* : Fetched [82] (0x100000001 : (int) 1)
+*DEBUG* : Loading field 1 from Pair object
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* : ===
+*DEBUG* : Fetched [83] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [84] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cd98 (load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8080
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x1 ((int) 1)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8080
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8080
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8080
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d654 (Unknown thing: 0x104a7d654)
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Native method returned String
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8080
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (String object) 0x6000035e8180
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (String object) 0x6000035e8180
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x2 ((int) 2)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8180
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8180
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8180
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d400 (Unknown thing: 0x104a7d400)
+*DEBUG* : **** PRINT |4| ****
+
+*DEBUG* : Native method returned Nothing
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8180
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e8080
+*DEBUG* :       5 : Unknown thing: 0x104a854c0
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [85] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [86] (0x104a7c800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [87] (0x1170000100000009 : (int) 9)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : ===
+*DEBUG* : Fetched [88] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [89] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* :       5 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [90] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [91] (0x100000004 : (int) 4)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched [37] (0x104a7cb00 : enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched [38] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [39] (0x1ffffffff : (int) -1)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000035e80c0
+*DEBUG* : ===
+*DEBUG* : Fetched [40] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [41] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000035e80c0
+*DEBUG* :       9 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [42] (0x104a7cea0 : load_field)
+*DEBUG* : Step:  load_field
+*DEBUG* : Fetched [43] (0x100000001 : (int) 1)
+*DEBUG* : Loading field 1 from Pair object
+
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000035e80c0
+*DEBUG* :       9 : (Int object) 0x6000035e8080
+*DEBUG* : ===
+*DEBUG* : Fetched [44] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [45] (0x100000005 : (int) 5)
+*DEBUG* : ===
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* :       5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 9 : (Int object) 0x6000035e8080
+*DEBUG* :       10 : Unknown thing: 0x104a85388
+*DEBUG* :       11 : (stack ptr) 5
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* :       5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 9 : (Int object) 0x6000035e8080
+*DEBUG* :       10 : Unknown thing: 0x104a85388
+*DEBUG* :       11 : (stack ptr) 5
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* :       5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 9 : (Int object) 0x6000035e8080
+*DEBUG* :       10 : Unknown thing: 0x104a85388
+*DEBUG* :       11 : (stack ptr) 5
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d884 (Unknown thing: 0x104a7d884)
+*DEBUG* : Adding integer values: 4 + 5
+*DEBUG* : Allocating a new object of type Int
+
+*DEBUG* : Native method returned Int
+
+*DEBUG* : ===
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* :       5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 9 : (Int object) 0x6000035e8080
+*DEBUG* :       10 : Unknown thing: 0x104a85388
+*DEBUG* :       11 : (stack ptr) 5
+*DEBUG* :       12 : (Int object) 0x6000035e81a0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x1 ((int) 1)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000035e81a0
+*DEBUG* : ===
+*DEBUG* : Fetched [46] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [47] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Int object) 0x6000035e81a0
+*DEBUG* :       9 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [48] (0x104a7cf38 : store_field)
+*DEBUG* : Step:  store_field
+*DEBUG* : Fetched [49] (0x100000001 : (int) 1)
+*DEBUG* : Storing value of class Int into field 1 of type Pair
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched [50] (0x104a7c800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [51] (0x1170000100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e80c0
+*DEBUG* : -fp-> 5 : (Pair object) 0x6000035e8020
+*DEBUG* :       6 : Unknown thing: 0x104a854f8
+*DEBUG* :       7 : (stack ptr) 1
+*DEBUG* :       8 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [52] (0x104a7cb24 : return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched [53] (0x100000001 : (int) 1)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [92] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [93] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [94] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [95] (0x104a7cea0 : load_field)
+*DEBUG* : Step:  load_field
+*DEBUG* : Fetched [96] (0x100000001 : (int) 1)
+*DEBUG* : Loading field 1 from Pair object
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e81a0
+*DEBUG* : ===
+*DEBUG* : Fetched [97] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [98] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cd98 (load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x1 ((int) 1)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d654 (Unknown thing: 0x104a7d654)
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Native method returned String
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a842c0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (String object) 0x6000035e81c0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (String object) 0x6000035e81c0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x2 ((int) 2)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e81c0
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e81c0
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e81c0
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d400 (Unknown thing: 0x104a7d400)
+*DEBUG* : **** PRINT |9| ****
+
+*DEBUG* : Native method returned Nothing
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e81c0
+*DEBUG* :       8 : Unknown thing: 0x104a842d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Int object) 0x6000035e81a0
+*DEBUG* :       5 : Unknown thing: 0x104a85530
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [99] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [100] (0x104a7c800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [101] (0x117000010000000a : (int) 10)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (String object) 0x6000035e8100
+*DEBUG* : ===
+*DEBUG* : Fetched [102] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [103] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e8100
+*DEBUG* :       5 : Unknown thing: 0x104a85558
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e8100
+*DEBUG* :       5 : Unknown thing: 0x104a85558
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e8100
+*DEBUG* :       5 : Unknown thing: 0x104a85558
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d400 (Unknown thing: 0x104a7d400)
+*DEBUG* : **** PRINT |
+ Next line should be 2, 4
+| ****
+
+*DEBUG* : Native method returned Nothing
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e8100
+*DEBUG* :       5 : Unknown thing: 0x104a85558
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [104] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [105] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [106] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [107] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [108] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched [16] (0x104a7cb00 : enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched [17] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [18] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [19] (0x104a7cea0 : load_field)
+*DEBUG* : Step:  load_field
+*DEBUG* : Fetched [20] (0x100000000 : (int) 0)
+*DEBUG* : Loading field 0 from Pair object
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* : ===
+*DEBUG* : Fetched [21] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [22] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cd98 (load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (Int object) 0x6000035e8060
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x1 ((int) 1)
+*DEBUG* : ===
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (Int object) 0x6000035e8060
+*DEBUG* :       11 : Unknown thing: 0x104a842c0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (Int object) 0x6000035e8060
+*DEBUG* :       11 : Unknown thing: 0x104a842c0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (Int object) 0x6000035e8060
+*DEBUG* :       11 : Unknown thing: 0x104a842c0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d654 (Unknown thing: 0x104a7d654)
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Native method returned String
+
+*DEBUG* : ===
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (Int object) 0x6000035e8060
+*DEBUG* :       11 : Unknown thing: 0x104a842c0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* :       13 : (String object) 0x6000035e81e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (String object) 0x6000035e81e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x2 ((int) 2)
+*DEBUG* : ===
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (String object) 0x6000035e81e0
+*DEBUG* :       11 : Unknown thing: 0x104a842d0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (String object) 0x6000035e81e0
+*DEBUG* :       11 : Unknown thing: 0x104a842d0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (String object) 0x6000035e81e0
+*DEBUG* :       11 : Unknown thing: 0x104a842d0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d400 (Unknown thing: 0x104a7d400)
+*DEBUG* : **** PRINT |2| ****
+
+*DEBUG* : Native method returned Nothing
+
+*DEBUG* : ===
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (String object) 0x6000035e81e0
+*DEBUG* :       11 : Unknown thing: 0x104a842d0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* :       13 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e8060
+*DEBUG* :       8 : Unknown thing: 0x104a852d0
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [23] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched [24] (0x104a7c800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [25] (0x1170000100000005 : (int) 5)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (String object) 0x6000035e8040
+*DEBUG* : ===
+*DEBUG* : Fetched [26] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [27] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8040
+*DEBUG* :       8 : Unknown thing: 0x104a852f8
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8040
+*DEBUG* :       8 : Unknown thing: 0x104a852f8
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8040
+*DEBUG* :       8 : Unknown thing: 0x104a852f8
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d400 (Unknown thing: 0x104a7d400)
+*DEBUG* : **** PRINT |, | ****
+
+*DEBUG* : Native method returned Nothing
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (String object) 0x6000035e8040
+*DEBUG* :       8 : Unknown thing: 0x104a852f8
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [28] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched [29] (0x104a7cd98 : load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched [30] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Pair object) 0x6000035e8020
+*DEBUG* : ===
+*DEBUG* : Fetched [31] (0x104a7cea0 : load_field)
+*DEBUG* : Step:  load_field
+*DEBUG* : Fetched [32] (0x100000001 : (int) 1)
+*DEBUG* : Loading field 1 from Pair object
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* : ===
+*DEBUG* : Fetched [33] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [34] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cd98 (load)
+*DEBUG* : Step:  load
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (Int object) 0x6000035e81a0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x1 ((int) 1)
+*DEBUG* : ===
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (Int object) 0x6000035e81a0
+*DEBUG* :       11 : Unknown thing: 0x104a842c0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (Int object) 0x6000035e81a0
+*DEBUG* :       11 : Unknown thing: 0x104a842c0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (Int object) 0x6000035e81a0
+*DEBUG* :       11 : Unknown thing: 0x104a842c0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d654 (Unknown thing: 0x104a7d654)
+*DEBUG* : Allocating a new object of type String
+
+*DEBUG* : Native method returned String
+
+*DEBUG* : ===
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (Int object) 0x6000035e81a0
+*DEBUG* :       11 : Unknown thing: 0x104a842c0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* :       13 : (String object) 0x6000035e8200
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (String object) 0x6000035e8200
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7c978 (call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched 0x2 ((int) 2)
+*DEBUG* : ===
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (String object) 0x6000035e8200
+*DEBUG* :       11 : Unknown thing: 0x104a842d0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (String object) 0x6000035e8200
+*DEBUG* :       11 : Unknown thing: 0x104a842d0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (String object) 0x6000035e8200
+*DEBUG* :       11 : Unknown thing: 0x104a842d0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d400 (Unknown thing: 0x104a7d400)
+*DEBUG* : **** PRINT |9| ****
+
+*DEBUG* : Native method returned Nothing
+
+*DEBUG* : ===
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* : -fp-> 10 : (String object) 0x6000035e8200
+*DEBUG* :       11 : Unknown thing: 0x104a842d0
+*DEBUG* :       12 : (stack ptr) 7
+*DEBUG* :       13 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : -fp-> 7 : (Int object) 0x6000035e81a0
+*DEBUG* :       8 : Unknown thing: 0x104a85330
+*DEBUG* :       9 : (stack ptr) 4
+*DEBUG* :       10 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (Pair object) 0x6000035e8020
+*DEBUG* :       5 : Unknown thing: 0x104a85580
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [35] (0x104a7cb24 : return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched [36] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [109] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [110] (0x104a7c800 : const)
+*DEBUG* : Step:  const
+*DEBUG* : Fetched [111] (0x117000010000000b : (int) 11)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (String object) 0x6000035e8140
+*DEBUG* : ===
+*DEBUG* : Fetched [112] (0x104a7c978 : call)
+*DEBUG* : Step:  call
+*DEBUG* : Fetched [113] (0x100000002 : (int) 2)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e8140
+*DEBUG* :       5 : Unknown thing: 0x104a855a8
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb00 (enter)
+*DEBUG* : Step:  enter
+*DEBUG* : Function entered
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e8140
+*DEBUG* :       5 : Unknown thing: 0x104a855a8
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e8140
+*DEBUG* :       5 : Unknown thing: 0x104a855a8
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7ca40 (call_native)
+*DEBUG* : Step:  call_native
+*DEBUG* : Making native call
+
+*DEBUG* : Fetched 0x104a7d400 (Unknown thing: 0x104a7d400)
+*DEBUG* : **** PRINT |
+| ****
+
+*DEBUG* : Native method returned Nothing
+
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* :       1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* : -fp-> 4 : (String object) 0x6000035e8140
+*DEBUG* :       5 : Unknown thing: 0x104a855a8
+*DEBUG* :       6 : (stack ptr) 1
+*DEBUG* :       7 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched 0x104a7cb24 (return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched 0x0 ((int) 0)
+*DEBUG* : ===
+*DEBUG* :       0 : (int) 0
+*DEBUG* : -fp-> 1 : (Pair object) 0x6000035e8020
+*DEBUG* :       2 : Unknown thing: 0x104a85238
+*DEBUG* :       3 : (stack ptr) 0
+*DEBUG* :       4 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [114] (0x104a7cb24 : return)
+*DEBUG* : Step:  return
+*DEBUG* : Fetched [115] (0x100000000 : (int) 0)
+*DEBUG* : ===
+*DEBUG* : -fp-> 0 : (int) 0
+*DEBUG* :       1 : (Nothing object) 0x104a845e0
+*DEBUG* : ===
+*DEBUG* : Fetched [4] (0x104a7cd40 : pop)
+*DEBUG* : Step:  pop
+*DEBUG* : ===
+*DEBUG* : -fp-> 0 : (int) 0
+*DEBUG* : ===
+*DEBUG* : Fetched [5] (0x104a7c844 : halt)
+*DEBUG* : Step:  halt
+*DEBUG* : ===
+*DEBUG* : -fp-> 0 : (int) 0
+*DEBUG* : ===
+*INFO* : Ran
+Next line should be 2, the 'x' field of (2, 4)
+249
+ Next line should be 2, 4
+2, 9

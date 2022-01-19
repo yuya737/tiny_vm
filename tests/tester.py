@@ -21,7 +21,7 @@ log.setLevel(logging.INFO)
 PY = "python3"
 ROOT = ".."
 ASM = f"{ROOT}/assemble.py"
-VM = f"{ROOT}/bin/tiny_vm"
+VM = f"{ROOT}/build/tiny_vm"
 BUILTINS = ["Bool.json", "Int.json", "Nothing.json", "Obj.json", "String.json"]
 ASMREQS = ["asm.conf", "opdefs.txt"]
 

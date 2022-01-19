@@ -1,6 +1,10 @@
 {
     "class_name": "Sample",
     "super": "Obj",
+    "imports": [
+        "Obj",
+        "Int"
+    ],
     "methods": [
         "$constructor",
         "string",

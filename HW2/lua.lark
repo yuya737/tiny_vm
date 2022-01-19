@@ -1,0 +1,75 @@
+// Source: Lua 5.1 Reference Manual
+// https://www.lua.org/manual/5.1/manual.html
+
+start: chunk
+
+DIGIT           : "0".."9"
+LCASE_LETTER    : "a".."z"
+UCASE_LETTER    : "A".."Z"
+ALPHA           : UCASE_LETTER | LCASE_LETTER
+ALPHANUM        : ALPHA [ ALPHA | DIGIT ]*
+SPACE           : " "
+TAB             : SPACE+
+
+NAME            : ALPHANUM+
+WORD            : ALPHANUM+
+NUMBER          : DIGIT+
+WS              : SPACE | TAB
+STRING          : WORD [ WS WORD+ ]
+
+chunk: (stat [";"] WS)+ [ laststat [";"] WS ]
+
+block: chunk
+
+stat:  varlist "=" explist
+       | functioncall
+       | "do" WS block "end"
+       | "while" WS exp WS "do" WS block "end"
+       | "repeat" WS block "until" WS exp
+       | "if" WS exp WS "then" WS block ("elseif" WS exp WS "then" WS block)* [ WS "else" WS block] WS "end"
+       | "for" WS NAME "=" exp "," WS exp [ "," WS exp ] WS "do" WS block "end"
+       | "for" WS namelist WS "in" WS explist WS "do" WS block "end"
+       | "function" WS funcname WS funcbody
+       | "local" WS function WS NAME WS funcbody
+       | "local" WS namelist ["=" explist]
+
+laststat: "return" [WS explist] | WS "break"
+
+funcname: NAME ("." NAME)* [ ":" NAME ]
+
+varlist: var ("," WS var)*
+
+var: NAME | prefixexp "[" exp "]" | prefixexp "." NAME 
+
+namelist: NAME ("," NAME)*
+
+explist: (exp ",")* exp
+
+exp: "nil" | "false" | "true" | NUMBER | STRING | "..." | function
+     | prefixexp | tableconstructor | exp binop exp | unop exp 
+
+prefixexp: var | functioncall | "(" exp ")"
+
+functioncall: prefixexp args | prefixexp ":" NAME args 
+
+args: "(" [ explist ] ")" | tableconstructor | STRING 
+
+function: function funcbody
+
+funcbody: "(" [ parlist ] ")" WS block "end"
+
+parlist: namelist [ "," "..."] | "..."
+
+tableconstructor: ([ fieldlist WS ])*
+
+fieldlist: field (fieldsep WS field)* [ fieldsep ]
+
+field: "[" exp "]" "=" exp | NAME "=" exp | exp
+
+fieldsep: "," | ";"
+
+binop: "+" | "-" | "*" | "/" | "^" | "%" | ".."
+       | "<" | "<=" | ">" | ">=" | "==" | "~="
+       | "and" | "or"
+
+unop: "-" | "not" | "#"
