@@ -1,16 +1,22 @@
-.class Sample:Obj
+.class Calculator:Obj
 
 .method $constructor
+	const 6
+	const 0
 	const 1
-	const 0
 	call Int:minus
-	const 2
+	call Int:times
+	const 3
 	const 0
+	const 1
 	call Int:minus
-	const 2
-	const 8
+	call Int:times
+	const 1
 	call Int:plus
 	call Int:divide
+	const 3
+	const 4
+	call Int:minus
 	call Int:times
 	call Int:print
 	pop

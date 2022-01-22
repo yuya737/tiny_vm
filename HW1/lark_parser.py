@@ -175,6 +175,7 @@ def main(path_to_file):
             file.write('.method $constructor\n')
             tree = MakeAssemblyTree(file)
             tree.transform(calc(s))
+            breakpoint()
             tree.write_to_file()
             print(calc(s).pretty())
             file.write('\tcall Int:print\n')

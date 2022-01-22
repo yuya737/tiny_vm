@@ -1,0 +1,6 @@
+.class Sample:Obj
+
+.method $constructor
+	call Int:print
+	pop
+	halt

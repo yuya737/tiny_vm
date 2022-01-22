@@ -641,8 +641,8 @@ obj_ref native_Int_minus(void ) {
     obj_Int other_int = (obj_Int) other;
     log_debug("Subtracting integer values: %d - %d",
            this_int->value, other_int->value);
-    obj_ref sum = new_int(this_int->value - other_int->value);
-    /* obj_ref sum = new_int(other_int->value - this_int->value); */
+    /* obj_ref sum = new_int(this_int->value - other_int->value); */
+    obj_ref sum = new_int(other_int->value - this_int->value);
     return sum;
 }
 
@@ -686,8 +686,8 @@ obj_ref native_Int_divide(void ) {
     obj_Int other_int = (obj_Int) other;
     log_debug("Dividing integer values: %d / %d",
            this_int->value, other_int->value);
-    obj_ref sum = new_int(this_int->value / other_int->value);
-    /* obj_ref sum = new_int(other_int->value / this_int->value); */
+    /* obj_ref sum = new_int(this_int->value / other_int->value); */
+    obj_ref sum = new_int(other_int->value / this_int->value);
     return sum;
 }
 
