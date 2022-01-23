@@ -1,5 +1,7 @@
 import sys
-from lark import Lark, Transformer, v_args, Visitor, Tree
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
+from lark import Lark, Transformer, v_args, Visitor, Tree, Token
+from dataclasses import dataclass
 
 
 
@@ -74,6 +76,18 @@ quack_grammar = """
 def is_instr(val):
     return isinstance(val, list)
 
+# Keep track of each instruction and the data type of that set of instructions
+@dataclass
+class instr_dtype_pair:
+    instr: List[str]
+    dtype: str
+
+# Keep track of the input and ouptut dtypes for each function
+@dataclass
+class input_output_dtypes:
+    input_dtype: List[str]
+    output_dtype: str
+
 # class MakeAssemblyTree(Transformer):
 @v_args(inline=True)    # Affects the signatures of the methods
 class MakeAssemblyTree(Transformer):
@@ -82,120 +96,131 @@ class MakeAssemblyTree(Transformer):
         self.vars = {}
         self.file = file
         self.var_dict = {}
+        self.input_output_dtypes_dict = {}
 
-    def number(self, a):
-        return ([f'\tconst {a}\n'], 'Int')
+        # Functions to populate input_output_dtypes:
+        # neg, add, sub, mul, div
+        self.input_output_dtypes_dict['neg'] = input_output_dtypes(['Int'], 'Int')
+        self.input_output_dtypes_dict['add'] = input_output_dtypes(['Int', 'Int'], 'Int')
+        self.input_output_dtypes_dict['sub'] = input_output_dtypes(['Int', 'Int'], 'Int')
+        self.input_output_dtypes_dict['mul'] = input_output_dtypes(['Int', 'Int'], 'Int')
+        self.input_output_dtypes_dict['div'] = input_output_dtypes(['Int', 'Int'], 'Int')
 
-    def string(self, a):
-        return ([f'\tconst {a}\n'], 'String')
-
-    def root(self, a):
+    def root(self, final_instr: List[instr_dtype_pair]) -> None:
         with open(self.file, 'w') as file:
             print(self.var_dict)
             file.write('.class Main:Obj\n')
             file.write('\n')
             file.write('.method $constructor\n')
             file.write(f'.local {",".join(self.var_dict.keys())}\n')
-            for line in a:
+            for line in final_instr.instr:
                 file.write(line)
             file.write('\tpop\n')
             file.write('\thalt\n')
 
-    def methodcall(self, a, b):
-        print(f'In method call rexp:{a}, NAME:{b}')
-        temp_ops = a[0]
-        temp_ops.append(f'\tcall {a[1]}:{b}\n')
-        return temp_ops
+    def number(self, num: Token) -> instr_dtype_pair:
+        return instr_dtype_pair([f'\tconst {num}\n'], 'Int')
 
-    def statement(self, a):
-        print(f'In statement {a}')
-        return a
+    def string(self, string: Token) -> instr_dtype_pair:
+        return instr_dtype_pair([f'\tconst {string}\n'], 'String')
 
-    def program_recur(self, a ,b):
-        print(f'In program_recur a:{a} b:{b}')
-        return a+b
+    def methodcall(self, rexp: instr_dtype_pair , name: str) -> instr_dtype_pair:
+        print(f'In method call rexp:{rexp}, NAME:{name}')
+        temp_ops = rexp.instr
+        temp_ops.append(f'\tcall {rexp.dtype}:{name}\n')
+        return instr_dtype_pair(temp_ops, 'None')
 
-    def program(self, a):
-        print(f'In program a:{a}')
-        return a
+    def statement(self, expression: instr_dtype_pair) -> instr_dtype_pair:
+        print(f'In statement {expression.instr}')
+        return instr_dtype_pair(expression.instr, 'None')
 
+    def program_recur(self, expression_1: instr_dtype_pair, expression_2: instr_dtype_pair) -> instr_dtype_pair:
+        print(f'In program_recur expression_1:{expression_1.instr} expression_2:{expression_2.instr}')
+        return instr_dtype_pair(expression_1.instr + expression_2.instr, 'None')
 
-    def assignment(self, a, b, c):
-        temp_ops = []
-        temp_ops += c[0]
-        temp_ops += [f'\tstore {a}\n']
-        self.var_dict[a.value] = b.value
-        print(f'In assignment lexp:{a}, type:{b}, rexp:{c}')
-        return temp_ops
+    def program(self, expression: instr_dtype_pair) -> instr_dtype_pair:
+        print(f'In program expression:{expression.instr}')
+        return instr_dtype_pair(expression.instr, 'None')
 
 
-    def type(self, a):
+    def assignment(self, lexp: instr_dtype_pair, type: Token, rexp: instr_dtype_pair) -> instr_dtype_pair:
+        temp_ops = rexp.instr
+        temp_ops += [f'\tstore {lexp}\n']
+
+        # Save variable assignment to allocate memory via .local
+        self.var_dict[lexp.value] = type.value
+
+        print(f'In assignment lexp:{lexp}, type:{type}, rexp:{rexp}')
+        return instr_dtype_pair(temp_ops, 'None')
+
+    def type(self, a: str) -> str:
         print(f'In type NAME:{a}')
         return f'{a}'
 
-    def lexp(self, a):
+    def lexp(self, a: instr_dtype_pair) -> instr_dtype_pair:
         print(f'In lexp NAME:{a}')
         return a
 
-    def rexp(self, a):
+    def rexp(self, a: instr_dtype_pair) -> instr_dtype_pair:
         print(f'In rexp NAME:{a}')
         return a
 
-    def var_reference(self, a):
-        if a not in self.var_dict:
-            raise ValueError(f'{a} referenced before assignment')
+    def var_reference(self, variable: str) -> instr_dtype_pair:
+        if variable not in self.var_dict:
+            raise ValueError(f'{variable} referenced before assignment')
         else:
-            temp_ops = [f'\tload {a}\n']
-            print(f'In var_reference var:{a}')
-            return (temp_ops, self.var_dict[a])
+            temp_ops = [f'\tload {variable}\n']
+            print(f'In var_reference var:{variable}')
+            return instr_dtype_pair(temp_ops, self.var_dict[variable])
 
-    def neg(self, a):
-        if a[1] == 'Int' and b[1] == 'Int':
-            temp_ops = a
+    def neg(self, expression: instr_dtype_pair) -> instr_dtype_pair:
+        if self.input_output_dtypes_dict['neg'].input_dtype == [expression.dtype]:
+            temp_ops = expression.instr
             temp_ops += ['\tconst 0\n']
             temp_ops.append('\tcall Int:minus\n')
-            print(f'Negating {a}')
-            return (temp_ops, 'Int')
+            print(f'Negating {expression.instr}')
+            return instr_dtype_pair(temp_ops, 'Int')
         else:
             raise ValueError('Type check failed in neg')
 
 
-    def add(self, a,b):
-        if a[1] == 'Int' and b[1] == 'Int':
-            temp_ops = a[0]
-            temp_ops += b[0]
+    def add(self, expression_1: instr_dtype_pair, expression_2: instr_dtype_pair) -> instr_dtype_pair:
+        if self.input_output_dtypes_dict['add'].input_dtype == [expression_1.dtype, expression_2.dtype]:
+            temp_ops = expression_1.instr
+            temp_ops += expression_2.instr
             temp_ops.append('\tcall Int:plus\n')
-            print(f'Adding {a}, {b}')
-            return (temp_ops, 'Int')
+            print(f'Adding {expression_1.instr}, {expression_2.instr}')
+            return instr_dtype_pair(temp_ops, 'Int')
         else:
             raise ValueError('Type check failed in add')
 
-    def sub(self, a,b):
-        if a[1] == 'Int' and b[1] == 'Int':
-            temp_ops = b[0]
-            temp_ops += a[0]
+    def sub(self, expression_1: instr_dtype_pair, expression_2: instr_dtype_pair) -> instr_dtype_pair:
+        if self.input_output_dtypes_dict['sub'].input_dtype == [expression_1.dtype, expression_2.dtype]:
+            temp_ops = expression_2.instr
+            temp_ops += expression_1.instr
             temp_ops.append('\tcall Int:minus\n')
-            return (temp_ops, 'Int')
+            print(f'Substracting {expression_1.instr}, {expression_2.instr}')
+            return instr_dtype_pair(temp_ops, 'Int')
         else:
             raise ValueError('Type check failed in sub')
 
-    def mul(self, a,b):
-        if a[1] == 'Int' and b[1] == 'Int':
-            temp_ops = a[0]
-            temp_ops += b[0]
+    def mul(self, expression_1: instr_dtype_pair, expression_2: instr_dtype_pair) -> instr_dtype_pair:
+        if self.input_output_dtypes_dict['mul'].input_dtype == [expression_1.dtype, expression_2.dtype]:
+            temp_ops = expression_2.instr
+            temp_ops += expression_1.instr
             temp_ops.append('\tcall Int:times\n')
-            print(f'Multiplying {a}, {b}')
-            return (temp_ops, 'Int')
+            print(f'Multiplying {expression_1.instr}, {expression_2.instr}')
+            return instr_dtype_pair(temp_ops, 'Int')
         else:
             raise ValueError('Type check failed in mul')
 
-    def div(self, a,b):
-        if a[1] == 'Int' and b[1] == 'Int':
-            temp_ops = b[0]
-            temp_ops += a[0]
+    def div(self, expression_1: instr_dtype_pair, expression_2: instr_dtype_pair) -> instr_dtype_pair:
+        if self.input_output_dtypes_dict['div'].input_dtype == [expression_1.dtype, expression_2.dtype]:
+            temp_ops = expression_2.instr
+            temp_ops += expression_1.instr
             temp_ops.append('\tcall Int:divide\n')
-            print(f'Dividing {a}, {b}')
-            return (temp_ops, 'Int')
+            print(f'Diving {expression_1.instr}, {expression_2.instr}')
+            return instr_dtype_pair(temp_ops, 'Int')
         else:
             raise ValueError('Type check failed in div')
 
