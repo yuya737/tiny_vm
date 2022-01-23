@@ -1,2 +1,5 @@
-x: Int = 4;
-x.print();
+x: Int = 5;
+y: Int = x+4;
+z: String = "df";
+(m+7).print();
+z.print();

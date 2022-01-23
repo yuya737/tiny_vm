@@ -1,12 +1,12 @@
 .class Sample:Obj
 
 .method $constructor
-.local x
-    enter
-    const 4
-    store x
-    load $
-    load x
-    call Int:print
-    pop 
-    return 0
+.local x,y
+	const "SF"
+	store x
+	load x
+	store y
+	load y
+	call String:print
+	pop
+	halt
