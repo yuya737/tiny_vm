@@ -47,7 +47,9 @@ quack_grammar = """
     ?type: NAME
 
     rexp: sum               -> rexp
-         | ESCAPED_STRING  -> string
+        | "true"            -> true
+        | "false"           -> false
+        | ESCAPED_STRING    -> string
 
     lexp: NAME              -> lexp
 
@@ -60,9 +62,10 @@ quack_grammar = """
         | product "/" atom  -> div
 
     ?atom: NUMBER           -> number
-         | "-" atom         -> neg
-         | lexp             -> var_reference
-         | "(" sum ")"
+        | "-" atom          -> neg
+        | lexp              -> var_reference
+        | "(" sum ")"
+
 
     %import common.CNAME -> NAME
     %import common.NUMBER
@@ -106,6 +109,7 @@ class MakeAssemblyTree(Transformer):
         self.input_output_dtypes_dict['mul'] = input_output_dtypes(['Int', 'Int'], 'Int')
         self.input_output_dtypes_dict['div'] = input_output_dtypes(['Int', 'Int'], 'Int')
 
+
     def root(self, final_instr: List[instr_dtype_pair]) -> None:
         with open(self.file, 'w') as file:
             print(self.var_dict)
@@ -123,6 +127,13 @@ class MakeAssemblyTree(Transformer):
 
     def string(self, string: Token) -> instr_dtype_pair:
         return instr_dtype_pair([f'\tconst {string}\n'], 'String')
+
+    def true(self) -> instr_dtype_pair:
+        return instr_dtype_pair([f'\tconst true\n'], 'Boolean')
+
+    def false(self) -> instr_dtype_pair:
+        return instr_dtype_pair([f'\tconst falst\n'], 'Boolean')
+
 
     def methodcall(self, rexp: instr_dtype_pair , name: str) -> instr_dtype_pair:
         print(f'In method call rexp:{rexp}, NAME:{name}')
@@ -247,9 +258,9 @@ def main(quack_file, output_asm):
     # print('---------------------------')
     # POT(quack(input_str))
     print('---------------------------')
-    tree.transform(quack(input_str))
-    print('---------------------------')
     print(quack(input_str).pretty())
+    print('---------------------------')
+    tree.transform(quack(input_str))
     print('---------------------------')
     # tree.write_to_file()
 
