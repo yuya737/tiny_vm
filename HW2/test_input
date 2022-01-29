@@ -1,5 +1,7 @@
-3+4;
-x: Int = 4;
-x.print();
-42+x+(-13);
-9-3+x;
+i: Int = 42+13;
+j: Int = i-32;
+j.print();
+cat: String = "Nora";
+other: String = "can solve puzzles";
+(cat + other).print();
+"\n".print();

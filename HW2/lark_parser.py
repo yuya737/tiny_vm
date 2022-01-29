@@ -4,32 +4,6 @@ from lark import Lark, Transformer, v_args, Visitor, Tree, Token
 from dataclasses import dataclass
 
 
-
-
-calc_grammar = """
-    ?start: sum
-          | NAME "=" sum    -> assign_var
-
-    ?sum: product
-        | sum "+" product   -> add
-        | sum "-" product   -> sub
-
-    ?product: atom
-        | product "*" atom  -> mul
-        | product "/" atom  -> div
-
-    ?atom: NUMBER           -> number
-         | "-" atom         -> neg
-         | NAME             -> var
-         | "(" sum ")"
-
-    %import common.CNAME -> NAME
-    %import common.NUMBER
-    %import common.WS_INLINE
-
-    %ignore WS_INLINE
-"""
-
 quack_grammar = """
     ?start: program -> root
 
@@ -49,7 +23,7 @@ quack_grammar = """
     rexp: sum               -> rexp
         | "true"            -> true
         | "false"           -> false
-        | ESCAPED_STRING    -> string
+        # | ESCAPED_STRING    -> string
 
     lexp: NAME              -> lexp
 
@@ -65,6 +39,54 @@ quack_grammar = """
         | "-" atom          -> neg
         | lexp              -> var_reference
         | "(" sum ")"
+
+
+
+    %import common.CNAME -> NAME
+    %import common.NUMBER
+    %import common.ESCAPED_STRING
+    %import common.WS
+
+    %ignore WS
+"""
+
+quack_grammar_2 = """
+    ?start: program -> root
+
+    program: statement -> program
+        | program statement -> program_recur
+
+    statement: rexp ";"
+        | assignment ";"
+        | methodcall ";"
+
+    methodcall: rexp "." NAME "(" ")"
+
+    assignment: lexp ":" type "=" rexp
+
+    ?type: NAME
+
+    rexp: sum               -> rexp
+        | "true"            -> true
+        | "false"           -> false
+
+    lexp: NAME              -> lexp
+
+    ?sum: product
+        | sum "+" product   -> add
+        | sum "-" product   -> sub
+
+    ?product: atom
+        | product "*" atom  -> mul
+        | product "/" atom  -> div
+
+    ?atom: constant
+        | "-" atom          -> neg
+        | lexp              -> var_reference
+        | "(" sum ")"
+
+    ?constant: NUMBER       -> number
+        | ESCAPED_STRING    -> string
 
 
     %import common.CNAME -> NAME
@@ -100,27 +122,33 @@ class MakeAssemblyTree(Transformer):
         self.file = file
         self.var_dict = {}
         self.input_output_dtypes_dict = {}
+        self.final_instr = []
 
         # Functions to populate input_output_dtypes:
         # neg, add, sub, mul, div
-        self.input_output_dtypes_dict['neg'] = input_output_dtypes(['Int'], 'Int')
-        self.input_output_dtypes_dict['add'] = input_output_dtypes(['Int', 'Int'], 'Int')
-        self.input_output_dtypes_dict['sub'] = input_output_dtypes(['Int', 'Int'], 'Int')
-        self.input_output_dtypes_dict['mul'] = input_output_dtypes(['Int', 'Int'], 'Int')
-        self.input_output_dtypes_dict['div'] = input_output_dtypes(['Int', 'Int'], 'Int')
+        self.input_output_dtypes_dict['neg'] = [input_output_dtypes(['Int'], 'Int')]
+        self.input_output_dtypes_dict['add'] = [input_output_dtypes(['Int', 'Int'], 'Int'),
+                                                input_output_dtypes(['String', 'String'], 'String')]
+        self.input_output_dtypes_dict['sub'] = [input_output_dtypes(['Int', 'Int'], 'Int')]
+        self.input_output_dtypes_dict['mul'] = [input_output_dtypes(['Int', 'Int'], 'Int')]
+        self.input_output_dtypes_dict['div'] = [input_output_dtypes(['Int', 'Int'], 'Int')]
 
-
-    def root(self, final_instr: List[instr_dtype_pair]) -> None:
+    def write_to_file(self):
         with open(self.file, 'w') as file:
             print(self.var_dict)
             file.write('.class Main:Obj\n')
             file.write('\n')
             file.write('.method $constructor\n')
             file.write(f'.local {",".join(self.var_dict.keys())}\n')
-            for line in final_instr.instr:
+            for line in self.final_instr:
                 file.write(line)
-            file.write('\tpop\n')
             file.write('\thalt\n')
+            file.write('\treturn 0\n')
+
+
+    def root(self, final_instr: List[instr_dtype_pair]) -> None:
+        self.final_instr = final_instr.instr
+
 
     def number(self, num: Token) -> instr_dtype_pair:
         return instr_dtype_pair([f'\tconst {num}\n'], 'Int')
@@ -184,54 +212,77 @@ class MakeAssemblyTree(Transformer):
             print(f'In var_reference var:{variable}')
             return instr_dtype_pair(temp_ops, self.var_dict[variable])
 
+    # Check if the current function arguments are valid. If so, return receiver type and return type
+    def check_if_valid_func_invocation(self, func_name: str, input_type_list: List[str]):
+        for candidate in self.input_output_dtypes_dict[func_name]:
+            # If matching one exists return it
+            if input_type_list == candidate.input_dtype:
+                return (True, candidate.input_dtype[0], candidate.output_dtype)
+
+        return (False, None, None)
+
+
+
+
     def neg(self, expression: instr_dtype_pair) -> instr_dtype_pair:
-        if self.input_output_dtypes_dict['neg'].input_dtype == [expression.dtype]:
+        input_type_list = [expression.dtype]
+        valid_invocation, receiver_type, return_type = self.check_if_valid_func_invocation('neg', input_type_list)
+        if valid_invocation:
             temp_ops = expression.instr
             temp_ops += ['\tconst 0\n']
-            temp_ops.append('\tcall Int:minus\n')
+            temp_ops.append(f'\tcall {receiver_type}:minus\n')
             print(f'Negating {expression.instr}')
-            return instr_dtype_pair(temp_ops, 'Int')
+            return instr_dtype_pair(temp_ops, return_type)
         else:
             raise ValueError('Type check failed in neg')
 
 
     def add(self, expression_1: instr_dtype_pair, expression_2: instr_dtype_pair) -> instr_dtype_pair:
-        if self.input_output_dtypes_dict['add'].input_dtype == [expression_1.dtype, expression_2.dtype]:
-            temp_ops = expression_1.instr
-            temp_ops += expression_2.instr
-            temp_ops.append('\tcall Int:plus\n')
+        input_type_list = [expression_1.dtype, expression_2.dtype]
+        print(input_type_list)
+        valid_invocation, receiver_type, return_type = self.check_if_valid_func_invocation('add', input_type_list)
+        if valid_invocation:
+            temp_ops = expression_2.instr
+            temp_ops += expression_1.instr
+            temp_ops.append(f'\tcall {receiver_type}:plus\n')
             print(f'Adding {expression_1.instr}, {expression_2.instr}')
-            return instr_dtype_pair(temp_ops, 'Int')
+            return instr_dtype_pair(temp_ops, return_type)
         else:
             raise ValueError('Type check failed in add')
 
     def sub(self, expression_1: instr_dtype_pair, expression_2: instr_dtype_pair) -> instr_dtype_pair:
-        if self.input_output_dtypes_dict['sub'].input_dtype == [expression_1.dtype, expression_2.dtype]:
+        input_type_list = [expression_1.dtype, expression_2.dtype]
+        valid_invocation, receiver_type, return_type = self.check_if_valid_func_invocation('sub', input_type_list)
+        if valid_invocation:
             temp_ops = expression_2.instr
             temp_ops += expression_1.instr
-            temp_ops.append('\tcall Int:minus\n')
+            temp_ops.append(f'\tcall {receiver_type}:minus\n')
             print(f'Substracting {expression_1.instr}, {expression_2.instr}')
-            return instr_dtype_pair(temp_ops, 'Int')
+            return instr_dtype_pair(temp_ops, return_type)
         else:
             raise ValueError('Type check failed in sub')
 
     def mul(self, expression_1: instr_dtype_pair, expression_2: instr_dtype_pair) -> instr_dtype_pair:
-        if self.input_output_dtypes_dict['mul'].input_dtype == [expression_1.dtype, expression_2.dtype]:
+        input_type_list = [expression_1.dtype, expression_2.dtype]
+        valid_invocation, receiver_type, return_type = self.check_if_valid_func_invocation('mul', input_type_list)
+        if valid_invocation:
             temp_ops = expression_2.instr
             temp_ops += expression_1.instr
-            temp_ops.append('\tcall Int:times\n')
+            temp_ops.append(f'\tcall {receiver_type}:times\n')
             print(f'Multiplying {expression_1.instr}, {expression_2.instr}')
-            return instr_dtype_pair(temp_ops, 'Int')
+            return instr_dtype_pair(temp_ops, return_type)
         else:
             raise ValueError('Type check failed in mul')
 
     def div(self, expression_1: instr_dtype_pair, expression_2: instr_dtype_pair) -> instr_dtype_pair:
-        if self.input_output_dtypes_dict['div'].input_dtype == [expression_1.dtype, expression_2.dtype]:
+        input_type_list = [expression_1.dtype, expression_2.dtype]
+        valid_invocation, receiver_type, return_type = self.check_if_valid_func_invocation('div', input_type_list)
+        if valid_invocation:
             temp_ops = expression_2.instr
             temp_ops += expression_1.instr
-            temp_ops.append('\tcall Int:divide\n')
+            temp_ops.append(f'\tcall {receiver_type}:divide\n')
             print(f'Diving {expression_1.instr}, {expression_2.instr}')
-            return instr_dtype_pair(temp_ops, 'Int')
+            return instr_dtype_pair(temp_ops, return_type)
         else:
             raise ValueError('Type check failed in div')
 
@@ -249,7 +300,7 @@ def POT(Node):
 def main(quack_file, output_asm):
     # calc_parser = Lark(calc_grammar, parser='lalr')
     # calc = calc_parser.parse
-    quack_parser = Lark(quack_grammar, parser='lalr')
+    quack_parser = Lark(quack_grammar_2, parser='lalr')
     quack = quack_parser.parse
     with open(quack_file) as f:
         input_str = f.read()
@@ -262,7 +313,7 @@ def main(quack_file, output_asm):
     print('---------------------------')
     tree.transform(quack(input_str))
     print('---------------------------')
-    # tree.write_to_file()
+    tree.write_to_file()
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:

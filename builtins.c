@@ -312,6 +312,31 @@ vm_Word method_String_equals[] = {
         {.intval = 1}  // consume other
 };
 
+/* String:plus (new native_method) */
+obj_ref native_String_plus(void ) {
+    obj_ref this = vm_fp->obj;
+    assert_is_type(this, the_class_String);
+    obj_String this_string = (obj_String) this;
+    obj_ref other = (vm_fp - 1)->obj;
+    assert_is_type(other, the_class_String);
+    obj_String other_string = (obj_String) other;
+    log_debug("Adding Strings: %s + %s - length: %d",
+           this_string->text, other_string->text, strlen(this_string->text)+strlen(other_string->text)+1);
+    char* target = (char*) malloc(strlen(this_string->text)+strlen(other_string->text)+1);
+    strcpy(target, this_string->text);
+    strncat(target, other_string->text, strlen(other_string->text));
+    obj_ref new_str = new_string(target);
+    return new_str;
+}
+
+vm_Word method_String_plus[] = {
+        {.instr = vm_op_enter},
+        {.instr = vm_op_call_native},
+        {.native = native_String_plus},
+        {.instr = vm_op_return},
+        {.intval = 1}  // consume other
+};
+
 
 /* The String Class (a singleton) */
 struct  class_struct  the_class_String_struct = {
@@ -323,7 +348,8 @@ struct  class_struct  the_class_String_struct = {
         method_String_constructor,     /* Constructor */
         method_String_string,
         method_String_print,
-        method_String_equals
+        method_String_equals,
+        method_String_plus
 };
 
 class_ref the_class_String = &the_class_String_struct;
