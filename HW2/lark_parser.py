@@ -3,7 +3,6 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 from lark import Lark, Transformer, v_args, Visitor, Tree, Token
 from dataclasses import dataclass
 
-
 quack_grammar = """
     ?start: program -> root
 
@@ -12,7 +11,6 @@ quack_grammar = """
 
     statement: rexp ";"
         | assignment ";"
-        | methodcall ";"
 
     methodcall: rexp "." NAME "(" ")"
 
@@ -23,52 +21,7 @@ quack_grammar = """
     rexp: sum               -> rexp
         | "true"            -> true
         | "false"           -> false
-        # | ESCAPED_STRING    -> string
-
-    lexp: NAME              -> lexp
-
-    ?sum: product
-        | sum "+" product   -> add
-        | sum "-" product   -> sub
-
-    ?product: atom
-        | product "*" atom  -> mul
-        | product "/" atom  -> div
-
-    ?atom: NUMBER           -> number
-        | "-" atom          -> neg
-        | lexp              -> var_reference
-        | "(" sum ")"
-
-
-
-    %import common.CNAME -> NAME
-    %import common.NUMBER
-    %import common.ESCAPED_STRING
-    %import common.WS
-
-    %ignore WS
-"""
-
-quack_grammar_2 = """
-    ?start: program -> root
-
-    program: statement -> program
-        | program statement -> program_recur
-
-    statement: rexp ";"
-        | assignment ";"
-        | methodcall ";"
-
-    methodcall: rexp "." NAME "(" ")"
-
-    assignment: lexp ":" type "=" rexp
-
-    ?type: NAME
-
-    rexp: sum               -> rexp
-        | "true"            -> true
-        | "false"           -> false
+        | methodcall
 
     lexp: NAME              -> lexp
 
@@ -96,10 +49,6 @@ quack_grammar_2 = """
 
     %ignore WS
 """
-
-# Test if a children is a instruction or not
-def is_instr(val):
-    return isinstance(val, list)
 
 # Keep track of each instruction and the data type of that set of instructions
 @dataclass
@@ -298,16 +247,12 @@ def POT(Node):
 
 
 def main(quack_file, output_asm):
-    # calc_parser = Lark(calc_grammar, parser='lalr')
-    # calc = calc_parser.parse
-    quack_parser = Lark(quack_grammar_2, parser='lalr')
+    quack_parser = Lark(quack_grammar, parser='lalr')
     quack = quack_parser.parse
     with open(quack_file) as f:
         input_str = f.read()
     print(input_str)
     tree = MakeAssemblyTree(output_asm)
-    # print('---------------------------')
-    # POT(quack(input_str))
     print('---------------------------')
     print(quack(input_str).pretty())
     print('---------------------------')
