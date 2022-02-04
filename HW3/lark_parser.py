@@ -14,8 +14,8 @@ quack_grammar = """
 
     methodcall: rexp "." NAME "(" methodargs? ")"
 
-    methodargs: constant
-        | methodargs "," constant
+    methodargs: rexp -> methodargs
+        | methodargs "," rexp -> methodargs_recur
 
     assignment: lexp ":" type "=" rexp
 
@@ -82,8 +82,8 @@ class ASTNode:
         raise NotImplementedError(f"pretty_label not implemented for node type {self.__class__.__name__}")
 
 def pretty_helper(node: ASTNode, level: int, indent_str: str):
-    print(node)
-    print(node.children)
+    # print(node)
+    # print(node.children)
     if len(node.children) == 0:
         return [indent_str*level, node.pretty_label(), '\n']
 
@@ -95,7 +95,7 @@ def pretty_helper(node: ASTNode, level: int, indent_str: str):
     return l
 
 def pretty_print(RootNode: ASTNode):
-    print(''.join(pretty_helper(RootNode, 0, '   ')))
+    print(''.join(pretty_helper(RootNode, 0, '  ')))
 
 class SeqNode(ASTNode):
     """Sequence of statements"""
@@ -119,8 +119,6 @@ class RootNode(ASTNode):
 
     def pretty_label(self) -> str:
         return "RootNode"
-
-
 
 
 class IfNode(ASTNode):
@@ -210,6 +208,33 @@ class ProgramNode(ASTNode):
     def pretty_label(self) -> str:
         return "ProgramNode"
 
+class MethodargsrecurNode(ASTNode):
+    """Methodargs recur Node"""
+    def __init__(self, methodargs: ASTNode, constant: ASTNode):
+        super().__init__()
+        self.children.append(methodargs)
+        self.children.append(constant)
+
+    def r_eval(self) -> List[str]:
+        methodargs, constant = self.children
+        return (methodargs.r_eval()
+                + constant.r_eval())
+
+    def pretty_label(self) -> str:
+        return "MethodargsRecurNode"
+
+
+class MethodargsNode(ASTNode):
+    """Methodargs  Node"""
+    def __init__(self, constant: ASTNode):
+        super().__init__()
+        self.children.append(constant)
+
+    def r_eval(self) -> List[str]:
+        return (self.children[0].r_eval())
+
+    def pretty_label(self) -> str:
+        return "MethodargsNode"
 
 class AssignmentNode(ASTNode):
     """Assignment Node"""
@@ -413,12 +438,23 @@ class MakeAssemblyTree(Transformer):
 
     def methodcall(self, lst) -> ASTNode:
         print(f'In methodcall {lst}')
-        caller, m_name = lst
-        return MethodcallNode(caller, m_name.value, [])
+        caller, m_name = lst[:2]
+        methodargs = lst[2:]
+        # breakpoint()
+        return MethodcallNode(caller, m_name.value, methodargs)
 
     def statement(self, lst) -> ASTNode:
         print(f'In statement {lst}')
         return StatementNode(lst[0])
+
+    def methodargs_recur(self, lst) -> ASTNode:
+        print(f'In methodargs_recur {lst}')
+        methodargs, constant = lst
+        return MethodargsrecurNode(methodargs, constant)
+
+    def methodargs(self, lst) -> ASTNode:
+        print(f'In methodargs {lst}')
+        return MethodargsNode(lst[0])
 
     def program_recur(self, lst) -> ASTNode:
         print(f'In program_recur {lst}')
@@ -467,8 +503,6 @@ class MakeAssemblyTree(Transformer):
         print(f'In neg: {val}')
         return MethodcallNode(val, "minus", [ConstNode(0)])
 
-
-    # def add(self, expression_1: Instr_dtype_pair, expression_2: Instr_dtype_pair) -> Instr_dtype_pair:
     def add(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In add: {val1}, {val2}')
@@ -489,16 +523,6 @@ class MakeAssemblyTree(Transformer):
         print(f'In mul: {val1}, {val2}')
         return MethodcallNode(val1, "divide", [val2])
 
-def POT(Node):
-    if isinstance(Node, Tree):
-        for child in Node.children:
-            POT(child)
-        # breakpoint()
-        print('Tree', Node.data, Node.children)
-    else:
-        # Is a token
-        print('Token', Node.type, Node.value)
-
 
 def main(quack_file, output_asm):
     quack_parser = Lark(quack_grammar, parser='lalr')
@@ -507,22 +531,28 @@ def main(quack_file, output_asm):
         input_str = f.read()
     print(input_str)
     tree = MakeAssemblyTree(output_asm)
-    print('---------------------------')
+    print('------------------------------------------------------')
     print(quack(input_str).pretty())
-    print('---------------------------')
+    print('------------------------------------------------------')
     ast = tree.transform(quack(input_str))
-    print('---------------------------')
+    print('------------------------------------------------------')
     print('Printing Transformed AST')
     # breakpoint()
     pretty_print(ast)
     inst = ast.r_eval()
-    with open('temp.txt', 'w') as f:
+    print(inst)
+    with open(output_asm, 'w') as f:
+        f.write('.class Main:Obj\n')
+        f.write('\n')
+        f.write('.method $constructor\n')
+        f.write('.local i,j,s,t\n')
         for i in inst:
             f.write(i)
             f.write('\n')
+        f.write('\thalt\n')
+        f.write('\treturn 0\n')
 
 
-    # tree.write_to_file()
 
 if __name__ == '__main__':
     if len(sys.argv) != 3:

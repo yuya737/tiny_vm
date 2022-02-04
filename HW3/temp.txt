@@ -1,0 +1,5 @@
+	const 4
+	const 5
+	load x
+	const 3
+	call Int:add

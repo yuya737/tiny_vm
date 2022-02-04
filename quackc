@@ -1,0 +1,11 @@
+#!/bin/bash
+
+IFS="." read -a quackfilename <<< "$1"
+asmname="${quackfilename[0]}.asm"
+jsonname="OBJ/${quackfilename[0]}.json"
+
+python HW3/lark_parser.py $1 $asmname
+python assemble.py $asmname $jsonname
+echo $asmname
+echo $jsonname
+

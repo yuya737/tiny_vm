@@ -38,12 +38,12 @@ quack_grammar = """
         | lexp              -> var_reference
         | "(" sum ")"
 
-    ?constant: NUMBER       -> number
+    ?constant: INT       -> number
         | ESCAPED_STRING    -> string
 
 
     %import common.CNAME -> NAME
-    %import common.NUMBER
+    %import common.INT
     %import common.ESCAPED_STRING
     %import common.WS
 
