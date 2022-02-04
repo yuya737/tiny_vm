@@ -12,7 +12,10 @@ quack_grammar = """
     statement: rexp ";"
         | assignment ";"
 
-    methodcall: rexp "." NAME "(" ")"
+    methodcall: rexp "." NAME "(" methodargs? ")"
+
+    methodargs: constant
+        | methodargs "," constant
 
     assignment: lexp ":" type "=" rexp
 
@@ -64,6 +67,9 @@ class Input_output_dtypes:
 
 
 class ASTNode:
+    def __init__(self):
+        self.children = []
+
     """Abstract base class"""
     def r_eval(self) -> List[str]:
         """Evaluate for value"""
@@ -75,14 +81,15 @@ class ASTNode:
     def pretty_label(self) -> str:
         raise NotImplementedError(f"pretty_label not implemented for node type {self.__class__.__name__}")
 
-def pretty_helper(Node: ASTNode, level: int, indent_str: str):
-    print(Node)
-    if Node.is_leaf():
-        return [indent_str*level, Node.pretty_label(), '\n']
+def pretty_helper(node: ASTNode, level: int, indent_str: str):
+    print(node)
+    print(node.children)
+    if len(node.children) == 0:
+        return [indent_str*level, node.pretty_label(), '\n']
 
-    l = [indent_str*level, Node.pretty_label(), '\n']
+    l = [indent_str*level, node.pretty_label(), '\n']
     # print(l)
-    for n in vars(Node).values():
+    for n in node.children:
         l += pretty_helper(n, level+1, indent_str)
 
     return l
@@ -102,17 +109,17 @@ class SeqNode(ASTNode):
 class RootNode(ASTNode):
     """Sequence of statements"""
     def __init__(self, program: List[ASTNode]):
-        self.program = program
+        super().__init__()
+        self.children.append(program)
 
     def r_eval(self) -> List[str]:
         """Evaluate for value"""
-        return self.program.r_exp()
+        program = self.children[0]
+        return program.r_eval()
 
     def pretty_label(self) -> str:
         return "RootNode"
 
-    def is_leaf(self) -> bool:
-        return False
 
 
 
@@ -142,183 +149,140 @@ class IfNode(ASTNode):
     def pretty_label(self) -> str:
         return "IfNode"
 
-    def is_leaf(self) -> bool:
-        return False
-
-class MethodArgumentNode(ASTNode):
-    def __init__(self, argslist: List[ASTNode]):
-        self.argslist = argslist
-
-    def r_eval(self) ->
-
-
 
 class MethodcallNode(ASTNode):
     """Method call node"""
-    def __init__(self, caller: ASTNode, m_name: ASTNode, argslist: List[ASTNode]):
-        self.caller = caller
+    def __init__(self, caller: ASTNode, m_name: str, argslist: List[ASTNode]):
+        super().__init__()
+        self.children.append(caller)
+        self.children += argslist
         self.m_name = m_name
-        self.argslist = argslist
 
     def r_eval(self) -> List[str]:
         #TODO: Add type here, let it be Int for now
-        return ([args.r_exp() for args in self.argslist]
-                + self.caller.r_exp
+        caller = self.children[0]
+        return ([subitem for args in self.children[1:] for subitem in args.r_eval()]
+                + caller.r_eval()
                 + [f'\tcall Int:{self.m_name}'])
 
     def pretty_label(self) -> str:
-        return "MethodcallNode"
+        return f"MethodcallNode: {self.m_name}"
 
-    def is_leaf(self) -> bool:
-        return False
 
 class StatementNode(ASTNode):
     """Statement node"""
     def __init__(self, statement: ASTNode):
-        self.statement = statement
+        super().__init__()
+        self.children.append(statement)
 
     def r_eval(self) -> List[str]:
-        return self.statement.r_exp()
+        return self.children[0].r_eval()
 
     def pretty_label(self) -> str:
         return "StatementNode"
 
-    def is_leaf(self) -> bool:
-        return False
 
 class ProgramrecurNode(ASTNode):
     """Program recur Node"""
     def __init__(self, program: ASTNode, statement: ASTNode):
-        self.program = program
-        self.statement = statement
+        super().__init__()
+        self.children.append(program)
+        self.children.append(statement)
 
     def r_eval(self) -> List[str]:
-        return (self.program.r_exp()
-                + self.statement.r_exp())
+        program, statement = self.children
+        return (program.r_eval()
+                + statement.r_eval())
 
     def pretty_label(self) -> str:
         return "ProgramRecurNode"
 
-    def is_leaf(self) -> bool:
-        return False
 
 class ProgramNode(ASTNode):
     """Program  Node"""
     def __init__(self, program: ASTNode):
-        self.program = program
+        super().__init__()
+        self.children.append(program)
 
     def r_eval(self) -> List[str]:
-        return (self.program.r_exp())
+        return (self.children[0].r_eval())
 
     def pretty_label(self) -> str:
         return "ProgramNode"
 
-    def is_leaf(self) -> bool:
-        return False
 
 class AssignmentNode(ASTNode):
     """Assignment Node"""
     def __init__(self, lexp: ASTNode, rexp: ASTNode):
-        self.lexp = lexp
-        self.rexp = rexp
+        super().__init__()
+        self.children.append(lexp)
+        self.children.append(rexp)
 
     def r_eval(self) -> List[str]:
-        return (self.rexp.r_eval()
-                + [f'\tstore {self.lexp.r_eval()}'])
+        lexp, rexp = self.children
+        return (rexp.r_eval()
+                + [f'\tstore {lexp.r_eval()}'])
 
     def pretty_label(self) -> str:
         return "AssignmentNode"
 
-    def is_leaf(self) -> bool:
-        return False
 
 class RexpNode(ASTNode):
     """Rexp Node"""
     def __init__(self, rexp: ASTNode):
-        self.rexp = rexp
+        super().__init__()
+        self.children.append(rexp)
 
     def r_eval(self) -> List[str]:
-        return self.rexp.r_eval()
+        return self.children[0].r_eval()
 
     def pretty_label(self) -> str:
         return "RexpNode"
 
-    def is_leaf(self) -> bool:
-        return False
 
 class LexpNode(ASTNode):
     """Lexp Node"""
-    def __init__(self, lexp: ASTNode):
-        self.lexp = lexp
+    def __init__(self, lexp: str):
+        super().__init__()
+        self.value = lexp
 
     def r_eval(self) -> List[str]:
-        return self.lexp.r_eval()
+        return self.value
 
     def pretty_label(self) -> str:
-        return f"LexpNode {self.lexp}"
+        return f"LexpNode {self.value}"
 
-    def is_leaf(self) -> bool:
-        return True
 
 class VarReferenceNode(ASTNode):
     """VarReferecnce Node"""
     def __init__(self, variable: str):
-        self.variable = variable
+        super().__init__()
+        self.variable = variable.r_eval()
 
     def r_eval(self) -> List[str]:
         return [f'\tload {self.variable}']
 
     def pretty_label(self) -> str:
-        return f"VarReferenceNode"
+        return f'VarReferenceNode: {self.variable}'
 
-    def is_leaf(self) -> bool:
-        return False
 
 class ConstNode(ASTNode):
     """Constant"""
     def __init__(self, value: str):
+        super().__init__()
         self.value = value
 
     def r_eval(self) -> List[str]:
-        return [f"const {self.value}"]
+        return [f"\tconst {self.value}"]
 
     def pretty_label(self) -> str:
         return f"ConstNode {self.value}"
 
-    def is_leaf(self) -> bool:
-        return True
-
-class TypeNode(ASTNode):
-    """Type"""
-    def __init__(self, type: str):
-        self.type = type
-
-    def r_eval(self) -> List[str]:
-        return [f"const {self.type}"]
-
-    def pretty_label(self) -> str:
-        return f"TypeNode {self.type}"
-
-    def is_leaf(self) -> bool:
-        return True
-
-class MNameNode(ASTNode):
-    """Method Name"""
-    def __init__(self, m_name: str):
-        self.m_name = m_name
-
-    def r_eval(self) -> List[str]:
-        return [f"const {self.m_name}"]
-
-    def pretty_label(self) -> str:
-        return f"m_nameNode {self.m_name}"
-
-    def is_leaf(self) -> bool:
-        return True
 
 class BoolNode(ASTNode):
     """Boolean """
     def __init__(self, value: str):
+        super().__init__()
         self.value = value
 
     def r_eval(self) -> List[str]:
@@ -327,8 +291,6 @@ class BoolNode(ASTNode):
     def pretty_label(self) -> str:
         return f"BoolNode {self.value}"
 
-    def is_leaf(self) -> bool:
-        return True
 
 
 class ComparisonNode(ASTNode):
@@ -433,59 +395,49 @@ class MakeAssemblyTree(Transformer):
         print(f'In number {lst}')
         return RootNode(lst[0])
 
-    # def number(self, num: Token) -> Instr_dtype_pair:
     def number(self, lst) -> ASTNode:
         print(f'In number {lst}')
         return ConstNode(int(lst[0]))
 
-    # def string(self, string: Token) -> Instr_dtype_pair:
     def string(self, lst) -> ASTNode:
         print(f'In string {lst}')
         return ConstNode(str(lst[0]))
 
-    # def true(self) -> Instr_dtype_pair:
     def true(self, lst) -> ASTNode:
         print(f'In true {lst}')
         return BoolNode(str(lst[0]))
 
-    # def false(self) -> Instr_dtype_pair:
     def false(self, lst) -> ASTNode:
         print(f'In true {lst}')
         return BoolNode(str(lst[0]))
 
-    # def methodcall(self, rexp: Instr_dtype_pair , name: str) -> Instr_dtype_pair:
     def methodcall(self, lst) -> ASTNode:
         print(f'In methodcall {lst}')
         caller, m_name = lst
-        return MethodcallNode(caller, MNameNode(m_name))
+        return MethodcallNode(caller, m_name.value, [])
 
-    # def statement(self, expression: Instr_dtype_pair) -> Instr_dtype_pair:
     def statement(self, lst) -> ASTNode:
         print(f'In statement {lst}')
         return StatementNode(lst[0])
 
-    # def program_recur(self, expression_1: Instr_dtype_pair, expression_2: Instr_dtype_pair) -> Instr_dtype_pair:
     def program_recur(self, lst) -> ASTNode:
         print(f'In program_recur {lst}')
         program, statement = lst
         return ProgramrecurNode(program, statement)
 
-    # def program(self, expression: Instr_dtype_pair) -> Instr_dtype_pair:
     def program(self, lst) -> ASTNode:
         print(f'In program {lst}')
         return ProgramNode(lst[0])
 
-    # def assignment(self, lexp: Instr_dtype_pair, type: Token, rexp: Instr_dtype_pair) -> Instr_dtype_pair:
     def assignment(self, lst) -> ASTNode:
         lexp, type, rexp = lst
-
         print(f'In assignment lexp:{lexp}, type:{type}, rexp:{rexp}')
         return AssignmentNode(lexp, rexp)
 
 
     def type(self, lst) -> str:
         print(f'In type NAME:{lst[0]}')
-        return TypeNode(lst[0].value)
+        return lst[0].value
 
     def lexp(self, lst) -> ASTNode:
         print(f'In lexp NAME:{lst[0]}')
@@ -513,29 +465,29 @@ class MakeAssemblyTree(Transformer):
     def neg(self, lst) -> ASTNode:
         val = lst[0]
         print(f'In neg: {val}')
-        return MethodcallNode(val, MNameNode("minus"), [ConstNode(0)])
+        return MethodcallNode(val, "minus", [ConstNode(0)])
 
 
     # def add(self, expression_1: Instr_dtype_pair, expression_2: Instr_dtype_pair) -> Instr_dtype_pair:
     def add(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In add: {val1}, {val2}')
-        return MethodcallNode(val1, MNameNode("add"), [ConstNode(val2)])
+        return MethodcallNode(val1, "plus", [val2])
 
     def sub(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In sub: {val1}, {val2}')
-        return MethodcallNode(val1, MNameNode("minus"), [ConstNode(val2)])
+        return MethodcallNode(val1, "minus", [val2])
 
     def mul(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In mul: {val1}, {val2}')
-        return MethodcallNode(val1, MNameNode("times"), [ConstNode(val2)])
+        return MethodcallNode(val1, "times", [val2])
 
     def div(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In mul: {val1}, {val2}')
-        return MethodcallNode(val1, MNameNode("divide"), [ConstNode(val2)])
+        return MethodcallNode(val1, "divide", [val2])
 
 def POT(Node):
     if isinstance(Node, Tree):
@@ -561,8 +513,14 @@ def main(quack_file, output_asm):
     ast = tree.transform(quack(input_str))
     print('---------------------------')
     print('Printing Transformed AST')
-    breakpoint()
+    # breakpoint()
     pretty_print(ast)
+    inst = ast.r_eval()
+    with open('temp.txt', 'w') as f:
+        for i in inst:
+            f.write(i)
+            f.write('\n')
+
 
     # tree.write_to_file()
 
