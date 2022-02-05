@@ -1,6 +1,7 @@
 import sys
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 from lark import Lark, Transformer, v_args, Visitor, Tree, Token
+from lark.tree import pydot__tree_to_png
 from dataclasses import dataclass
 
 quack_grammar = """
@@ -9,8 +10,15 @@ quack_grammar = """
     program: statement -> program
         | program statement -> program_recur
 
+    statement_block: "{" statement* "}"
+
     statement: rexp ";"
         | assignment ";"
+        | ifstmt
+
+    ifstmt: "if" rexp statement_block [("else" statement_block)] -> ifstmt
+        | "if" rexp statement_block ("elif" rexp statement_block)+ "else" statement_block -> ifelseifstmt
+
 
     methodcall: rexp "." NAME "(" methodargs? ")"
 
@@ -65,6 +73,11 @@ class Input_output_dtypes:
     input_dtype: List[str]
     output_dtype: str
 
+LAB_COUNT = 0
+def new_label(prefix: str) -> str:
+    global LAB_COUNT
+    LAB_COUNT += 1
+    return f"{prefix}_{LAB_COUNT}"
 
 class ASTNode:
     def __init__(self):
@@ -82,7 +95,7 @@ class ASTNode:
         raise NotImplementedError(f"pretty_label not implemented for node type {self.__class__.__name__}")
 
 def pretty_helper(node: ASTNode, level: int, indent_str: str):
-    # print(node)
+    print(node)
     # print(node.children)
     if len(node.children) == 0:
         return [indent_str*level, node.pretty_label(), '\n']
@@ -124,28 +137,40 @@ class RootNode(ASTNode):
 class IfNode(ASTNode):
     """if cond then block else block"""
     def __init__(self, condpart: ASTNode, thenpart: ASTNode, elsepart: ASTNode):
-        self.condpart = condpart
-        self.thenpart = thenpart
-        self.elsepart = elsepart
+        super().__init__()
+        self.children.append(condpart)
+        self.children.append(thenpart)
+        if elsepart:
+            self.children.append(elsepart)
 
     def r_eval(self) -> List[str]:
         """Evaluate for value"""
+        if len(self.children) == 2:
+            condpart, thenpart= self.children
+            elsepart = []
+        else:
+            condpart, thenpart, elsepart = self.children
+
         then_label = new_label("then")
         else_label = new_label("else")
         endif_label = new_label("endif")
-        iftest = self.condpart.c_eval(then_label, else_label)
-        thenblock = self.thenpart.r_eval()
-        elseblock = self.elsepart.r_eval()
+        iftest = condpart.c_eval(then_label, else_label)
+        thenblock = thenpart.r_eval()
+        elseblock = elsepart.r_eval() if elsepart else []
         return (iftest
                 + [then_label + ":"]
                 + thenblock
-                + [f"Jump always {endif_label}"]
+                + [f"\tjump {endif_label}"]
                 + [else_label + ":"]
                 + elseblock
                 + [endif_label + ":"])
 
     def pretty_label(self) -> str:
-        return "IfNode"
+        if len(self.children) == 2:
+            return "IfNode"
+        else:
+            return "IfElseNode"
+
 
 
 class MethodcallNode(ASTNode):
@@ -178,6 +203,18 @@ class StatementNode(ASTNode):
 
     def pretty_label(self) -> str:
         return "StatementNode"
+
+class StatementBlockNode(ASTNode):
+    """Statement node"""
+    def __init__(self, statement_block: List[ASTNode]):
+        super().__init__()
+        self.children = statement_block
+
+    def r_eval(self) -> List[str]:
+        return [subitem for statement in self.children for subitem in statement.r_eval()]
+
+    def pretty_label(self) -> str:
+        return f"StatementBlockNode: length {len(self.children)}"
 
 
 class ProgramrecurNode(ASTNode):
@@ -311,7 +348,11 @@ class BoolNode(ASTNode):
         self.value = value
 
     def r_eval(self) -> List[str]:
-        return [f"const {self.value}"]
+        return [f"\tconst {self.value}"]
+
+    def c_eval(self, true_branch: str, false_branch: str) -> List[str]:
+        bool_code = self.r_eval()
+        return bool_code + [f"\tjump_if  {true_branch}", f"\tjump {false_branch}"]
 
     def pretty_label(self) -> str:
         return f"BoolNode {self.value}"
@@ -430,22 +471,25 @@ class MakeAssemblyTree(Transformer):
 
     def true(self, lst) -> ASTNode:
         print(f'In true {lst}')
-        return BoolNode(str(lst[0]))
+        return BoolNode("true")
 
     def false(self, lst) -> ASTNode:
         print(f'In true {lst}')
-        return BoolNode(str(lst[0]))
+        return BoolNode("false")
 
     def methodcall(self, lst) -> ASTNode:
         print(f'In methodcall {lst}')
-        caller, m_name = lst[:2]
-        methodargs = lst[2:]
-        # breakpoint()
+        caller, m_name, *methodargs = lst
         return MethodcallNode(caller, m_name.value, methodargs)
 
     def statement(self, lst) -> ASTNode:
         print(f'In statement {lst}')
         return StatementNode(lst[0])
+
+    def statement_block(self, lst) -> ASTNode:
+        # breakpoint()
+        print(f'In statement_block {lst}')
+        return StatementBlockNode(lst)
 
     def methodargs_recur(self, lst) -> ASTNode:
         print(f'In methodargs_recur {lst}')
@@ -469,6 +513,25 @@ class MakeAssemblyTree(Transformer):
         lexp, type, rexp = lst
         print(f'In assignment lexp:{lexp}, type:{type}, rexp:{rexp}')
         return AssignmentNode(lexp, rexp)
+
+    def ifstmt(self, lst) -> ASTNode:
+        condpart, thenpart, *elsepart = lst
+        return IfNode(condpart, thenpart, elsepart)
+
+    def ifelseifstmt(self, lst) -> ASTNode:
+        condpart, thenpart, *elifblock, elsepart = lst
+        elif_node = IfNode(elifblock[-2], elifblock[-1], elsepart)
+
+        # Number of additional elifs to handle
+        num_elifs = len(elifblock) / 2 - 1
+        counter = 2
+        while num_elifs > 0:
+            elif_node = IfNode(elifblock[-2*counter], elifblock[-2*counter + 1], elif_node)
+            num_elifs -= 1
+            counter += 1
+        return IfNode(condpart, thenpart, elif_node)
+
+
 
 
     def type(self, lst) -> str:
@@ -536,6 +599,7 @@ def main(quack_file, output_asm):
     print('------------------------------------------------------')
     ast = tree.transform(quack(input_str))
     print('------------------------------------------------------')
+    # pydot__tree_to_png(quack(input_str), 'a.png')
     print('Printing Transformed AST')
     # breakpoint()
     pretty_print(ast)
