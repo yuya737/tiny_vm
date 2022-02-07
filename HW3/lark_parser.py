@@ -3,6 +3,8 @@ from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 from lark import Lark, Transformer, v_args, Visitor, Tree, Token
 from lark.tree import pydot__tree_to_png
 from dataclasses import dataclass
+import class_hierarchy
+import type_checker
 
 quack_grammar = """
     ?start: program -> root
@@ -25,7 +27,7 @@ quack_grammar = """
     methodargs: rexp -> methodargs
         | methodargs "," rexp -> methodargs_recur
 
-    assignment: lexp ":" type "=" rexp
+    assignment: lexp [":" type] "=" rexp
 
     ?type: NAME
 
@@ -61,23 +63,9 @@ quack_grammar = """
     %ignore WS
 """
 
-# Keep track of each instruction and the data type of that set of instructions
-@dataclass
-class Instr_dtype_pair:
-    instr: List[str]
-    dtype: str
 
-# Keep track of the input and ouptut dtypes for each function
-@dataclass
-class Input_output_dtypes:
-    input_dtype: List[str]
-    output_dtype: str
-
-LAB_COUNT = 0
-def new_label(prefix: str) -> str:
-    global LAB_COUNT
-    LAB_COUNT += 1
-    return f"{prefix}_{LAB_COUNT}"
+ch = None
+tc = None
 
 class ASTNode:
     def __init__(self):
@@ -91,8 +79,59 @@ class ASTNode:
     def c_eval(self, true_branch: str, false_branch: str) -> List[str]:
         raise NotImplementedError(f"c_eval not implemented for node type {self.__class__.__name__}")
 
+    def type_eval(self) -> str:
+        raise NotImplementedError(f"type_eval not implemented for node type {self.__class__.__name__}")
+
     def pretty_label(self) -> str:
         raise NotImplementedError(f"pretty_label not implemented for node type {self.__class__.__name__}")
+
+
+class TypeChecker():
+    def __init__(self, ch: class_hierarchy, ast: ASTNode):
+        self.ch = ch
+        self.ast = ast
+        self.var_dict = {}
+
+    def post_order_traversal_helper(self, node) -> None:
+        if node.__class__.__name__ == 'AssignmentNode':
+            lexp, rexp = node.children
+
+            old_type = self.var_dict.get(lexp.value, None)
+
+            new_type = rexp.type_eval()
+            print(new_type, old_type, lexp.value)
+
+            # Add if first encouter
+            if not old_type:
+                self.var_dict[lexp.value] = new_type
+
+            # If type has changed
+            elif new_type != old_type:
+                self.var_dict[lexp.value] = self.ch.find_LCA(new_type, old_type)
+
+
+        print(self.var_dict)
+        for child in node.children:
+            self.post_order_traversal_helper(child)
+
+    def type_inference(self) -> Dict[str, str]:
+        self.post_order_traversal_helper(self.ast)
+        self.post_order_traversal_helper(self.ast)
+        # self.post_order_traversal_helper(self.ast)
+        # while self.post_order_traversal_helper(self.ast):
+        #     print('here')
+        #     continue
+        return self.var_dict
+
+
+LAB_COUNT = 0
+def new_label(prefix: str) -> str:
+    global LAB_COUNT
+    LAB_COUNT += 1
+    return f"{prefix}_{LAB_COUNT}"
+
+
+
 
 def pretty_helper(node: ASTNode, level: int, indent_str: str):
     print(node)
@@ -129,6 +168,11 @@ class RootNode(ASTNode):
         """Evaluate for value"""
         program = self.children[0]
         return program.r_eval()
+
+    def type_eval(self) -> str:
+        """Evaluate for value"""
+        program = self.children[0]
+        return program.type_eval()
 
     def pretty_label(self) -> str:
         return "RootNode"
@@ -188,6 +232,28 @@ class MethodcallNode(ASTNode):
                 + caller.r_eval()
                 + [f'\tcall Int:{self.m_name}'])
 
+    def type_eval(self) -> str:
+        caller, *argslist = self.children
+        caller_type = caller.type_eval()
+        args_types = [arg.type_eval() for arg in argslist]
+
+        # print(caller.r_eval())
+        # print('In methodcall type eval')
+        quackClassEntry = ch.find_class(caller_type)
+
+        # Make sure this function exists
+        quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == self.m_name]
+        if not quackFunctionEntry:
+            raise NotImplementedError(f'Function {self.m_name} for {caller_type} is not defined')
+
+        quackFunction = quackFunctionEntry[0]
+
+        # Make sure that the arguments are the right type
+        if args_types != quackFunction.params:
+            raise TypeError(f'Function {self.m_name} for {caller_type} expects {quackFunction.params} but got {args_types}')
+
+        return quackFunction.ret
+
     def pretty_label(self) -> str:
         return f"MethodcallNode: {self.m_name}"
 
@@ -201,6 +267,10 @@ class StatementNode(ASTNode):
     def r_eval(self) -> List[str]:
         return self.children[0].r_eval()
 
+    def type_eval(self) -> None:
+        self.children[0].type_eval()
+        return None
+
     def pretty_label(self) -> str:
         return "StatementNode"
 
@@ -212,6 +282,10 @@ class StatementBlockNode(ASTNode):
 
     def r_eval(self) -> List[str]:
         return [subitem for statement in self.children for subitem in statement.r_eval()]
+    def type_eval(self) -> None:
+        for statement in self.children:
+            statment.type_eval()
+        return None
 
     def pretty_label(self) -> str:
         return f"StatementBlockNode: length {len(self.children)}"
@@ -229,6 +303,12 @@ class ProgramrecurNode(ASTNode):
         return (program.r_eval()
                 + statement.r_eval())
 
+    def type_eval(self) -> None:
+        program, statement = self.children
+        program.type_eval()
+        statement.type_eval()
+        return None
+
     def pretty_label(self) -> str:
         return "ProgramRecurNode"
 
@@ -242,20 +322,29 @@ class ProgramNode(ASTNode):
     def r_eval(self) -> List[str]:
         return (self.children[0].r_eval())
 
+    def type_eval(self) -> None:
+        self.children[0].type_eval()
+        return None
+
     def pretty_label(self) -> str:
         return "ProgramNode"
 
 class MethodargsrecurNode(ASTNode):
     """Methodargs recur Node"""
-    def __init__(self, methodargs: ASTNode, constant: ASTNode):
+    def __init__(self, methodargs: ASTNode, rexp: ASTNode):
         super().__init__()
         self.children.append(methodargs)
-        self.children.append(constant)
+        self.children.append(rexp)
 
     def r_eval(self) -> List[str]:
-        methodargs, constant = self.children
+        methodargs, rexp = self.children
         return (methodargs.r_eval()
-                + constant.r_eval())
+                + rexp.r_eval())
+
+    def type_eval(self) -> List[str]:
+        methodargs, rexp = self.children
+        return (methodargs.type_eval()
+                + [rexp.type_eval()])
 
     def pretty_label(self) -> str:
         return "MethodargsRecurNode"
@@ -263,30 +352,52 @@ class MethodargsrecurNode(ASTNode):
 
 class MethodargsNode(ASTNode):
     """Methodargs  Node"""
-    def __init__(self, constant: ASTNode):
+    def __init__(self, rexp: ASTNode):
         super().__init__()
-        self.children.append(constant)
+        self.children.append(rexp)
 
     def r_eval(self) -> List[str]:
         return (self.children[0].r_eval())
+
+    def type_eval(self) -> List[str]:
+        return [self.children[0].type_eval()]
 
     def pretty_label(self) -> str:
         return "MethodargsNode"
 
 class AssignmentNode(ASTNode):
     """Assignment Node"""
-    def __init__(self, lexp: ASTNode, rexp: ASTNode):
+    def __init__(self, lexp: ASTNode, var_type: str, rexp: ASTNode):
         super().__init__()
         self.children.append(lexp)
         self.children.append(rexp)
+        self.var_type = var_type
 
     def r_eval(self) -> List[str]:
         lexp, rexp = self.children
         return (rexp.r_eval()
                 + [f'\tstore {lexp.r_eval()}'])
 
+    def type_eval(self) -> None:
+        self.children[0].type_eval()
+        self.children[1].type_eval()
+
+        # print('In assignment type eval')
+        expected_type = tc.var_dict[self.children[0].value]
+        actual_type = self.children[1].type_eval()
+
+        # Make sure that the arguments are the right type
+        if not ch.is_legal_assignment(expected_type, actual_type):
+            raise TypeError(f'Assignment expected {expected_type} but got {actual_type}')
+
+        # If a type was declared, make sure it was the correct type
+        if self.var_type and expected_type != self.var_type:
+            raise TypeError(f'Assignment declared {self.var_type} but inferred {expected_type}')
+
+        return None
+
     def pretty_label(self) -> str:
-        return "AssignmentNode"
+        return f"AssignmentNode {self.var_type}"
 
 
 class RexpNode(ASTNode):
@@ -297,6 +408,9 @@ class RexpNode(ASTNode):
 
     def r_eval(self) -> List[str]:
         return self.children[0].r_eval()
+
+    def type_eval(self) -> str:
+        return self.children[0].type_eval()
 
     def pretty_label(self) -> str:
         return "RexpNode"
@@ -311,18 +425,25 @@ class LexpNode(ASTNode):
     def r_eval(self) -> List[str]:
         return self.value
 
+    def type_eval(self) -> None:
+        return None
+
     def pretty_label(self) -> str:
         return f"LexpNode {self.value}"
 
 
 class VarReferenceNode(ASTNode):
     """VarReferecnce Node"""
-    def __init__(self, variable: str):
+    def __init__(self, variable: ASTNode):
         super().__init__()
         self.variable = variable.r_eval()
 
     def r_eval(self) -> List[str]:
         return [f'\tload {self.variable}']
+
+    #TODO: Fix mee
+    def type_eval(self) -> str:
+        return tc.var_dict[self.variable]
 
     def pretty_label(self) -> str:
         return f'VarReferenceNode: {self.variable}'
@@ -330,12 +451,16 @@ class VarReferenceNode(ASTNode):
 
 class ConstNode(ASTNode):
     """Constant"""
-    def __init__(self, value: str):
+    def __init__(self, value: str, value_type: str):
         super().__init__()
         self.value = value
+        self.value_type = value_type
 
     def r_eval(self) -> List[str]:
         return [f"\tconst {self.value}"]
+
+    def type_eval(self) -> str:
+        return self.value_type
 
     def pretty_label(self) -> str:
         return f"ConstNode {self.value}"
@@ -356,7 +481,6 @@ class BoolNode(ASTNode):
 
     def pretty_label(self) -> str:
         return f"BoolNode {self.value}"
-
 
 
 class ComparisonNode(ASTNode):
@@ -438,12 +562,12 @@ class MakeAssemblyTree(Transformer):
 
         # Functions to populate Input_output_dtypes:
         # neg, add, sub, mul, div
-        self.Input_output_dtypes_dict['neg'] = [Input_output_dtypes(['Int'], 'Int')]
-        self.Input_output_dtypes_dict['add'] = [Input_output_dtypes(['Int', 'Int'], 'Int'),
-                                                Input_output_dtypes(['String', 'String'], 'String')]
-        self.Input_output_dtypes_dict['sub'] = [Input_output_dtypes(['Int', 'Int'], 'Int')]
-        self.Input_output_dtypes_dict['mul'] = [Input_output_dtypes(['Int', 'Int'], 'Int')]
-        self.Input_output_dtypes_dict['div'] = [Input_output_dtypes(['Int', 'Int'], 'Int')]
+        # self.Input_output_dtypes_dict['neg'] = [Input_output_dtypes(['Int'], 'Int')]
+        # self.Input_output_dtypes_dict['add'] = [Input_output_dtypes(['Int', 'Int'], 'Int'),
+        #                                         Input_output_dtypes(['String', 'String'], 'String')]
+        # self.Input_output_dtypes_dict['sub'] = [Input_output_dtypes(['Int', 'Int'], 'Int')]
+        # self.Input_output_dtypes_dict['mul'] = [Input_output_dtypes(['Int', 'Int'], 'Int')]
+        # self.Input_output_dtypes_dict['div'] = [Input_output_dtypes(['Int', 'Int'], 'Int')]
 
     def write_to_file(self):
         with open(self.file, 'w') as file:
@@ -463,11 +587,11 @@ class MakeAssemblyTree(Transformer):
 
     def number(self, lst) -> ASTNode:
         print(f'In number {lst}')
-        return ConstNode(int(lst[0]))
+        return ConstNode(int(lst[0]), 'Int')
 
     def string(self, lst) -> ASTNode:
         print(f'In string {lst}')
-        return ConstNode(str(lst[0]))
+        return ConstNode(str(lst[0]), 'String')
 
     def true(self, lst) -> ASTNode:
         print(f'In true {lst}')
@@ -510,9 +634,13 @@ class MakeAssemblyTree(Transformer):
         return ProgramNode(lst[0])
 
     def assignment(self, lst) -> ASTNode:
-        lexp, type, rexp = lst
-        print(f'In assignment lexp:{lexp}, type:{type}, rexp:{rexp}')
-        return AssignmentNode(lexp, rexp)
+        lexp, *var_type, rexp = lst
+        var_type = var_type[0]
+        print(var_type)
+        if var_type:
+            var_type = var_type.value
+        print(f'In assignment lexp:{lexp}, type:{var_type}, rexp:{rexp}')
+        return AssignmentNode(lexp, var_type, rexp)
 
     def ifstmt(self, lst) -> ASTNode:
         condpart, thenpart, *elsepart = lst
@@ -564,30 +692,36 @@ class MakeAssemblyTree(Transformer):
     def neg(self, lst) -> ASTNode:
         val = lst[0]
         print(f'In neg: {val}')
-        return MethodcallNode(val, "minus", [ConstNode(0)])
+        return MethodcallNode(val, "MINUS", [ConstNode(0, 'Int')])
 
     def add(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In add: {val1}, {val2}')
-        return MethodcallNode(val1, "plus", [val2])
+        return MethodcallNode(val1, "PLUS", [val2])
 
     def sub(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In sub: {val1}, {val2}')
-        return MethodcallNode(val1, "minus", [val2])
+        return MethodcallNode(val1, "MINUS", [val2])
 
     def mul(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In mul: {val1}, {val2}')
-        return MethodcallNode(val1, "times", [val2])
+        return MethodcallNode(val1, "TIMES", [val2])
 
     def div(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In mul: {val1}, {val2}')
-        return MethodcallNode(val1, "divide", [val2])
+        return MethodcallNode(val1, "DIVIDE", [val2])
 
+def POT(Node):
+    if len(Node.children) > 0:
+        for child in Node.children:
+            POT(child)
+        # breakpoint()
+    print(Node.pretty_label())
 
-def main(quack_file, output_asm):
+def main(quack_file, output_asm, builtinclass_json):
     quack_parser = Lark(quack_grammar, parser='lalr')
     quack = quack_parser.parse
     with open(quack_file) as f:
@@ -599,27 +733,41 @@ def main(quack_file, output_asm):
     print('------------------------------------------------------')
     ast = tree.transform(quack(input_str))
     print('------------------------------------------------------')
-    # pydot__tree_to_png(quack(input_str), 'a.png')
+    pydot__tree_to_png(quack(input_str), 'a.png')
+    global ch
+    ch = class_hierarchy.parse_builtin_classes(builtinclass_json)
+    print('Printing Class Hierarchy')
+    class_hierarchy.pretty_print(ch)
+    print('------------------------------------------------------')
     print('Printing Transformed AST')
-    # breakpoint()
     pretty_print(ast)
+    print('------------------------------------------------------')
+    # ast.type_eval()
+    print('------------------------------------------------------')
+    POT(ast)
+    print('------------------------------------------------------')
+    global tc
+    tc = TypeChecker(ch, ast)
+    print(tc.type_inference())
+    print('Done Type Inference')
+    ast.type_eval()
     inst = ast.r_eval()
     print(inst)
-    with open(output_asm, 'w') as f:
-        f.write('.class Main:Obj\n')
-        f.write('\n')
-        f.write('.method $constructor\n')
-        f.write('.local i,j,s,t\n')
-        for i in inst:
-            f.write(i)
-            f.write('\n')
-        f.write('\thalt\n')
-        f.write('\treturn 0\n')
+    # with open(output_asm, 'w') as f:
+    #     f.write('.class Main:Obj\n')
+    #     f.write('\n')
+    #     f.write('.method $constructor\n')
+    #     f.write('.local i,j,s,t\n')
+    #     for i in inst:
+    #         f.write(i)
+    #         f.write('\n')
+    #     f.write('\thalt\n')
+    #     f.write('\treturn 0\n')
 
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 3:
-        print('Usage: lark_parser.py [input_quack_file] [path/to/output.asm]')
+    if len(sys.argv) != 4:
+        print('Usage: lark_parser.py [input_quack_file] [path/to/output.asm] [path/to/builtinclass.json]')
         sys.exit(1)
-    main(sys.argv[1], sys.argv[2])
+    main(sys.argv[1], sys.argv[2], sys.argv[3])
