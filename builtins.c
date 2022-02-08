@@ -390,6 +390,8 @@ class_ref the_class_String = &the_class_String_struct;
  *    STRING
  *    PRINT
  *    EQUALS
+ *    AND
+ *    OR
  *
  * =================
  */
@@ -429,6 +431,54 @@ vm_Word method_Boolean_string[] = {
         {.intval = 0 }
 };
 
+obj_ref native_Boolean_and() {
+    obj_ref this = vm_fp->obj;
+    assert_is_type(this, the_class_Boolean);
+    obj_Boolean this_boolean = (obj_Boolean) this;
+    obj_ref other = (vm_fp - 1)->obj;
+    assert_is_type(other, the_class_Boolean);
+    obj_Boolean other_boolean = (obj_Boolean) other;
+    log_debug("AND between  %d == %d",
+           this_boolean->value, other_boolean->value);
+    if ((this_boolean->value == -1) && (other_boolean->value == -1)) {
+        return lit_true;
+    } else {
+        return lit_false;
+    }
+}
+
+vm_Word method_Boolean_and[] = {
+        {.instr = vm_op_enter},
+        {.instr = vm_op_call_native},
+        {.native = native_Boolean_and},
+        {.instr = vm_op_return},
+        {.intval = 1}
+};
+
+obj_ref native_Boolean_or() {
+    obj_ref this = vm_fp->obj;
+    assert_is_type(this, the_class_Boolean);
+    obj_Boolean this_boolean = (obj_Boolean) this;
+    obj_ref other = (vm_fp - 1)->obj;
+    assert_is_type(other, the_class_Boolean);
+    obj_Boolean other_boolean = (obj_Boolean) other;
+    log_debug("AND between  %d == %d",
+           this_boolean->value, other_boolean->value);
+    if ((this_boolean->value == -1) || (other_boolean->value == -1)) {
+        return lit_true;
+    } else {
+        return lit_false;
+    }
+}
+
+vm_Word method_Boolean_or[] = {
+        {.instr = vm_op_enter},
+        {.instr = vm_op_call_native},
+        {.native = native_Boolean_or},
+        {.instr = vm_op_return},
+        {.intval = 1}
+};
+
 /* Inherit Obj:equals, since we have only two
  * objects of class Boolean.
  */
@@ -447,7 +497,9 @@ struct  class_struct  the_class_Boolean_struct = {
                  method_Boolean_constructor, // constructor
                  method_Boolean_string, // STRING
                  method_Obj_print, // PRINT
-                 method_Obj_equals  // EQUALS
+                 method_Obj_equals, // EQUALS
+                 method_Boolean_and, // STRING
+                 method_Boolean_or // STRING
                 }
 };
 

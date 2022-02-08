@@ -65,9 +65,6 @@ class RootObjClass(QuackClass):
         # Return if path_to_actual_class starts with path_to_expected_class. In other words, if actual_class is a subclass of expected_class
         return path_to_actual_class[:len(path_to_expected_class)] == path_to_expected_class
 
-
-
-
     def find_class_helper(self, cur_node: QuackClass, class_name: str) -> Union[QuackClass, None]:
         if cur_node.class_name == class_name:
             return cur_node

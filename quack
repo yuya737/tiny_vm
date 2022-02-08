@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 IFS="." read -a quackfilename <<< "$1"
 binaryname="${quackfilename[0]}"

@@ -6,10 +6,10 @@
                "print",
                 "equals",
                 "less",
-                "plus",
-                "minus",
-                "times",
-                "divide"
+                "PLUS",
+                "MINUS",
+                "TIMES",
+                "DIVIDE"
   ],
   "fields": []
 }

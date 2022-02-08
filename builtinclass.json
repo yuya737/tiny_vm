@@ -1,0 +1,214 @@
+{
+    "Obj": {
+        "super": "Obj",
+        "methods": {
+            "$constructor": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "string": {
+                "params": [],
+                "ret": "String"
+
+            },
+            "print": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "equals": {
+                "params": [
+                    "Obj"
+
+                ],
+                "ret": "Boolean"
+
+            }
+
+        },
+        "fields": {}
+
+    },
+    "Int": {
+        "super": "Obj",
+        "methods": {
+            "$constructor": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "string": {
+                "params": [],
+                "ret": "String"
+
+            },
+            "print": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "equals": {
+                "params": [
+                    "Int"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "less": {
+                "params": [
+                    "Int"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "PLUS": {
+                "params": [
+                    "Int"
+
+                ],
+                "ret": "Int"
+
+            },
+            "TIMES": {
+                "params": [
+                    "Int"
+
+                ],
+                "ret": "Int"
+
+            },
+            "MINUS": {
+                "params": [
+                    "Int"
+
+                ],
+                "ret": "Int"
+
+            },
+            "DIVIDE": {
+                "params": [
+                    "Int"
+
+                ],
+                "ret": "Int"
+
+            }
+
+        },
+        "fields": {}
+
+    },
+    "String": {
+        "super": "Obj",
+        "methods": {
+            "$constructor": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "string": {
+                "params": [],
+                "ret": "String"
+
+            },
+            "print": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "equals": {
+                "params": [
+                    "String"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "less": {
+                "params": [
+                    "String"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "PLUS": {
+                "params": [
+                    "String"
+
+                ],
+                "ret": "String"
+
+            }
+
+        },
+        "fields": {}
+
+    },
+    "Nothing": {
+        "super": "Obj",
+        "methods": {
+            "$constructor": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "string": {
+                "params": [],
+                "ret": "String"
+
+            },
+            "print": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "equals": {
+                "params": [
+                    "Obj"
+
+                ],
+                "ret": "Boolean"
+
+            }
+
+        },
+        "fields": {}
+
+    },
+    "Boolean": {
+        "super": "Obj",
+        "methods": {
+            "$constructor": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "string": {
+                "params": [],
+                "ret": "String"
+
+            },
+            "print": {
+                "params": [],
+                "ret": "Nothing"
+
+            },
+            "equals": {
+                "params": [
+                    "Boolean"
+
+                ],
+                "ret": "Boolean"
+
+            }
+
+        },
+        "fields": {}
+
+    }
+    
+}
