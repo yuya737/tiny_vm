@@ -16,10 +16,12 @@ quack_grammar = """
     statement: rexp ";"
         | assignment ";"
         | ifstmt
+        | whilestmt
 
     ifstmt: "if" rexp statement_block [("else" statement_block)] -> ifstmt
         | "if" rexp statement_block ("elif" rexp statement_block)+ "else" statement_block -> ifelseifstmt
 
+    whilestmt: "while" rexp statement_block
 
     methodcall: rexp "." NAME "(" methodargs? ")"
 
@@ -38,11 +40,11 @@ quack_grammar = """
 
     logic_expr: rexp "and" rexp -> _and
         | rexp "or" rexp -> _or
-        | "not" rexp -> not
+        | "not" rexp -> _not
         | rexp "<" rexp -> lt
         | rexp ">" rexp -> gt
-        | rexp "<=" rexp -> le
-        | rexp ">=" rexp -> ge
+        | rexp "<=" rexp -> leq
+        | rexp ">=" rexp -> geq
         | rexp "==" rexp -> eq
 
     lexp: NAME              -> lexp
@@ -220,6 +222,40 @@ class IfNode(ASTNode):
             return "IfElseNode"
 
 
+class WhileNode(ASTNode):
+    """if cond then block else block"""
+    def __init__(self, condpart: ASTNode, statementblock: ASTNode):
+        super().__init__()
+        self.children.append(condpart)
+        self.children.append(statementblock)
+
+    def r_eval(self) -> List[str]:
+        """Evaluate for value"""
+        condpart, statementblock = self.children
+        loophead = new_label("loop_head")
+        looptest = new_label("loop_test")
+        nextStmt = new_label("done")
+
+        block = statementblock.r_eval()
+
+        whiletest = condpart.c_eval(loophead, nextStmt)
+        return ([f'jump {looptest}']
+                + [loophead + ":"]
+                + block
+                + [looptest + ":"]
+                + whiletest
+                + [nextStmt + ":"])
+
+    def type_eval(self) -> None:
+        condpart, statementblock = self.children
+        statementblock.type_eval()
+
+        if condpart.type_eval() != "Boolean":
+            raise TypeError("If statement expects the condition to return a Boolean")
+
+    def pretty_label(self) -> str:
+        return "WhileNode"
+
 
 class MethodcallNode(ASTNode):
     """Method call node"""
@@ -239,7 +275,7 @@ class MethodcallNode(ASTNode):
     def type_eval(self) -> str:
         caller, *argslist = self.children
         caller_type = caller.type_eval()
-        args_types = [arg.type_eval() for arg in argslist]
+        args_types = [subitem for arg in argslist for subitem in arg.type_eval()]
 
         # print(caller.r_eval())
         # print('In methodcall type eval')
@@ -257,6 +293,10 @@ class MethodcallNode(ASTNode):
             raise TypeError(f'Function {self.m_name} for {caller_type} expects {quackFunction.params} but got {args_types}')
 
         return quackFunction.ret
+
+    def c_eval(self, true_branch: str, false_branch: str) -> List[str]:
+        bool_code = self.r_eval()
+        return bool_code + [f"\tjump_if  {true_branch}", f"\tjump {false_branch}"]
 
     def pretty_label(self) -> str:
         return f"MethodcallNode: {self.m_name}"
@@ -384,9 +424,6 @@ class AssignmentNode(ASTNode):
                 + [f'\tstore {lexp.r_eval()}'])
 
     def type_eval(self) -> None:
-
-        # print('In assignment type eval')
-
         lexp, rexp = self.children
 
         actual_type = rexp.type_eval()
@@ -397,7 +434,6 @@ class AssignmentNode(ASTNode):
         # Add to var_dict if this is the first encounter
         if not prev_inferred_type:
             var_dict[lexp.value] = actual_type
-
 
         # If we inferred a type before ...
         if prev_inferred_type:
@@ -464,11 +500,17 @@ class VarReferenceNode(ASTNode):
     def r_eval(self) -> List[str]:
         return [f'\tload {self.variable}']
 
+    # def c_eval(self, true_branch: str, false_branch: str) -> List[str]
+
     #TODO: Fix mee
     def type_eval(self) -> str:
         if self.variable not in var_dict:
             raise ValueError(f'{self.variable} is referenced before assignment')
         return var_dict[self.variable]
+
+    def c_eval(self, true_branch: str, false_branch: str) -> List[str]:
+        bool_code = self.r_eval()
+        return bool_code + [f"\tjump_if  {true_branch}", f"\tjump {false_branch}"]
 
     def pretty_label(self) -> str:
         return f'VarReferenceNode: {self.variable}'
@@ -515,21 +557,81 @@ class ComparisonNode(ASTNode):
     """Comparisons are the leaves of conditional branches
     and can also return boolean values
     """
-    def __init__(self, comp_op: str, left: ASTNode, right: ASTNode):
+    def __init__(self, left: ASTNode, right: ASTNode, comp_op: str):
         super().__init__()
+        self.children.append(left)
+        self.children.append(right)
         self.comp_op = comp_op
-        self.left = left
-        self.right = right
+
 
     def r_eval(self) -> List[str]:
         """Called if we want a boolean VALUE rather than a branch"""
-        left_code = self.left.r_eval()
-        right_code = self.right.r_eval()
-        return left_code + right_code + [self.comp_op]
+        left, right = self.children
+        left_code = left.r_eval()
+        right_code = right.r_eval()
+        caller_type = left.type_eval()
+
+        if self.comp_op == "==":
+            return right_code + left_code + [f'\tcall {caller_type}:EQUALS']
+        if self.comp_op == "<":
+            return right_code + left_code + [f'\tcall {caller_type}:LESS']
+        if self.comp_op == ">":
+            return right_code + left_code + [f'\tcall {caller_type}:MORE']
+        if self.comp_op == "<=":
+            return right_code + left_code + [f'\tcall {caller_type}:ATMOST']
+        if self.comp_op == ">=":
+            return right_code + left_code + [f'\tcall {caller_type}:ATLEAST']
+
+    def type_eval(self) -> str:
+        left, right = self.children
+
+        caller_type = left.type_eval()
+        quackClassEntry = ch.find_class(caller_type)
+
+        # If equals, make sure that the equals exists
+        if self.comp_op == "==":
+
+            # Make sure this function exists
+            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "EQUALS"]
+            if not quackFunctionEntry:
+                raise NotImplementedError(f'Function EQUALS for {caller_type} is not defined')
+
+        if self.comp_op == "<":
+
+            # Make sure this function exists
+            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "LESS"]
+            if not quackFunctionEntry:
+                raise NotImplementedError(f'Function LESS for {caller_type} is not defined')
+
+        if self.comp_op == ">":
+
+            # Make sure this function exists
+            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "MORE"]
+            if not quackFunctionEntry:
+                raise NotImplementedError(f'Function MORE for {caller_type} is not defined')
+
+        if self.comp_op == "<=":
+
+            # Make sure this function exists
+            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "ATMOST"]
+            if not quackFunctionEntry:
+                raise NotImplementedError(f'Function ATMOST for {caller_type} is not defined')
+
+        if self.comp_op == ">=":
+
+            # Make sure this function exists
+            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "ATLEAST"]
+            if not quackFunctionEntry:
+                raise NotImplementedError(f'Function ATLEAST for {caller_type} is not defined')
+
+        return "Boolean"
 
     def c_eval(self, true_branch: str, false_branch: str) -> List[str]:
         bool_code = self.r_eval()
-        return bool_code + [f"Jump if true  {true_branch}", f"Jump always {false_branch}"]
+        return bool_code + [f"\tjump_if  {true_branch}", f"\tjump {false_branch}"]
+
+    def pretty_label(self) -> str:
+        return f"ComparisonNode: {self.comp_op}"
 
 class AndNode(ASTNode):
     """Boolean and, short circuit; can be evaluated for jump or for boolean value"""
@@ -590,18 +692,29 @@ class OrNode(ASTNode):
         return "OrNode"
 
 
-class Arith(ASTNode):
-    """Arithmetic operations"""
-    def __init__(self, op: str, left: ASTNode, right: ASTNode):
-        self.op = op
-        self.left = left
-        self.right = right
+class NotNode(ASTNode):
+    """Boolean or, short circuit; can be evaluated for jump or for boolean value"""
+    def __init__(self, statement: ASTNode):
+        super().__init__()
+        self.children.append(statement)
+
+    # FIXME: Needs r_eval to allow production of boolean value
 
     def r_eval(self) -> List[str]:
-        return ( self.left.r_eval()
-                 + self.right.r_eval()
-                 + [self.op]
-                 )
+        statement = self.children[0]
+        return (statement.r_eval() + ['\tcall Boolean:NOT'])
+
+    def c_eval(self, true_branch: str, false_branch: str) -> List[str]:
+        """Use in a conditional branch"""
+        statement = self.children[0]
+        return statement.c_eval(false_branch, true_branch)
+
+    def type_eval(self) -> str:
+        return "Boolean"
+
+    def pretty_label(self) -> str:
+        return "NotNode"
+
 
 # class MakeAssemblyTree(Transformer):
 class MakeAssemblyTree(Transformer):
@@ -697,10 +810,12 @@ class MakeAssemblyTree(Transformer):
 
     def ifstmt(self, lst) -> ASTNode:
         condpart, thenpart, elsepart = lst
+        print(f'In ifstmt {lst}')
         return IfNode(condpart, thenpart, elsepart)
 
     def ifelseifstmt(self, lst) -> ASTNode:
         condpart, thenpart, *elifblock, elsepart = lst
+        print(f'In ifelseifstmt {lst}')
         elif_node = IfNode(elifblock[-2], elifblock[-1], elsepart)
 
         # Number of additional elifs to handle
@@ -712,6 +827,12 @@ class MakeAssemblyTree(Transformer):
             counter += 1
         return IfNode(condpart, thenpart, elif_node)
 
+    def whilestmt(self, lst) -> ASTNode:
+        condpart, statementblock = lst
+        print(f'In whilestmt {lst}')
+        return WhileNode(condpart, statementblock)
+
+
     def _or(self, lst) -> ASTNode:
         left, right = lst
         print(f'In OR {left}, {right}')
@@ -721,6 +842,36 @@ class MakeAssemblyTree(Transformer):
         left, right = lst
         print(f'In OR {left}, {right}')
         return AndNode(left, right)
+
+    def _not(self, lst) -> ASTNode:
+        statement = lst[0]
+        print(f'In NOT {statement}')
+        return NotNode(statement)
+
+    def eq(self, lst) -> ASTNode:
+        left, right = lst
+        print(f'In eq {left}, {right}')
+        return ComparisonNode(left, right, "==")
+
+    def lt(self, lst) -> ASTNode:
+        left, right = lst
+        print(f'In lt {left}, {right}')
+        return ComparisonNode(left, right, "<")
+
+    def gt(self, lst) -> ASTNode:
+        left, right = lst
+        print(f'In gt {left}, {right}')
+        return ComparisonNode(left, right, ">")
+
+    def geq(self, lst) -> ASTNode:
+        left, right = lst
+        print(f'In geq {left}, {right}')
+        return ComparisonNode(left, right, ">=")
+
+    def leq(self, lst) -> ASTNode:
+        left, right = lst
+        print(f'In leq {left}, {right}')
+        return ComparisonNode(left, right, "<=")
 
 
     def type(self, lst) -> str:

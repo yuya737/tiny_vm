@@ -48,7 +48,7 @@
                 "ret": "Nothing"
 
             },
-            "equals": {
+            "EQUALS": {
                 "params": [
                     "Int"
 
@@ -56,7 +56,31 @@
                 "ret": "Boolean"
 
             },
-            "less": {
+            "LESS": {
+                "params": [
+                    "Int"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "MORE": {
+                "params": [
+                    "Int"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "ATLEAST": {
+                "params": [
+                    "Int"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "ATMOST": {
                 "params": [
                     "Int"
 
@@ -119,7 +143,7 @@
                 "ret": "Nothing"
 
             },
-            "equals": {
+            "EQUALS": {
                 "params": [
                     "String"
 
@@ -127,7 +151,31 @@
                 "ret": "Boolean"
 
             },
-            "less": {
+            "LESS": {
+                "params": [
+                    "String"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "MORE": {
+                "params": [
+                    "String"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "ATLEAST": {
+                "params": [
+                    "String"
+
+                ],
+                "ret": "Boolean"
+
+            },
+            "ATMOST": {
                 "params": [
                     "String"
 

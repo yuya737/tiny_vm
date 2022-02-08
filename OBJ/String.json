@@ -4,9 +4,12 @@
   "methods": [ "$constructor",
     "string",
     "print",
-    "equals",
-    "plus",
-    "less"
+    "EQUALS",
+    "LESS",
+    "MORE",
+    "ATLEAST",
+    "ATMOST",
+    "PLUS"
   ],
   "fields": []
 }
