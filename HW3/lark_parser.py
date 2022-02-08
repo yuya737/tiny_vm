@@ -4,7 +4,6 @@ from lark import Lark, Transformer, v_args, Visitor, Tree, Token
 from lark.tree import pydot__tree_to_png
 from dataclasses import dataclass
 import class_hierarchy
-import type_checker
 
 quack_grammar = """
     ?start: program -> root
