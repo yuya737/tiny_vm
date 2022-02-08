@@ -199,7 +199,6 @@ class IfNode(ASTNode):
             var_dict = var_dict_before_if.copy()
             elsepart.type_eval()
             var_dict_after_else = var_dict.copy()
-            # print(var_dict_before_if, var_dict_after_then, var_dict_after_else)
 
             # Construct new var_dict as a union of items. When there is an overlap assign the LCA
             new_dict = var_dict_after_then.copy()
@@ -210,9 +209,10 @@ class IfNode(ASTNode):
                     new_dict[var] = var_dict_after_else[var]
             var_dict = new_dict
 
-
         if condpart.type_eval() != "Boolean":
             raise TypeError("If statement expects the condition to return a Boolean")
+
+        return None
 
 
     def pretty_label(self) -> str:
@@ -252,6 +252,7 @@ class WhileNode(ASTNode):
 
         if condpart.type_eval() != "Boolean":
             raise TypeError("If statement expects the condition to return a Boolean")
+        return None
 
     def pretty_label(self) -> str:
         return "WhileNode"
@@ -266,7 +267,6 @@ class MethodcallNode(ASTNode):
         self.m_name = m_name
 
     def r_eval(self) -> List[str]:
-        #TODO: Add type here, let it be Int for now
         caller = self.children[0]
         return ([subitem for args in self.children[1:] for subitem in args.r_eval()]
                 + caller.r_eval()
@@ -275,7 +275,8 @@ class MethodcallNode(ASTNode):
     def type_eval(self) -> str:
         caller, *argslist = self.children
         caller_type = caller.type_eval()
-        args_types = [subitem for arg in argslist for subitem in arg.type_eval()]
+        # args_types = [subitem for arg in argslist for subitem in arg.type_eval()]
+        args_types = [args.type_eval() for args in argslist]
 
         # print(caller.r_eval())
         # print('In methodcall type eval')
@@ -502,7 +503,6 @@ class VarReferenceNode(ASTNode):
 
     # def c_eval(self, true_branch: str, false_branch: str) -> List[str]
 
-    #TODO: Fix mee
     def type_eval(self) -> str:
         if self.variable not in var_dict:
             raise ValueError(f'{self.variable} is referenced before assignment')
