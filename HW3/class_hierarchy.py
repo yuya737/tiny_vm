@@ -9,12 +9,12 @@ class QuackClassMethod():
 
 
 class QuackClass():
-    def __init__(self, class_name: str, super_class: str, methods_list: List[QuackClassMethod], fields_list: List[str]):
+    def __init__(self, class_name: str, super_class: str, methods_list: List[QuackClassMethod], fields_list: Dict[str, str]):
         self.class_name = class_name
         self.super_class = super_class
         self.methods_list = methods_list
         self.fields_list = fields_list
-        self.children = []
+        self.children: List[QuackClass] = []
 
 
 class RootObjClass(QuackClass):
@@ -23,7 +23,7 @@ class RootObjClass(QuackClass):
                        QuackClassMethod("print", [], "Nothing"),
                        QuackClassMethod("equals", ["Obj"], "Boolean")
                        ]
-        super().__init__("Obj", "Obj", Obj_methods, [])
+        super().__init__("Obj", "Obj", Obj_methods, {})
 
     def get_path_to_subclass_helper(self, cur_node: QuackClass, class_name: str, path_so_far: List[str]) -> bool:
         path_so_far.append(cur_node.class_name)
