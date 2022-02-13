@@ -15,13 +15,15 @@ quack_grammar = """
 
     program: class* statement*
 
-    class: class_signature class_body -> qclass
+    class: class_signature "{" constructor_statement_block method_block "}" -> qclass
 
     class_signature: "class" IDENT "(" formal_args ")" ["extends" IDENT]
 
     formal_args: [ IDENT ":" IDENT ("," IDENT ":" IDENT)*]
 
-    class_body: "{" statement* method* "}"
+    constructor_statement_block: statement*
+
+    method_block: method*
 
     method: "def" IDENT "(" formal_args ")" [":" IDENT] statement_block
 
@@ -190,6 +192,16 @@ class MakeAssemblyTree(Transformer):
         print(f'In statement_block {lst}')
         return StatementBlockNode(lst)
 
+    def constructor_statement_block(self, lst) -> ASTNode:
+        # breakpoint()
+        print(f'In constructor statement_block {lst}')
+        return ConstructorStatementBlockNode(lst)
+
+    def method_block(self, lst) -> ASTNode:
+        # breakpoint()
+        print(f'In method {lst}')
+        return ClassMethodBlockNode(lst)
+
     def methodargs_recur(self, lst) -> ASTNode:
         print(f'In methodargs_recur {lst}')
         methodargs, constant = lst
@@ -201,8 +213,8 @@ class MakeAssemblyTree(Transformer):
 
     def qclass(self, lst) -> ASTNode:
         print(f'In class {lst}')
-        class_signature, class_body = lst
-        return ClassNode(class_signature, class_body)
+        class_signature, constructor_statement_block, method_block = lst
+        return ClassNode(class_signature, constructor_statement_block, method_block)
 
     def class_signature(self, lst) -> ASTNode:
         print(f'In class signature {lst}')
@@ -383,19 +395,19 @@ class MakeAssemblyTree(Transformer):
 def type_check(RootNode: ASTNode) -> Dict[str, str]:
     var_dict: Dict[str, str] = {}
     RootNode.type_eval(var_dict)
-    temp_var_dict = var_dict.copy()
-    print('Variables after first pass', var_dict)
-    count = 1
-    while True:
-        print(f'In type_check iteration number: {count}')
-        RootNode.type_eval(var_dict)
-        print(f'Variables after pass numer: {count}', var_dict)
-        count += 1
-        if temp_var_dict == var_dict:
-            break
-        else:
-            temp_var_dict = var_dict.copy()
-    print('Finished Type Checking')
+    # temp_var_dict = var_dict.copy()
+    # print('Variables after first pass', var_dict)
+    # count = 1
+    # while True:
+    #     print(f'In type_check iteration number: {count}')
+    #     RootNode.type_eval(var_dict)
+    #     print(f'Variables after pass numer: {count}', var_dict)
+    #     count += 1
+    #     if temp_var_dict == var_dict:
+    #         break
+    #     else:
+    #         temp_var_dict = var_dict.copy()
+    # print('Finished Type Checking')
     return var_dict
 
 def write_to_file(RootNode: ASTNode, output_asm: str, var_dict: Dict[str, str]) -> None:
@@ -437,7 +449,7 @@ def main(quack_file, output_asm, builtinclass_json):
     print('Printing Transformed AST')
     pretty_print(ast)
     print('------------------------------------------------------')
-    # var_dict = type_check(ast)
+    var_dict = type_check(ast)
     # print('Printing Final Var_dict')
     # print(var_dict)
     print('------------------------------------------------------')
