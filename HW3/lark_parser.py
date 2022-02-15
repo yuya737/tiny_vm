@@ -425,7 +425,9 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
         with open(f'{class_name}.asm', 'w') as f:
             instr = qclass.r_eval({})
             for i in instr:
-                print(i)
+                # Replace every occurence of current class with dollar sign, except the class declaration
+                if not i.startswith('.class') and class_name in i:
+                    i = i.replace(class_name, '$')
                 f.write(i)
                 f.write('\n')
 
@@ -468,11 +470,6 @@ def main(quack_file, output_asm, builtinclass_json):
     print('Printing Transformed AST')
     pretty_print(ast)
     print('------------------------------------------------------')
-    # var_dict = type_check(ast)
-    # print('Printing Final Var_dict')
-    # print(var_dict)
-    print('------------------------------------------------------')
-    # write_to_file(ast, output_asm, var_dict)
     write_to_file(quack_file, ast, output_asm, {})
 
 

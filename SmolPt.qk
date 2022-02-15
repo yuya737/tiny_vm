@@ -13,6 +13,14 @@
      def temp(): Int {
          return this.y*this.x;
      }
+
+     def PLUS(other: SmolPt): SmolPt {
+         return SmolPt(this.x + other.x, this.y + other.y);
+     }
+
+     def string(): String{
+         return "Point: " + this.x.string() + " " + this.y.string();
+     }
 }
 
 x = SmolPt(4,2);
@@ -20,3 +28,9 @@ y = SmolPt(2,3)._get_y() * 10;
 z = x.temp();
 y.print();
 (y+z).print();
+"\n".print();
+a = SmolPt(9,9) + SmolPt(1,1);
+a.string().print();
+k = a + a;
+k.string().print();
+

@@ -212,7 +212,6 @@ class MethodcallNode(ASTNode):
 
         # Make sure that the arguments are the right type. If there are no arguments, make sure that the funtion is supposed to take no parameters
         args_types = methodargs.type_eval(local_var_dict) if methodargs else []
-        print(self.m_name, args_types, quackFunction.params)
         if args_types != quackFunction.params:
             raise TypeError(f'Function {self.m_name} for {caller_type} expects {quackFunction.params} but got {args_types}')
 
