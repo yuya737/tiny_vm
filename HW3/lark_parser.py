@@ -236,7 +236,7 @@ class MakeAssemblyTree(Transformer):
     def method(self, lst) -> ASTNode:
         method_name, formal_args, ret_type, statement_block = lst
         if ret_type:
-            ret_type = ret_type[0].value
+            ret_type = ret_type.value
         return ClassMethodNode(method_name.value, formal_args, ret_type, statement_block)
 
 
@@ -359,7 +359,7 @@ class MakeAssemblyTree(Transformer):
 
     def return_statement(self, lst) -> ASTNode:
         print(f'In return {lst}')
-        return StatementNode(lst[0])
+        return ReturnStatementNode(lst[0])
 
     # # Check if the current function arguments are valid. If so, return receiver type and return type
     # def check_if_valid_func_invocation(self, func_name: str, input_type_list: List[str]):
@@ -414,16 +414,31 @@ def type_check(RootNode: ASTNode) -> Dict[str, str]:
     # print('Finished Type Checking')
     return var_dict
 
-def write_to_file(RootNode: ASTNode, output_asm: str, var_dict: Dict[str, str]) -> None:
-    instr = RootNode.r_eval(var_dict)
-    print(instr)
-    with open(output_asm, 'w') as f:
-        f.write('.class Main:Obj\n')
+def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict: Dict[str, str]) -> None:
+    # instr = RootNode.r_eval(var_dict)
+    ProgramNode = RootNode.children[0]
+    *class_list, bare_statement_block_node = ProgramNode.children
+    for qclass in class_list:
+        qclass.type_eval({})
+    for qclass in class_list:
+        class_name = qclass.children[0].class_name
+        with open(f'{class_name}.asm', 'w') as f:
+            instr = qclass.r_eval({})
+            for i in instr:
+                print(i)
+                f.write(i)
+                f.write('\n')
+
+    main_file_name = quack_file.rstrip('.qk')
+    with open(main_file_name + '_main.asm', 'w') as f:
+        bare_statement_block_local_var_dict = {}
+        bare_statement_block_node.type_eval(bare_statement_block_local_var_dict)
+        instr = bare_statement_block_node.r_eval(bare_statement_block_local_var_dict)
+        f.write(f".class {main_file_name + '_main'}:Obj\n")
         f.write('\n')
         f.write('.method $constructor\n')
-        # var_list = ','.join(var_dict.keys())
-        # if var_list:
-        #     f.write(f'.local {var_list}\n')
+        if bare_statement_block_local_var_dict.keys():
+            f.write(f".local {','.join(bare_statement_block_local_var_dict.keys())}\n")
         for i in instr:
             f.write(i)
             f.write('\n')
@@ -453,12 +468,12 @@ def main(quack_file, output_asm, builtinclass_json):
     print('Printing Transformed AST')
     pretty_print(ast)
     print('------------------------------------------------------')
-    var_dict = type_check(ast)
+    # var_dict = type_check(ast)
     # print('Printing Final Var_dict')
     # print(var_dict)
     print('------------------------------------------------------')
     # write_to_file(ast, output_asm, var_dict)
-    write_to_file(ast, output_asm, {})
+    write_to_file(quack_file, ast, output_asm, {})
 
 
 

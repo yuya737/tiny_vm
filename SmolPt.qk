@@ -1,0 +1,22 @@
+ class SmolPt(x: Int, y: Int) {
+     this.x = x;
+     this.y = y;
+
+     def _get_x(): Int{
+         return this.x;
+     }
+
+     def _get_y(): Int{
+         return this.y;
+     }
+
+     def temp(): Int {
+         return this.y*this.x;
+     }
+}
+
+x = SmolPt(4,2);
+y = SmolPt(2,3)._get_y() * 10;
+z = x.temp();
+y.print();
+(y+z).print();

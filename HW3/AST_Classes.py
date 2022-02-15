@@ -239,13 +239,34 @@ class StatementNode(ASTNode):
         self.children[0].type_eval(local_var_dict)
         return None
 
-    def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]):
-        for child in self.children:
-            if isinstance(child, AssignmentNode):
-                child.get_field_variables(field_var_dict, temp_local_var_dict)
+    # def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]):
+    #     for child in self.children:
+    #         if isinstance(child, AssignmentNode):
+    #             child.get_field_variables(field_var_dict, temp_local_var_dict)
 
     def pretty_label(self) -> str:
         return "StatementNode"
+
+class ReturnStatementNode(ASTNode):
+    """Return Statement node"""
+    def __init__(self, statement: ASTNode):
+        super().__init__()
+        self.children.append(statement)
+
+    def r_eval(self, local_var_dict: Dict[str, str]):
+        return self.children[0].r_eval(local_var_dict)
+
+    def type_eval(self, local_var_dict: Dict[str, str]):
+        self.children[0].type_eval(local_var_dict)
+        return None
+
+    # def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]):
+    #     for child in self.children:
+    #         if isinstance(child, AssignmentNode):
+    #             child.get_field_variables(field_var_dict, temp_local_var_dict)
+
+    def pretty_label(self) -> str:
+        return "ReturnStatementNode"
 
 class StatementBlockNode(ASTNode):
     """Statement node"""
@@ -268,11 +289,11 @@ class StatementBlockNode(ASTNode):
 
 class ProgramNode(ASTNode):
     """Class  Node"""
-    def __init__(self, class_list: List[ASTNode], statement_list: List[ASTNode]):
+    def __init__(self, class_list: List[ASTNode], BareStatementBlockNode: ASTNode):
         super().__init__()
         # self.children.append(program)
-        self.children = class_list
-        self.children += statement_list
+        self.children += class_list
+        self.children.append(BareStatementBlockNode)
         # self.num_classes = len(class_list)
 
     def r_eval(self, local_var_dict: Dict[str, str]):
@@ -662,6 +683,8 @@ class BareStatementBlockNode(ASTNode):
         # breakpoint()
 
     def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+        print(self.bare_statement_block_local_var_dict)
+        print('sdfsdfsdfsd')
         return [subitem for children in self.children for subitem in children.r_eval(self.bare_statement_block_local_var_dict)]
 
     def type_eval(self, local_var_dict: Dict[str, str]) -> None:
@@ -723,10 +746,10 @@ class AssignmentNode(ASTNode):
 
         return None
 
-    def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]):
-        lexp, rexp = self.children
-        if isinstance(lexp, ThisReferenceLexpNode):
-            field_var_dict[lexp.variable] = rexp.type_eval(temp_local_var_dict)
+    # def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]):
+    #     lexp, rexp = self.children
+    #     if isinstance(lexp, ThisReferenceLexpNode):
+    #         field_var_dict[lexp.variable] = rexp.type_eval(temp_local_var_dict)
 
 
 
@@ -763,7 +786,8 @@ class ConstructorCall(ASTNode):
         constructor_arguments = self.children[0]
         num_constructor_arguments = len(constructor_arguments.children)
         ret = constructor_arguments.r_eval(local_var_dict)
-        ret += [f'\troll {num_constructor_arguments}']
+        # ret += [f'\troll {num_constructor_arguments}']
+        ret += [f'\tnew {self.caller_name}']
         ret += [f'\tcall {self.caller_name}:$constructor']
         return ret
 
