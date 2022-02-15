@@ -235,8 +235,7 @@ class StatementNode(ASTNode):
         return self.children[0].r_eval(local_var_dict)
 
     def type_eval(self, local_var_dict: Dict[str, str]):
-        self.children[0].type_eval(local_var_dict)
-        return None
+        return self.children[0].type_eval(local_var_dict)
 
     # def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]):
     #     for child in self.children:
@@ -253,11 +252,11 @@ class ReturnStatementNode(ASTNode):
         self.children.append(statement)
 
     def r_eval(self, local_var_dict: Dict[str, str]):
-        return self.children[0].r_eval(local_var_dict)
+        # Add the return line but delagate filling this to the ClassMethodNode
+        return self.children[0].r_eval(local_var_dict) + ['\treturn TOFILL']
 
     def type_eval(self, local_var_dict: Dict[str, str]):
-        self.children[0].type_eval(local_var_dict)
-        return None
+        return self.children[0].type_eval(local_var_dict)
 
     # def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]):
     #     for child in self.children:
@@ -554,7 +553,6 @@ class ClassMethodNode(ASTNode):
 
     def r_eval(self, local_var_dict: Dict[str, str]):
         formal_args, statement_block = self.children
-
         args_declaration = [f".args {','.join(formal_args.arg_names)}"] if formal_args.arg_names else []
 
         # Add local arguments to local_var_dict
@@ -567,30 +565,51 @@ class ClassMethodNode(ASTNode):
         # Write out method declaration
         method_declaration = [f'.method {self.method_name}']
 
-        # Write out local variable declaration
-        local_var_declaration = []
-        local_vars_in_function = list(local_var_dict.keys())
 
         # Local variables in a function is everyhing that local_var_dict picks out that isn't a field or a function variable
-        local_vars_in_function = [item for item in local_vars_in_function if item not in formal_args.arg_names and not item.startswith('this.')]
+        local_vars_in_function = [item for item in local_var_dict if item not in formal_args.arg_names and not item.startswith('this.')]
+
+        # Write out local variable declaration
         if local_vars_in_function:
             local_var_declaration = [f".local {','.join(local_vars_in_function)}"]
+        else:
+            local_var_declaration = []
 
-        # Write out return line
-        return_line = [f'\treturn {len(self.children[0].arg_names)}']
+        # Edit return line, if it exists, otherwise append a return line
+        num_class_method_arguments = len(self.children[0].arg_names)
+        is_there_a_return_statement = [instruction.startswith('\treturn') for instruction in statement_block_instructions]
+        if any(is_there_a_return_statement):
+            # If there is a return statement, replace it
+            statement_block_instructions[is_there_a_return_statement.index(True)] = statement_block_instructions[is_there_a_return_statement.index(True)].replace('TOFILL', str(num_class_method_arguments))
+        else:
+            # Otherwise, add a return
+            statement_block_instructions.append('\tconst nothing')
+            statement_block_instructions.append(f'\treturn {num_class_method_arguments}')
 
-        return method_declaration + args_declaration + local_var_declaration + statement_block_instructions +  return_line
+        return method_declaration + args_declaration + local_var_declaration + statement_block_instructions
 
     def type_eval(self, local_var_dict: Dict[str, str]):
         formal_args, statement_block = self.children
+
         # Add arguments to local_var_dict
         for method_parameter_name, method_parameter_type in zip(formal_args.arg_names, formal_args.arg_types):
             local_var_dict[method_parameter_name] = method_parameter_type
         statement_block.type_eval(local_var_dict)
 
+        # Check the return type for this function, if it exists.
+        is_return_statement = [isinstance(method_statement, ReturnStatementNode) for method_statement in statement_block.children]
+        if any(is_return_statement):
+            return_statement_type = statement_block.children[is_return_statement.index(True)].type_eval(local_var_dict)
+            # Make sure the assigned return type matches with what the return statement returns
+            if not ch.is_legal_assignment(self.ret_type, return_statement_type):
+                raise TypeError(f'Function declared to return {self.ret_type} but returns {return_statement_type} instead.')
+        else:
+            # If there is no return statement, make sure class is defined without a return type
+            if self.ret_type and self.ret_type != "Nothing":
+                raise TypeError('Function has no return statement but defined an explicit return type')
 
     def pretty_label(self) -> str:
-        return "ClassMethod Node"
+        return f"ClassMethod Node: {self.method_name} returns {self.ret_type}"
 
 
 
@@ -683,7 +702,6 @@ class BareStatementBlockNode(ASTNode):
 
     def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
         print(self.bare_statement_block_local_var_dict)
-        print('sdfsdfsdfsd')
         return [subitem for children in self.children for subitem in children.r_eval(self.bare_statement_block_local_var_dict)]
 
     def type_eval(self, local_var_dict: Dict[str, str]) -> None:
@@ -720,6 +738,10 @@ class AssignmentNode(ASTNode):
         # prev_inferred_type = local_var_dict.get(lexp.get_value(), None)
         prev_inferred_type = lexp.get_prev_defined_type(local_var_dict)
         newly_inferred_type = None
+
+        # If we are trying to assign a variable to something that doesn't return anything...
+        if not actual_type:
+            raise TypeError("Can't assign a variable to something a function that doesn't return anything")
 
         # Add to var_dict if this is the first encounter
         if not prev_inferred_type:
@@ -865,12 +887,20 @@ class FieldReferenceLexpNode(ASTNode):
         return (atomic_expr.r_eval(local_var_dict) +
                 [f'\tload_field {atomic_expr_type}:{self.field_name}'])
 
-
     def get_value(self) -> str:
         return self.value
 
     def type_eval(self, local_var_dict: Dict[str, str]):
-        return None
+        atomic_expr = self.children[0]
+        atomic_expr_type = atomic_expr.type_eval(local_var_dict)
+
+        # Find the class of the referred field
+        referred_class = ch.find_class(atomic_expr_type)
+        if self.field_name in referred_class.fields_list.keys():
+            return referred_class.fields_list[self.field_name]
+        else:
+            raise ReferenceError(f'Field {self.field_name} is referenced for {atomic_expr_type} but it does not exist')
+
 
     def pretty_label(self) -> str:
         return f"FieldLexpNode {self.field_name}"

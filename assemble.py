@@ -172,7 +172,7 @@ class InstructionSet:
 # with all the class things depending on reading
 # OTHER json files.  (So we get separate compilation
 # after all).  Create stub symbol files for built-ins.
-# So assembler does a lot of the symbolic -> numeric resolution. 
+# So assembler does a lot of the symbolic -> numeric resolution.
 
 # Instruction set is a global
 INSTRS = InstructionSet("opdefs.txt")
@@ -273,6 +273,8 @@ class ObjectCode:
             self.method_list.append(method_name)
         method_slot = self.method_list.index(method_name)
         # Initialize code block
+        self.resolve_jumps()
+        self.label_patch = {}
         self.method_locals = []
         self.code = []  # We will append instructions to this list
         self.method_code.append({"name": method_name, "slot": method_slot,
@@ -474,7 +476,7 @@ INSTR_PAT = re.compile(r"""
     (\s+ (?P<operand>     # Operands are integers, quoted strings, or names
              [0-9]+           # Integers are strings of digits
            |
-             ["](             # String begins and ends with quote 
+             ["](             # String begins and ends with quote
                ([\\].)  |           # Anything escaped
                [^"\\]               # Anything but a quote or escape
              )*["]
@@ -493,7 +495,7 @@ LABEL_PAT = re.compile(r"""
 
 # Directive:  Name this class
 CLASS_DECL_PAT = re.compile(r"""
-[.]class \s+ 
+[.]class \s+
 (?P<class_name> \w+ )[:](?P<super_name> \w+)
 \s*
 """, re.VERBOSE)
@@ -510,7 +512,7 @@ METHOD_DEF_PAT = re.compile(r"""
 # later in this class, so we can call it before
 # we define it.
 METHOD_DECL_PAT = re.compile(r"""
-[.]method \s+ 
+[.]method \s+
 (?P<method_name> [$]?\w+ )
 \s+ forward
 \s*
@@ -627,7 +629,6 @@ def translate(lines: List[str]) -> ObjectCode:
         parts = match.groupdict()
         label = parts["label"]
         code.add_label(label)
-
 
 
     code.resolve_jumps()

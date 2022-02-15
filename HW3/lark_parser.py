@@ -39,13 +39,24 @@ quack_grammar = """
 
     methodargs: rexp ("," rexp)*
 
-    assignment: lexp [":" type] "=" rexp
+    assignment: lexp [":" IDENT] "=" rexp
 
-    ?type: IDENT
+    ?rexp: and_expr
+        | rexp "or" and_expr -> _or
 
-    ?rexp: product
-        | rexp "+" product   -> add
-        | rexp "-" product   -> sub
+    ?and_expr: comparison_expr
+        | comparison_expr "and" comparison_expr -> _and
+
+    ?comparison_expr: arith_expr
+        | comparison_expr "<=" arith_expr -> leq
+        | comparison_expr ">=" arith_expr -> geq
+        | comparison_expr "<" arith_expr -> lt
+        | comparison_expr ">" arith_expr -> gt
+        | comparison_expr "==" arith_expr -> eq
+
+    ?arith_expr: product
+        | arith_expr "+" product   -> add
+        | arith_expr "-" product   -> sub
 
     ?product: atom_expr
         | product "*" atom_expr  -> mul
