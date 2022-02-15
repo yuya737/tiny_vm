@@ -44,8 +44,11 @@ quack_grammar = """
     ?rexp: and_expr
         | rexp "or" and_expr -> _or
 
-    ?and_expr: comparison_expr
-        | comparison_expr "and" comparison_expr -> _and
+    ?and_expr: not_expr
+        | not_expr "and" comparison_expr -> _and
+
+    ?not_expr: comparison_expr
+        | "not" not_expr  -> _not
 
     ?comparison_expr: arith_expr
         | comparison_expr "<=" arith_expr -> leq

@@ -1010,6 +1010,7 @@ class ComparisonNode(ASTNode):
         left, right = self.children
 
         caller_type = left.type_eval(local_var_dict)
+        right_type = right.type_eval(local_var_dict)
         quackClassEntry = ch.find_class(caller_type)
 
         # If equals, make sure that the equals exists
@@ -1019,6 +1020,10 @@ class ComparisonNode(ASTNode):
             quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "EQUALS"]
             if not quackFunctionEntry:
                 raise NotImplementedError(f'Function EQUALS for {caller_type} is not defined')
+            # Make sure the type is compatible
+            if quackFunctionEntry[0].params != [right_type]:
+                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for EQUALS')
+
 
         if self.comp_op == "<":
 
@@ -1026,6 +1031,9 @@ class ComparisonNode(ASTNode):
             quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "LESS"]
             if not quackFunctionEntry:
                 raise NotImplementedError(f'Function LESS for {caller_type} is not defined')
+            # Make sure the type is compatible
+            if quackFunctionEntry[0].params != [right_type]:
+                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for LESS')
 
         if self.comp_op == ">":
 
@@ -1033,6 +1041,9 @@ class ComparisonNode(ASTNode):
             quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "MORE"]
             if not quackFunctionEntry:
                 raise NotImplementedError(f'Function MORE for {caller_type} is not defined')
+            # Make sure the type is compatible
+            if quackFunctionEntry[0].params != [right_type]:
+                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for LESS')
 
         if self.comp_op == "<=":
 
@@ -1040,6 +1051,9 @@ class ComparisonNode(ASTNode):
             quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "ATMOST"]
             if not quackFunctionEntry:
                 raise NotImplementedError(f'Function ATMOST for {caller_type} is not defined')
+            # Make sure the type is compatible
+            if quackFunctionEntry[0].params != [right_type]:
+                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for ATMOST')
 
         if self.comp_op == ">=":
 
@@ -1047,6 +1061,10 @@ class ComparisonNode(ASTNode):
             quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "ATLEAST"]
             if not quackFunctionEntry:
                 raise NotImplementedError(f'Function ATLEAST for {caller_type} is not defined')
+            # Make sure the type is compatible
+            if quackFunctionEntry[0].params != [right_type]:
+                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for ATLEAST')
+
 
         return "Boolean"
 
