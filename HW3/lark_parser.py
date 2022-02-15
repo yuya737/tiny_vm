@@ -7,9 +7,6 @@ from dataclasses import dataclass
 import class_hierarchy
 from AST_Classes import *
 
-    # program: statement -> program
-    #     | program statement -> program_recur
-
 quack_grammar = """
     ?start: program -> root
 
@@ -40,35 +37,35 @@ quack_grammar = """
 
     whilestmt: "while" rexp statement_block
 
-    methodcall: rexp "." IDENT "(" methodargs? ")"
-
     methodargs: rexp ("," rexp)*
 
     assignment: lexp [":" type] "=" rexp
 
     ?type: IDENT
 
-    rexp: "true"            -> true
-        | "false"           -> false
-        | methodcall
-        | IDENT "(" methodargs? ")"
-        | arith_expr
+    ?rexp: product
+        | rexp "+" product   -> add
+        | rexp "-" product   -> sub
 
-    ?arith_expr: product
-        | arith_expr "+" product   -> add
-        | arith_expr "-" product   -> sub
+    ?product: atom_expr
+        | product "*" atom_expr  -> mul
+        | product "/" atom_expr  -> div
 
-    ?product: atom
-        | product "*" atom  -> mul
-        | product "/" atom  -> div
+    ?atom_expr: atom_expr "." IDENT "(" methodargs? ")" -> methodcall
+        | atom_expr "." IDENT -> fieldreference
+        | IDENT "(" methodargs? ")" -> constructorcall
+        | atom
 
     ?atom: constant
          | lexp
          | "-" atom          -> neg
-         | "(" arith_expr ")"
+         | "(" rexp ")"
+         | "true" -> true
+         | "false" -> false
+
 
     lexp: IDENT             -> var_reference
-        | "this." IDENT  -> this_reference_lexp
+        | "this" "." IDENT  -> this_reference_lexp
 
 
     ?constant: INT       -> number
@@ -179,8 +176,11 @@ class MakeAssemblyTree(Transformer):
         return BoolNode("false")
 
     def methodcall(self, lst) -> ASTNode:
-        print(f'In methodcall {lst}')
         caller, m_name, *methodargs = lst
+        if methodargs:
+            methodargs = methodargs[0]
+        else:
+            methodargs = None
         return MethodcallNode(caller, m_name.value, methodargs)
 
     def statement(self, lst) -> ASTNode:
@@ -202,14 +202,14 @@ class MakeAssemblyTree(Transformer):
         print(f'In method {lst}')
         return ClassMethodBlockNode(lst)
 
-    def methodargs_recur(self, lst) -> ASTNode:
-        print(f'In methodargs_recur {lst}')
-        methodargs, constant = lst
-        return MethodargsrecurNode(methodargs, constant)
+    # def methodargs_recur(self, lst) -> ASTNode:
+    #     print(f'In methodargs_recur {lst}')
+    #     methodargs, constant = lst
+    #     return MethodargsrecurNode(methodargs, constant)
 
     def methodargs(self, lst) -> ASTNode:
         print(f'In methodargs {lst}')
-        return MethodargsNode(lst[0])
+        return MethodargsNode(lst)
 
     def qclass(self, lst) -> ASTNode:
         print(f'In class {lst}')
@@ -234,12 +234,10 @@ class MakeAssemblyTree(Transformer):
                              [item for item in lst if isinstance(item, ClassMethodNode)])
 
     def method(self, lst) -> ASTNode:
-        method_name, formal_args, *ret_type, statement_block = lst
-        if not ret_type:
-            ret_type = None
-        else:
-            ret_type = ret_type[0]
-        return ClassMethodNode(method_name.value, formal_args, ret_type.value, statement_block)
+        method_name, formal_args, ret_type, statement_block = lst
+        if ret_type:
+            ret_type = ret_type[0].value
+        return ClassMethodNode(method_name.value, formal_args, ret_type, statement_block)
 
 
 #     def program_recur(self, lst) -> ASTNode:
@@ -249,9 +247,9 @@ class MakeAssemblyTree(Transformer):
 
     def program(self, lst) -> ASTNode:
         class_list = [item for item in lst if isinstance(item, ClassNode)]
-        program_list = lst[len(class_list):]
-        print(f'In program {lst}')
-        return ProgramNode(class_list, program_list)
+        statement_list = lst[len(class_list):]
+        print(f'In program {class_list}, {statement_list}')
+        return ProgramNode(class_list, BareStatementBlockNode(statement_list))
 
     def assignment(self, lst) -> ASTNode:
         lexp, *var_type, rexp = lst
@@ -345,13 +343,19 @@ class MakeAssemblyTree(Transformer):
         print(f'In var_reference var:{referenced_variable}')
         return VarReferenceNode(referenced_variable)
 
-    def field_reference_lexp(self, lst) -> ASTNode:
-        print(f'In field_reference_lexp {lst}')
-        return FieldReferenceLexpNode(lst[0].value)
+    def fieldreference(self, lst) -> ASTNode:
+        atomic_expr, field_name = lst
+        print(f'In fieldreference {atomic_expr}, {field_name}')
+        return FieldReferenceLexpNode(atomic_expr, field_name)
 
     def this_reference_lexp(self, lst) -> ASTNode:
         print(f'In field_reference_lexp {lst}')
         return ThisReferenceLexpNode(lst[0].value)
+
+    def constructorcall(self, lst) -> ASTNode:
+        caller_name, arguments = lst
+        print(f'In constructor call with {caller_name} with arguments {arguments}')
+        return ConstructorCall(caller_name.value, arguments)
 
     def return_statement(self, lst) -> ASTNode:
         print(f'In return {lst}')
@@ -368,29 +372,29 @@ class MakeAssemblyTree(Transformer):
 
     # def neg(self, expression: Instr_dtype_pair) -> Instr_dtype_pair:
     def neg(self, lst) -> ASTNode:
-        val = lst
+        val = lst[0]
         print(f'In neg: {val}')
-        return MethodcallNode(ConstNode(0, 'Int'), "MINUS", val)
+        return MethodcallNode(ConstNode(0, 'Int'), "MINUS", MethodargsNode([val]))
 
     def add(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In add: {val1}, {val2}')
-        return MethodcallNode(val1, "PLUS", [val2])
+        return MethodcallNode(val1, "PLUS", MethodargsNode([val2]))
 
     def sub(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In sub: {val1}, {val2}')
-        return MethodcallNode(val1, "MINUS", [val2])
+        return MethodcallNode(val1, "MINUS", MethodargsNode([val2]))
 
     def mul(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In mul: {val1}, {val2}')
-        return MethodcallNode(val1, "TIMES", [val2])
+        return MethodcallNode(val1, "TIMES", MethodargsNode([val2]))
 
     def div(self, lst) -> ASTNode:
         val1, val2 = lst
         print(f'In mul: {val1}, {val2}')
-        return MethodcallNode(val1, "DIVIDE", [val2])
+        return MethodcallNode(val1, "DIVIDE", MethodargsNode([val2]))
 
 def type_check(RootNode: ASTNode) -> Dict[str, str]:
     var_dict: Dict[str, str] = {}
@@ -414,23 +418,23 @@ def write_to_file(RootNode: ASTNode, output_asm: str, var_dict: Dict[str, str]) 
     instr = RootNode.r_eval(var_dict)
     print(instr)
     with open(output_asm, 'w') as f:
-        # f.write('.class Main:Obj\n')
+        f.write('.class Main:Obj\n')
         f.write('\n')
-        # f.write('.method $constructor\n')
+        f.write('.method $constructor\n')
         # var_list = ','.join(var_dict.keys())
         # if var_list:
         #     f.write(f'.local {var_list}\n')
         for i in instr:
             f.write(i)
             f.write('\n')
-        # f.write('\thalt\n')
-        # f.write('\treturn 0\n')
+        f.write('\thalt\n')
+        f.write('\treturn 0\n')
 
 
 
 def main(quack_file, output_asm, builtinclass_json):
-    # quack_parser = Lark(quack_grammar, parser='lalr')
-    quack_parser = Lark(quack_grammar)
+    quack_parser = Lark(quack_grammar, parser='lalr')
+    # quack_parser = Lark(quack_grammar)
     quack = quack_parser.parse
     with open(quack_file) as f:
         input_str = f.read()

@@ -42,7 +42,8 @@ def pretty_helper(node: ASTNode, level: int, indent_str: str) -> List[str]:
     l = [indent_str*level, node.pretty_label(), '\n']
     # print(l)
     for n in node.children:
-        l += pretty_helper(n, level+1, indent_str)
+        if n:
+            l += pretty_helper(n, level+1, indent_str)
 
     return l
 
@@ -180,24 +181,23 @@ class WhileNode(ASTNode):
 
 class MethodcallNode(ASTNode):
     """Method call node"""
-    def __init__(self, caller: ASTNode, m_name: str, argslist: List[ASTNode]):
+    def __init__(self, caller: ASTNode, m_name: str, methodargs: ASTNode):
         super().__init__()
         self.children.append(caller)
-        self.children += argslist
+        self.children.append(methodargs)
         self.m_name = m_name
 
     def r_eval(self, local_var_dict: Dict[str, str]):
-        caller = self.children[0]
+        caller, methodargs = self.children
+        methodargs_r_eval = methodargs.r_eval(local_var_dict) if methodargs else []
         caller_type = caller.type_eval(local_var_dict)
-        return ([subitem for args in self.children[1:] for subitem in args.r_eval(local_var_dict)]
+        return (methodargs_r_eval
                 + caller.r_eval(local_var_dict)
                 + [f'\tcall {caller_type}:{self.m_name}'])
 
     def type_eval(self, local_var_dict: Dict[str, str]):
-        caller, *argslist = self.children
+        caller, methodargs = self.children
         caller_type = caller.type_eval(local_var_dict)
-        # args_types = [subitem for arg in argslist for subitem in arg.type_eval()]
-        args_types = [args.type_eval(local_var_dict) for args in argslist]
 
         # print(caller.r_eval())
         # print('In methodcall type eval')
@@ -210,7 +210,9 @@ class MethodcallNode(ASTNode):
 
         quackFunction = quackFunctionEntry[0]
 
-        # Make sure that the arguments are the right type
+        # Make sure that the arguments are the right type. If there are no arguments, make sure that the funtion is supposed to take no parameters
+        args_types = methodargs.type_eval(local_var_dict) if methodargs else []
+        print(self.m_name, args_types, quackFunction.params)
         if args_types != quackFunction.params:
             raise TypeError(f'Function {self.m_name} for {caller_type} expects {quackFunction.params} but got {args_types}')
 
@@ -249,10 +251,9 @@ class StatementBlockNode(ASTNode):
     """Statement node"""
     def __init__(self, statement_block: List[ASTNode]):
         super().__init__()
-        self.children = statement_block
+        self.children += statement_block
 
     def r_eval(self, local_var_dict: Dict[str, str]):
-        # breakpoint()
         #  Get local variables
         self.type_eval(local_var_dict)
         return [subitem for statement in self.children for subitem in statement.r_eval(local_var_dict)]
@@ -292,19 +293,17 @@ class ClassNode(ASTNode):
         self.children.append(class_signature)
         self.children.append(constructor_statement_block)
         self.children.append(method_block)
+        # Type checking will populate these fields
+        self.constructor_scope_local_var_dict = None
+        self.method_scope_local_var_dict = None
 
 
     def r_eval(self, local_var_dict: Dict[str, str]):
         class_signature, constructor_statement_block, method_block  = self.children
-
-        # Add every field variable as a 'this.{variable}' to the local_var_dict
-        for field_var in self.field_var_dict.keys():
-            local_var_dict['this.' + field_var] = self.field_var_dict[field_var]
-
         # Need to pass the number of arguments in the constructor to generate the correct return statement
-        return (class_signature.r_eval(local_var_dict) +
-                constructor_statement_block.r_eval(local_var_dict, len(class_signature.children[0].arg_names)) +
-                method_block.r_eval(local_var_dict))
+        return (class_signature.r_eval(self.constructor_scope_local_var_dict) +
+                constructor_statement_block.r_eval(self.constructor_scope_local_var_dict, len(class_signature.children[0].arg_names)) +
+                method_block.r_eval(self.method_scope_local_var_dict))
 
     def type_eval(self, local_var_dict: Dict[str, str]):
         class_signature, constructor_statement_block, method_block = self.children
@@ -313,9 +312,28 @@ class ClassNode(ASTNode):
         # First, using the constructor variables dictionary, get the list of field variables
         class_formal_args = class_signature.children[0]
         for constructor_parameter_name, constructor_parameter_type in zip(class_formal_args.arg_names, class_formal_args.arg_types):
+            print('Adding: ', constructor_parameter_name, constructor_parameter_type)
             constructor_scope_local_var_dict[constructor_parameter_name] = constructor_parameter_type
 
         constructor_statement_block.type_eval(constructor_scope_local_var_dict)
+
+        # Try additional passes through to make sure that variable types don't change
+        temp_constructor_scope_local_var_dict = constructor_scope_local_var_dict.copy()
+        count = 2
+        while True:
+            constructor_statement_block.type_eval(constructor_scope_local_var_dict)
+            print(f'In Class constructor type check iteration number: {count}')
+            count += 1
+            if temp_constructor_scope_local_var_dict == constructor_scope_local_var_dict:
+                break
+            else:
+                print(f'Constructor type check additional pass detected type changes. Making another pass. Newly interpreted types {constructor_scope_local_var_dict}')
+                temp_constructor_scope_local_var_dict = constructor_scope_local_var_dict.copy()
+
+
+        # Save the variable dictionary for the constructor scope
+        self.constructor_scope_local_var_dict = constructor_scope_local_var_dict.copy()
+
 
         field_var_dict = {}
         # When type evaluating with a class, treat 'this.x' as its own variable, also add to field_var_dict
@@ -341,10 +359,8 @@ class ClassNode(ASTNode):
         ch.add_class_to_hierarchy(new_class_to_add)
         class_hierarchy.pretty_print(ch)
 
-        # Add field var dict
-        self.field_var_dict = field_var_dict
-
-
+        # Save the variable dictionary for the method scope
+        self.method_scope_local_var_dict = local_var_dict.copy()
 
         # Type check the class methods
         method_block.type_eval(local_var_dict)
@@ -388,9 +404,21 @@ class ClassMethodBlockNode(ASTNode):
 
     def type_eval(self, local_var_dict: Dict[str, str]):
         for method in self.children:
-            temp_local_var_dict = local_var_dict.copy()
-            method.type_eval(temp_local_var_dict)
-            print(temp_local_var_dict)
+            cur_local_var_dict = local_var_dict.copy()
+            method.type_eval(cur_local_var_dict)
+
+            # Try additional passes through to make sure that variable types don't change
+            temp_cur_local_var_dict = cur_local_var_dict.copy()
+            count = 2
+            while True:
+                print(f'In Class method type check iteration number: {count}')
+                method.type_eval(cur_local_var_dict)
+                count += 1
+                if temp_cur_local_var_dict == cur_local_var_dict:
+                    break
+                else:
+                    print(f'Class method type check additional pass detected type changes. Making another pass. Newly interpreted types {cur_local_var_dict}')
+                    temp_cur_local_var_dict = cur_local_var_dict.copy()
 
     def pretty_label(self) -> str:
         return "ClassMethodBlockNode"
@@ -568,11 +596,11 @@ class FormalArgsNode(ASTNode):
 
 class ProgramNode(ASTNode):
     """Program  Node"""
-    def __init__(self, class_list: List[ASTNode], statement_list: List[ASTNode]):
+    def __init__(self, class_list: List[ASTNode], bare_statement_block: ASTNode):
         super().__init__()
         # self.children.append(program)
-        self.children = class_list
-        self.children += statement_list
+        self.children += class_list
+        self.children.append(bare_statement_block)
         # self.num_classes = len(class_list)
 
     def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
@@ -586,43 +614,68 @@ class ProgramNode(ASTNode):
     def pretty_label(self) -> str:
         return "ProgramNode"
 
-class MethodargsrecurNode(ASTNode):
-    """Methodargs recur Node"""
-    def __init__(self, methodargs: ASTNode, rexp: ASTNode):
-        super().__init__()
-        self.children.append(methodargs)
-        self.children.append(rexp)
+# class MethodargsrecurNode(ASTNode):
+#     """Methodargs recur Node"""
+#     def __init__(self, methodargs: ASTNode, rexp: ASTNode):
+#         super().__init__()
+#         self.children.append(methodargs)
+#         self.children.append(rexp)
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
-        methodargs, rexp = self.children
-        return (methodargs.r_eval(local_var_dict)
-                + rexp.r_eval(local_var_dict))
+#     def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+#         methodargs, rexp = self.children
+#         return (methodargs.r_eval(local_var_dict)
+#                 + rexp.r_eval(local_var_dict))
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> None:
-        methodargs, rexp = self.children
-        methodargs.type_eval(local_var_dict)
-        rexp.type_eval(local_var_dict)
-        return None
+#     def type_eval(self, local_var_dict: Dict[str, str]) -> None:
+#         methodargs, rexp = self.children
+#         methodargs.type_eval(local_var_dict)
+#         rexp.type_eval(local_var_dict)
+#         return None
 
-    def pretty_label(self) -> str:
-        return "MethodargsRecurNode"
+#     def pretty_label(self) -> str:
+#         return "MethodargsRecurNode"
 
 
 class MethodargsNode(ASTNode):
     """Methodargs  Node"""
-    def __init__(self, rexp: ASTNode):
+    def __init__(self, argument_list: ASTNode):
         super().__init__()
-        self.children.append(rexp)
+        self.children += argument_list
+        # breakpoint()
 
     def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
-        return (self.children[0].r_eval())
+        return [subitem for children in self.children for subitem in children.r_eval(local_var_dict)]
 
     def type_eval(self, local_var_dict: Dict[str, str]) -> None:
-        self.children[0].type_eval(local_var_dict)
-        return None
+        return [child.type_eval(local_var_dict) for child in self.children]
+
 
     def pretty_label(self) -> str:
         return "MethodargsNode"
+
+class BareStatementBlockNode(ASTNode):
+    """BareStatementBloc Node"""
+    def __init__(self, statement_list: ASTNode):
+        super().__init__()
+        self.children += statement_list
+        self.bare_statement_block_local_var_dict = None
+        # breakpoint()
+
+    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+        return [subitem for children in self.children for subitem in children.r_eval(self.bare_statement_block_local_var_dict)]
+
+    def type_eval(self, local_var_dict: Dict[str, str]) -> None:
+        for child in self.children:
+            child.type_eval(local_var_dict)
+
+        # Save the local_var_dict for the bare statement block for code generation
+        self.bare_statement_block_local_var_dict = local_var_dict.copy()
+        return None
+
+    def pretty_label(self) -> str:
+        return "BareStatementBlockNode"
+
+
 
 class AssignmentNode(ASTNode):
     """Assignment Node"""
@@ -653,7 +706,7 @@ class AssignmentNode(ASTNode):
         # If we inferred a type before ...
         if prev_inferred_type:
             new_candidate_type = ch.find_LCA(prev_inferred_type, actual_type)
-            local_var_dict[lexp.variable] = new_candidate_type
+            local_var_dict[lexp.get_value()] = new_candidate_type
             newly_inferred_type = new_candidate_type
         else:
             newly_inferred_type = actual_type
@@ -698,6 +751,37 @@ class RexpNode(ASTNode):
 
     def pretty_label(self) -> str:
         return "RexpNode"
+
+class ConstructorCall(ASTNode):
+    """Rexp Node"""
+    def __init__(self, caller_name: str, constructor_arguments: ASTNode):
+        super().__init__()
+        self.children.append(constructor_arguments)
+        self.caller_name = caller_name
+
+    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+        constructor_arguments = self.children[0]
+        num_constructor_arguments = len(constructor_arguments.children)
+        ret = constructor_arguments.r_eval(local_var_dict)
+        ret += [f'\troll {num_constructor_arguments}']
+        ret += [f'\tcall {self.caller_name}:$constructor']
+        return ret
+
+    def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
+        # return self.children[0].c_eval(true_branch, false_branch, local_var_dict)
+        return None
+
+    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+        # return type of a constructor should be the class itself
+        if not ch.find_class(self.caller_name):
+            raise ValueError(f'Constructor call requests {self.caller_name} but this class does not exist')
+        else:
+            return self.caller_name
+
+
+    def pretty_label(self) -> str:
+        return "ConstructorCallNode"
+
 
 
 # class BareLexpNode(ASTNode):
@@ -747,12 +831,17 @@ class ThisReferenceLexpNode(ASTNode):
 
 class FieldReferenceLexpNode(ASTNode):
     """FieldLexp Node"""
-    def __init__(self, field_variable: str):
+    def __init__(self, atomic_expr: ASTNode, field_name: str):
         super().__init__()
-        self.value = field_variable
+        self.children.append(atomic_expr)
+        self.field_name = field_name
 
     def r_eval(self, local_var_dict: Dict[str, str]):
-        return self.value
+        atomic_expr = self.children[0]
+        atomic_expr_type = atomic_expr.type_eval(local_var_dict)
+        return (atomic_expr.r_eval(local_var_dict) +
+                [f'\tload_field {atomic_expr_type}:{self.field_name}'])
+
 
     def get_value(self) -> str:
         return self.value
@@ -761,7 +850,7 @@ class FieldReferenceLexpNode(ASTNode):
         return None
 
     def pretty_label(self) -> str:
-        return f"FieldLexpNode {self.value}"
+        return f"FieldLexpNode {self.field_name}"
 
 
 class VarReferenceNode(ASTNode):
@@ -832,6 +921,7 @@ class BoolNode(ASTNode):
 
     def pretty_label(self) -> str:
         return f"BoolNode {self.value}"
+
 
 
 class ComparisonNode(ASTNode):

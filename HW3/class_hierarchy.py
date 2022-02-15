@@ -90,7 +90,7 @@ class RootObjClass(QuackClass):
         self.add_class_to_hierarchy_helper(self, node_to_add)
 
 def pretty_helper(node: QuackClass, level: int, indent_str: str):
-    print(node)
+    # print(node)
     # print(node.children)
     if len(node.children) == 0:
         return [indent_str*level, node.class_name, '\n']
