@@ -102,13 +102,35 @@ class IfNode(ASTNode):
                 + [endif_label + ":"])
 
     def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
+
+        # KEY THING FOR IFNODE in constructors:
+        #   -   Single if can't define any new fields. In other words, var_dict after and before should have
+        #       the same vars that have the form this.--
+        #   -   If-else can't define different fields. So, var_dict after then and after else should have
+        #       the same vars taht have the form this.--
+
         # Keep track for potential return statements
         final_ret_type = None
 
         # Make sure that the condpart actually evaluates to a Boolean
         if len(self.children) == 2:
+            breakpoint()
             condpart, thenpart = self.children
-            final_ret_type = thenpart.type_eval(local_var_dict, in_constructor)
+            var_dict_before_if = local_var_dict
+
+            var_dict_after_if = local_var_dict.copy()
+
+            final_ret_type = thenpart.type_eval(var_dict_after_if, in_constructor)
+            # Single if can't define any new class fields in the constructor
+            if in_constructor:
+                if set([item for item in var_dict_before_if.keys() if item.startswith('this.')]) != set([item for item in var_dict_after_if.keys() if item.startswith('this.')]):
+                    raise SyntaxError(f'Single if statements in constructors can not define new field variables.')
+
+            # Update local_var_dict - (only need to update item types. Since single if can't add new variables, the only thing that happens is taking the LCA of variables that was previously declared. var_dict never loses or adds items here)
+            for new_item in var_dict_after_if:
+                if new_item in local_var_dict:
+                    local_var_dict[new_item] = ch.find_LCA(var_dict_after_if[new_item], local_var_dict[new_item])
+
 
         else:
             condpart, thenpart, elsepart = self.children
@@ -137,9 +159,9 @@ class IfNode(ASTNode):
                 else:
                     final_ret_type = elsepart_ret_type
 
-            # If if else in in the constructor, make sure that both branches define the same field variables
+            # If if-else is in the constructor, make sure that both branches define the same field variables
             if in_constructor:
-                if [item for item in var_dict_after_then.keys() if item.startswith('this.')] != [item for item in var_dict_after_else.keys() if item.startswith('this.')]:
+                if set([item for item in var_dict_after_then.keys() if item.startswith('this.')]) != set([item for item in var_dict_after_else.keys() if item.startswith('this.')]):
                     raise SyntaxError(f'Control flows inside constructor block need to define the same field variables.')
 
 
@@ -366,7 +388,7 @@ class ClassNode(ASTNode):
         # First, using the constructor variables dictionary, get the list of field variables
         class_formal_args = class_signature.children[0]
         for constructor_parameter_name, constructor_parameter_type in zip(class_formal_args.arg_names, class_formal_args.arg_types):
-            print('Adding: ', constructor_parameter_name, constructor_parameter_type)
+            # print('Adding: ', constructor_parameter_name, constructor_parameter_type)
             constructor_scope_local_var_dict[constructor_parameter_name] = constructor_parameter_type
 
         constructor_statement_block.type_eval(constructor_scope_local_var_dict, in_constructor)
