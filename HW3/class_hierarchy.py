@@ -65,6 +65,28 @@ class RootObjClass(QuackClass):
         # Return if path_to_actual_class starts with path_to_expected_class. In other words, if actual_class is a subclass of expected_class
         return path_to_actual_class[:len(path_to_expected_class)] == path_to_expected_class
 
+    def is_legal_invocation(self, class_name: str, method_name: str, passed_types: List[str]):
+        class_entry = self.find_class(class_name)
+        # Make sure the class exists
+        if not class_entry:
+            raise TypeError(f'Function call on {class_name} was made but {class_name} does not exist')
+
+        # Make sure this function exists
+        quackFunctionEntry = [entry for entry in class_entry.methods_list if entry.method_name == method_name]
+        if not quackFunctionEntry:
+            raise ValueError(f'Function call {method_name} on {class_name} was made but {method_name} is undefined for {class_name}')
+
+        expected_param_args = quackFunctionEntry[0].params
+        # Make sure we got the right number of arguments
+        if len(expected_param_args) != len(passed_types):
+            raise SyntaxError(f'Function call {method_name} on {class_name} expected {len(expected_param_args)} arguments but received {len(passed_types)}')
+
+        # Make sure each argument is valid
+        for index, (expected, actual) in enumerate(zip(expected_param_args, passed_types)):
+            if not self.is_legal_assignment(expected, actual):
+                raise SyntaxError(f'Function call {method_name} on {class_name} expected {expected} on argument number {index} but received {actual}')
+
+
     def find_class_helper(self, cur_node: QuackClass, class_name: str) -> Union[QuackClass, None]:
         if cur_node.class_name == class_name:
             return cur_node

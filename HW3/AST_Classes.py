@@ -20,7 +20,7 @@ class ASTNode:
     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> Optional[List[str]]:
         raise NotImplementedError(f"c_eval not implemented for node type {self.__class__.__name__}")
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> Optional[str]:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: str) -> Optional[str]:
         raise NotImplementedError(f"type_eval not implemented for node type {self.__class__.__name__}")
 
     def pretty_label(self) -> str:
@@ -61,10 +61,10 @@ class RootNode(ASTNode):
         program = self.children[0]
         return program.r_eval(local_var_dict)
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         """Evaluate for value"""
         program = self.children[0]
-        return program.type_eval(local_var_dict)
+        return program.type_eval(local_var_dict, in_constructor)
 
     def pretty_label(self) -> str:
         return "RootNode"
@@ -101,39 +101,64 @@ class IfNode(ASTNode):
                 + elseblock
                 + [endif_label + ":"])
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
+        # Keep track for potential return statements
+        final_ret_type = None
+
         # Make sure that the condpart actually evaluates to a Boolean
         if len(self.children) == 2:
             condpart, thenpart = self.children
-            thenpart.type_eval(local_var_dict)
+            final_ret_type = thenpart.type_eval(local_var_dict, in_constructor)
+
         else:
             condpart, thenpart, elsepart = self.children
 
             var_dict_before_if = local_var_dict
 
             var_dict_after_then = local_var_dict.copy()
-            thenpart.type_eval(var_dict_after_then)
+            thenpart_ret_type = thenpart.type_eval(var_dict_after_then, in_constructor)
+
+            # Update return type of the statement bloc
+            # final_ret_type = ch.find_LCA(final_ret_type, thenpart_ret_type) if thenpart_ret_type else pass
+            if thenpart_ret_type:
+                if final_ret_type:
+                    final_ret_type = ch.find_LCA(final_ret_type, thenpart_ret_type)
+                else:
+                    final_ret_type = thenpart_ret_type
 
             var_dict_after_else = local_var_dict.copy()
-            elsepart.type_eval(var_dict_after_else)
+            elsepart_ret_type = elsepart.type_eval(var_dict_after_else, in_constructor)
 
-            # Construct new var_dict as a union of items. When there is an overlap assign the LCA
-            new_dict = var_dict_after_then.copy()
-
-            for var in var_dict_after_else:
-                if var in new_dict:
-                    new_dict[var] = ch.find_LCA(var_dict_after_else[var], new_dict[var])
+            # Update return type of the statement bloc
+            # final_ret_type = ch.find_LCA(final_ret_type, elsepart_ret_type) if final_ret_type else elsepart_ret_type
+            if elsepart_ret_type:
+                if final_ret_type:
+                    final_ret_type = ch.find_LCA(final_ret_type, elsepart_ret_type)
                 else:
-                    new_dict[var] = var_dict_after_else[var]
+                    final_ret_type = elsepart_ret_type
+
+            # If if else in in the constructor, make sure that both branches define the same field variables
+            if in_constructor:
+                if [item for item in var_dict_after_then.keys() if item.startswith('this.')] != [item for item in var_dict_after_else.keys() if item.startswith('this.')]:
+                    raise SyntaxError(f'Control flows inside constructor block need to define the same field variables.')
+
+
+            # Construct new var_dict as an intersection of items. When there is an overlap assign the LCA
+            new_dict_keys = var_dict_after_then.keys() & var_dict_after_else.keys()
+            new_dict = {}
+
+            for new_dict_key in new_dict_keys:
+                new_dict[new_dict_key] = ch.find_LCA(var_dict_after_then[new_dict_key], var_dict_after_else[new_dict_key])
 
             # Update the passed local_var_dict (only need to add items, var_dict never loses items here)
             for new_item in new_dict:
                 local_var_dict[new_item] = new_dict[new_item]
 
-        if condpart.type_eval(local_var_dict) != "Boolean":
+        # breakpoint()
+        if condpart.type_eval(local_var_dict, in_constructor) != "Boolean":
             raise TypeError("If statement expects the condition to return a Boolean")
 
-        return None
+        return final_ret_type
 
 
     def pretty_label(self) -> str:
@@ -167,13 +192,13 @@ class WhileNode(ASTNode):
                 + whiletest
                 + [nextStmt + ":"])
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: str):
         condpart, statementblock = self.children
-        statementblock.type_eval(local_var_dict)
+        statementblock_ret_type = statementblock.type_eval(local_var_dict, in_constructor)
 
-        if condpart.type_eval(local_var_dict) != "Boolean":
+        if condpart.type_eval(local_var_dict, in_constructor) != "Boolean":
             raise TypeError("If statement expects the condition to return a Boolean")
-        return None
+        return statementblock_ret_type
 
     def pretty_label(self) -> str:
         return "WhileNode"
@@ -190,14 +215,14 @@ class MethodcallNode(ASTNode):
     def r_eval(self, local_var_dict: Dict[str, str]):
         caller, methodargs = self.children
         methodargs_r_eval = methodargs.r_eval(local_var_dict) if methodargs else []
-        caller_type = caller.type_eval(local_var_dict)
+        caller_type = caller.type_eval(local_var_dict, False)
         return (methodargs_r_eval
                 + caller.r_eval(local_var_dict)
                 + [f'\tcall {caller_type}:{self.m_name}'])
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         caller, methodargs = self.children
-        caller_type = caller.type_eval(local_var_dict)
+        caller_type = caller.type_eval(local_var_dict, in_constructor)
 
         # print(caller.r_eval())
         # print('In methodcall type eval')
@@ -211,9 +236,8 @@ class MethodcallNode(ASTNode):
         quackFunction = quackFunctionEntry[0]
 
         # Make sure that the arguments are the right type. If there are no arguments, make sure that the funtion is supposed to take no parameters
-        args_types = methodargs.type_eval(local_var_dict) if methodargs else []
-        if args_types != quackFunction.params:
-            raise TypeError(f'Function {self.m_name} for {caller_type} expects {quackFunction.params} but got {args_types}')
+        args_types = methodargs.type_eval(local_var_dict, in_constructor) if methodargs else []
+        ch.is_legal_invocation(caller_type, self.m_name, args_types)
 
         return quackFunction.ret
 
@@ -234,8 +258,8 @@ class StatementNode(ASTNode):
     def r_eval(self, local_var_dict: Dict[str, str]):
         return self.children[0].r_eval(local_var_dict)
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
-        return self.children[0].type_eval(local_var_dict)
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
+        return self.children[0].type_eval(local_var_dict, in_constructor)
 
     # def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]):
     #     for child in self.children:
@@ -255,8 +279,10 @@ class ReturnStatementNode(ASTNode):
         # Add the return line but delagate filling this to the ClassMethodNode
         return self.children[0].r_eval(local_var_dict) + ['\treturn TOFILL']
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
-        return self.children[0].type_eval(local_var_dict)
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
+        if in_constructor:
+            raise SyntaxError("Can't call return inside the constructor statement block")
+        return self.children[0].type_eval(local_var_dict, in_constructor)
 
     # def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]):
     #     for child in self.children:
@@ -273,14 +299,23 @@ class StatementBlockNode(ASTNode):
         self.children += statement_block
 
     def r_eval(self, local_var_dict: Dict[str, str]):
-        #  Get local variables
-        self.type_eval(local_var_dict)
         return [subitem for statement in self.children for subitem in statement.r_eval(local_var_dict)]
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
+        final_ret_type = None
+
+        # For each statement, run a type check. If it has a potential to have a return statement - i.e. ifstmt, whilestmt or a return statement update final_ret_type
         for statement in self.children:
-            statement.type_eval(local_var_dict)
-        return None
+            cur_ret_type = statement.type_eval(local_var_dict, in_constructor)
+            if isinstance(statement, IfNode) or isinstance(statement, WhileNode) or isinstance(statement, ReturnStatementNode):
+                if not final_ret_type: # If no return type was previously assigned...
+                    final_ret_type = cur_ret_type
+                elif not cur_ret_type: # If the current line doesn't return anything continue
+                    continue
+                else: # Otherwise, assign the LCA
+                    final_ret_type = ch.find_LCA(cur_ret_type, final_ret_type)
+
+        return final_ret_type
 
     def pretty_label(self) -> str:
         return f"StatementBlockNode: length {len(self.children)}"
@@ -297,9 +332,9 @@ class ProgramNode(ASTNode):
     def r_eval(self, local_var_dict: Dict[str, str]):
         return ([subitem for child in self.children for subitem in child.r_eval(local_var_dict)])
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         for child in self.children:
-            child.type_eval(local_var_dict)
+            child.type_eval(local_var_dict, in_constructor)
         return None
 
     def pretty_label(self) -> str:
@@ -324,7 +359,7 @@ class ClassNode(ASTNode):
                 constructor_statement_block.r_eval(self.constructor_scope_local_var_dict, len(class_signature.children[0].arg_names)) +
                 method_block.r_eval(self.method_scope_local_var_dict))
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         class_signature, constructor_statement_block, method_block = self.children
 
         constructor_scope_local_var_dict = {}
@@ -334,13 +369,13 @@ class ClassNode(ASTNode):
             print('Adding: ', constructor_parameter_name, constructor_parameter_type)
             constructor_scope_local_var_dict[constructor_parameter_name] = constructor_parameter_type
 
-        constructor_statement_block.type_eval(constructor_scope_local_var_dict)
+        constructor_statement_block.type_eval(constructor_scope_local_var_dict, in_constructor)
 
         # Try additional passes through to make sure that variable types don't change
         temp_constructor_scope_local_var_dict = constructor_scope_local_var_dict.copy()
         count = 2
         while True:
-            constructor_statement_block.type_eval(constructor_scope_local_var_dict)
+            constructor_statement_block.type_eval(constructor_scope_local_var_dict, in_constructor)
             print(f'In Class constructor type check iteration number: {count}')
             count += 1
             if temp_constructor_scope_local_var_dict == constructor_scope_local_var_dict:
@@ -364,7 +399,8 @@ class ClassNode(ASTNode):
         # Add class to class hierachy
         class_name = class_signature.class_name
         super_class = class_signature.super_class
-        methods_list = []
+        # Add constructor to the method list
+        methods_list = [class_hierarchy.QuackClassMethod('Constructor', class_formal_args.arg_types, None)]
 
         for method_node in method_block.children:
             method_name = method_node.method_name
@@ -382,7 +418,7 @@ class ClassNode(ASTNode):
         self.method_scope_local_var_dict = local_var_dict.copy()
 
         # Type check the class methods
-        method_block.type_eval(local_var_dict)
+        method_block.type_eval(local_var_dict, in_constructor)
 
     def pretty_label(self) -> str:
         return "ClassNode"
@@ -402,12 +438,12 @@ class ConstructorStatementBlockNode(ASTNode):
         return ret
 
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         for child in self.children:
-            child.type_eval(local_var_dict)
+            child.type_eval(local_var_dict, True)
 
     def pretty_label(self) -> str:
-        return "ConstructorStatementBlockNode"
+        return f"ConstructorStatementBlockNode: len {len(self.children)}"
 
 class ClassMethodBlockNode(ASTNode):
     """Class Method Block Node"""
@@ -421,17 +457,17 @@ class ClassMethodBlockNode(ASTNode):
             ret += child.r_eval(local_var_dict.copy())
         return ret
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         for method in self.children:
             cur_local_var_dict = local_var_dict.copy()
-            method.type_eval(cur_local_var_dict)
+            method.type_eval(cur_local_var_dict, in_constructor)
 
             # Try additional passes through to make sure that variable types don't change
             temp_cur_local_var_dict = cur_local_var_dict.copy()
             count = 2
             while True:
                 print(f'In Class method type check iteration number: {count}')
-                method.type_eval(cur_local_var_dict)
+                method.type_eval(cur_local_var_dict, in_constructor)
                 count += 1
                 if temp_cur_local_var_dict == cur_local_var_dict:
                     break
@@ -526,7 +562,7 @@ class ClassSignatureNode(ASTNode):
 
         return class_declaration + field_declaration + method_forward_declaration + constructor_declaration
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> None:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool) -> None:
         formal_args = self.children[0]
         # Make sure every constructor parameter has a valid class
         for constructor_parameter_type in formal_args.arg_types:
@@ -580,7 +616,9 @@ class ClassMethodNode(ASTNode):
         is_there_a_return_statement = [instruction.startswith('\treturn') for instruction in statement_block_instructions]
         if any(is_there_a_return_statement):
             # If there is a return statement, replace it
-            statement_block_instructions[is_there_a_return_statement.index(True)] = statement_block_instructions[is_there_a_return_statement.index(True)].replace('TOFILL', str(num_class_method_arguments))
+            index_of_trues = [index for index, value in enumerate(is_there_a_return_statement) if value]
+            for return_statement_index in index_of_trues:
+                statement_block_instructions[return_statement_index] = statement_block_instructions[return_statement_index].replace('TOFILL', str(num_class_method_arguments))
         else:
             # Otherwise, add a return
             statement_block_instructions.append('\tconst nothing')
@@ -588,25 +626,27 @@ class ClassMethodNode(ASTNode):
 
         return method_declaration + args_declaration + local_var_declaration + statement_block_instructions
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         formal_args, statement_block = self.children
+
+        #TODO: need to make sure input types are valid
 
         # Add arguments to local_var_dict
         for method_parameter_name, method_parameter_type in zip(formal_args.arg_names, formal_args.arg_types):
             local_var_dict[method_parameter_name] = method_parameter_type
-        statement_block.type_eval(local_var_dict)
+        statement_block_ret_type = statement_block.type_eval(local_var_dict, in_constructor)
 
-        # Check the return type for this function, if it exists.
-        is_return_statement = [isinstance(method_statement, ReturnStatementNode) for method_statement in statement_block.children]
-        if any(is_return_statement):
-            return_statement_type = statement_block.children[is_return_statement.index(True)].type_eval(local_var_dict)
-            # Make sure the assigned return type matches with what the return statement returns
-            if not ch.is_legal_assignment(self.ret_type, return_statement_type):
-                raise TypeError(f'Function declared to return {self.ret_type} but returns {return_statement_type} instead.')
+        # If the statement block returns something make sure it is a valid return type with the declared return type. If the block returns nothing, make sure there is no return type defined, or that the method is declared to return nothing
+        if statement_block_ret_type:
+            if not ch.is_legal_assignment(self.ret_type, statement_block_ret_type):
+                raise TypeError(f'Function declared to return {self.ret_type} but returns {statement_block_ret_type} instead.')
         else:
-            # If there is no return statement, make sure class is defined without a return type
             if self.ret_type and self.ret_type != "Nothing":
-                raise TypeError('Function has no return statement but defined an explicit return type')
+                raise TypeError('Function has no return type but defined an explicit return type')
+
+        return None
+
+
 
     def pretty_label(self) -> str:
         return f"ClassMethod Node: {self.method_name} returns {self.ret_type}"
@@ -623,7 +663,7 @@ class FormalArgsNode(ASTNode):
     def r_eval(self, local_var_dict: Dict[str, str]):
         return None
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         for arg_type in self.arg_types:
             if not ch.find_class(arg_type):
                 raise ValueError(f'{arg_type} is an invalid type')
@@ -642,12 +682,12 @@ class ProgramNode(ASTNode):
         self.children.append(bare_statement_block)
         # self.num_classes = len(class_list)
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+    def r_eval(self, local_var_dict: Dict[str, str]):
         return ([subitem for child in self.children for subitem in child.r_eval(local_var_dict)])
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> None:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         for child in self.children:
-            child.type_eval(local_var_dict)
+            child.type_eval(local_var_dict, in_constructor)
         return None
 
     def pretty_label(self) -> str:
@@ -682,11 +722,11 @@ class MethodargsNode(ASTNode):
         self.children += argument_list
         # breakpoint()
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+    def r_eval(self, local_var_dict: Dict[str, str]):
         return [subitem for children in self.children for subitem in children.r_eval(local_var_dict)]
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> None:
-        return [child.type_eval(local_var_dict) for child in self.children]
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
+        return [child.type_eval(local_var_dict, in_constructor) for child in self.children]
 
 
     def pretty_label(self) -> str:
@@ -700,13 +740,13 @@ class BareStatementBlockNode(ASTNode):
         self.bare_statement_block_local_var_dict = None
         # breakpoint()
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+    def r_eval(self, local_var_dict: Dict[str, str]):
         print(self.bare_statement_block_local_var_dict)
         return [subitem for children in self.children for subitem in children.r_eval(self.bare_statement_block_local_var_dict)]
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> None:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         for child in self.children:
-            child.type_eval(local_var_dict)
+            child.type_eval(local_var_dict, in_constructor)
 
         # Save the local_var_dict for the bare statement block for code generation
         self.bare_statement_block_local_var_dict = local_var_dict.copy()
@@ -725,19 +765,23 @@ class AssignmentNode(ASTNode):
         self.children.append(rexp)
         self.var_type = var_type
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+    def r_eval(self, local_var_dict: Dict[str, str]):
         lexp, rexp = self.children
         return (rexp.r_eval(local_var_dict)
                 + lexp.l_eval())
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> None:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         lexp, rexp = self.children
 
-        actual_type = rexp.type_eval(local_var_dict)
+        actual_type = rexp.type_eval(local_var_dict, in_constructor)
         declared_type = self.var_type
         # prev_inferred_type = local_var_dict.get(lexp.get_value(), None)
         prev_inferred_type = lexp.get_prev_defined_type(local_var_dict)
         newly_inferred_type = None
+
+        # If there is an assignment to 'this.' (i.e. a class field) outside of the constructor report an error
+        if not in_constructor and isinstance(lexp, ThisReferenceLexpNode):
+            raise SyntaxError("Can't assign field variables outside the construcor statement block")
 
         # If we are trying to assign a variable to something that doesn't return anything...
         if not actual_type:
@@ -755,15 +799,16 @@ class AssignmentNode(ASTNode):
         else:
             newly_inferred_type = actual_type
 
-        # If a type was declared, make sure it is an actual class and make sure that it is legal with the newly inferred type
+        # If a type was declared, make sure it is an actual class and make sure that it is legal with the newly inferred type. Then, honor the declared type over the acutal evalauated type
         if declared_type:
             if not ch.find_class(declared_type):
                 raise TypeError(f'Declared type {declared_type} is an invalid class')
             if not ch.is_legal_assignment(declared_type, newly_inferred_type):
                 raise TypeError(f'Assignment declared {declared_type} but inferred {newly_inferred_type}')
+            local_var_dict[lexp.get_value()] = declared_type
 
-        lexp.type_eval(local_var_dict)
-        rexp.type_eval(local_var_dict)
+        lexp.type_eval(local_var_dict, in_constructor)
+        rexp.type_eval(local_var_dict, in_constructor)
 
         return None
 
@@ -790,8 +835,8 @@ class RexpNode(ASTNode):
     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
         return self.children[0].c_eval(true_branch, false_branch, local_var_dict)
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
-        return self.children[0].type_eval(local_var_dict)
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool) -> str:
+        return self.children[0].type_eval(local_var_dict, in_constructor)
 
     def pretty_label(self) -> str:
         return "RexpNode"
@@ -803,7 +848,7 @@ class ConstructorCall(ASTNode):
         self.children.append(constructor_arguments)
         self.caller_name = caller_name
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+    def r_eval(self, local_var_dict: Dict[str, str]):
         constructor_arguments = self.children[0]
         num_constructor_arguments = len(constructor_arguments.children)
         ret = constructor_arguments.r_eval(local_var_dict)
@@ -816,12 +861,12 @@ class ConstructorCall(ASTNode):
         # return self.children[0].c_eval(true_branch, false_branch, local_var_dict)
         return None
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
-        # return type of a constructor should be the class itself
-        if not ch.find_class(self.caller_name):
-            raise ValueError(f'Constructor call requests {self.caller_name} but this class does not exist')
-        else:
-            return self.caller_name
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
+        methodargs = self.children[0]
+        constructor_arguments_types = methodargs.type_eval(local_var_dict, in_constructor) if methodargs else []
+        ch.is_legal_invocation(self.caller_name, 'Constructor', constructor_arguments_types)
+
+        return self.caller_name
 
 
     def pretty_label(self) -> str:
@@ -859,7 +904,7 @@ class ThisReferenceLexpNode(ASTNode):
     def l_eval(self):
         return ['\tload $', f'\tstore_field $:{self.variable}']
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         if 'this.' + self.variable not in local_var_dict:
             raise ValueError(f"{'this.' + self.variable} is referenced before assignment")
         else:
@@ -883,16 +928,16 @@ class FieldReferenceLexpNode(ASTNode):
 
     def r_eval(self, local_var_dict: Dict[str, str]):
         atomic_expr = self.children[0]
-        atomic_expr_type = atomic_expr.type_eval(local_var_dict)
+        atomic_expr_type = atomic_expr.type_eval(local_var_dict, False)
         return (atomic_expr.r_eval(local_var_dict) +
                 [f'\tload_field {atomic_expr_type}:{self.field_name}'])
 
     def get_value(self) -> str:
         return self.value
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         atomic_expr = self.children[0]
-        atomic_expr_type = atomic_expr.type_eval(local_var_dict)
+        atomic_expr_type = atomic_expr.type_eval(local_var_dict, in_constructor)
 
         # Find the class of the referred field
         referred_class = ch.find_class(atomic_expr_type)
@@ -923,7 +968,7 @@ class VarReferenceNode(ASTNode):
     def get_value(self):
         return self.variable
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool) -> str:
         if self.variable not in local_var_dict:
             raise ValueError(f'{self.variable} is referenced before assignment')
         return local_var_dict[self.variable]
@@ -946,10 +991,10 @@ class ConstNode(ASTNode):
         self.value = value
         self.value_type = value_type
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+    def r_eval(self, local_var_dict: Dict[str, str]):
         return [f"\tconst {self.value}"]
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         return self.value_type
 
     def pretty_label(self) -> str:
@@ -965,11 +1010,11 @@ class BoolNode(ASTNode):
     def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
         return [f"\tconst {self.value}"]
 
-    def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
+    def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]):
         bool_code = self.r_eval(local_var_dict)
         return bool_code + [f"\tjump_if  {true_branch}", f"\tjump {false_branch}"]
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         return "Boolean"
 
     def pretty_label(self) -> str:
@@ -988,12 +1033,12 @@ class ComparisonNode(ASTNode):
         self.comp_op = comp_op
 
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+    def r_eval(self, local_var_dict: Dict[str, str]):
         """Called if we want a boolean VALUE rather than a branch"""
         left, right = self.children
         left_code = left.r_eval(local_var_dict)
         right_code = right.r_eval(local_var_dict)
-        caller_type = left.type_eval(local_var_dict)
+        caller_type = left.type_eval(local_var_dict, False)
 
         if self.comp_op == "==":
             return right_code + left_code + [f'\tcall {caller_type}:EQUALS']
@@ -1006,66 +1051,24 @@ class ComparisonNode(ASTNode):
         if self.comp_op == ">=":
             return right_code + left_code + [f'\tcall {caller_type}:ATLEAST']
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         left, right = self.children
 
-        caller_type = left.type_eval(local_var_dict)
-        right_type = right.type_eval(local_var_dict)
+        caller_type = left.type_eval(local_var_dict, in_constructor)
+        right_type = right.type_eval(local_var_dict, in_constructor)
         quackClassEntry = ch.find_class(caller_type)
 
         # If equals, make sure that the equals exists
         if self.comp_op == "==":
-
-            # Make sure this function exists
-            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "EQUALS"]
-            if not quackFunctionEntry:
-                raise NotImplementedError(f'Function EQUALS for {caller_type} is not defined')
-            # Make sure the type is compatible
-            if quackFunctionEntry[0].params != [right_type]:
-                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for EQUALS')
-
-
+            ch.is_legal_invocation(caller_type, 'EQUALS', [right_type])
         if self.comp_op == "<":
-
-            # Make sure this function exists
-            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "LESS"]
-            if not quackFunctionEntry:
-                raise NotImplementedError(f'Function LESS for {caller_type} is not defined')
-            # Make sure the type is compatible
-            if quackFunctionEntry[0].params != [right_type]:
-                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for LESS')
-
+            ch.is_legal_invocation(caller_type, 'LESS', [right_type])
         if self.comp_op == ">":
-
-            # Make sure this function exists
-            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "MORE"]
-            if not quackFunctionEntry:
-                raise NotImplementedError(f'Function MORE for {caller_type} is not defined')
-            # Make sure the type is compatible
-            if quackFunctionEntry[0].params != [right_type]:
-                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for LESS')
-
+            ch.is_legal_invocation(caller_type, 'MORE', [right_type])
         if self.comp_op == "<=":
-
-            # Make sure this function exists
-            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "ATMOST"]
-            if not quackFunctionEntry:
-                raise NotImplementedError(f'Function ATMOST for {caller_type} is not defined')
-            # Make sure the type is compatible
-            if quackFunctionEntry[0].params != [right_type]:
-                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for ATMOST')
-
+            ch.is_legal_invocation(caller_type, 'ATMOST', [right_type])
         if self.comp_op == ">=":
-
-            # Make sure this function exists
-            quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == "ATLEAST"]
-            if not quackFunctionEntry:
-                raise NotImplementedError(f'Function ATLEAST for {caller_type} is not defined')
-            # Make sure the type is compatible
-            if quackFunctionEntry[0].params != [right_type]:
-                raise TypeError(f'Comparison between {caller_type} and {right_type} undefined for ATLEAST')
-
-
+            ch.is_legal_invocation(caller_type, 'ATLEAST', [right_type])
         return "Boolean"
 
     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
@@ -1088,7 +1091,7 @@ class AndNode(ASTNode):
         left, right = self.children
         return (left.r_eval(local_var_dict) + right.r_eval(local_var_dict) + ['\tcall Boolean:AND'])
 
-    def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
+    def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]):
         """Use in a conditional branch"""
         continue_label = new_label("and")
         left, right = self.children
@@ -1097,7 +1100,7 @@ class AndNode(ASTNode):
                 + right.c_eval(true_branch, false_branch, local_var_dict)
                 )
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         return "Boolean"
 
 
@@ -1114,7 +1117,7 @@ class OrNode(ASTNode):
 
     # FIXME: Needs r_eval to allow production of boolean value
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+    def r_eval(self, local_var_dict: Dict[str, str]):
         left, right = self.children
         return (left.r_eval(local_var_dict) + right.r_eval(local_var_dict) + ['\tcall Boolean:OR'])
 
@@ -1127,7 +1130,7 @@ class OrNode(ASTNode):
                 + right.c_eval(true_branch, false_branch, local_var_dict)
                 )
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         return "Boolean"
 
     def pretty_label(self) -> str:
@@ -1142,7 +1145,7 @@ class NotNode(ASTNode):
 
     # FIXME: Needs r_eval to allow production of boolean value
 
-    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+    def r_eval(self, local_var_dict: Dict[str, str]):
         statement = self.children[0]
         return (statement.r_eval(local_var_dict) + ['\tcall Boolean:NOT'])
 
@@ -1151,7 +1154,7 @@ class NotNode(ASTNode):
         statement = self.children[0]
         return statement.c_eval(false_branch, true_branch, local_var_dict)
 
-    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+    def type_eval(self, local_var_dict: Dict[str, str], in_constructor: bool):
         return "Boolean"
 
     def pretty_label(self) -> str:

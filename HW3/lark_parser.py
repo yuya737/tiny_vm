@@ -26,7 +26,7 @@ quack_grammar = """
 
     statement_block: "{" statement* "}"
 
-    statement: rexp ";"
+    ?statement: rexp ";"
         | assignment ";"
         | ifstmt
         | whilestmt
@@ -41,7 +41,7 @@ quack_grammar = """
 
     assignment: lexp [":" IDENT] "=" rexp
 
-    ?rexp: and_expr
+    rexp: and_expr
         | rexp "or" and_expr -> _or
 
     ?and_expr: not_expr
@@ -433,22 +433,24 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
     ProgramNode = RootNode.children[0]
     *class_list, bare_statement_block_node = ProgramNode.children
     for qclass in class_list:
-        qclass.type_eval({})
+        qclass.type_eval({}, False)
     for qclass in class_list:
         class_name = qclass.children[0].class_name
         with open(f'{class_name}.asm', 'w') as f:
             instr = qclass.r_eval({})
             for i in instr:
-                # Replace every occurence of current class with dollar sign, except the class declaration
-                if not i.startswith('.class') and class_name in i:
-                    i = i.replace(class_name, '$')
+                # Replace self constructor and field reference on 'self', except class declaration
+                if i == f'new {class_name}':
+                    i = 'new $'
+                if i.startswith('store') or i.startswith('load') and f'{class_name}:' in i:
+                    i = i.replace(f'{class_name}:', '$:')
                 f.write(i)
                 f.write('\n')
 
     main_file_name = quack_file.rstrip('.qk')
     with open(main_file_name + '_main.asm', 'w') as f:
         bare_statement_block_local_var_dict = {}
-        bare_statement_block_node.type_eval(bare_statement_block_local_var_dict)
+        bare_statement_block_node.type_eval(bare_statement_block_local_var_dict, False)
         instr = bare_statement_block_node.r_eval(bare_statement_block_local_var_dict)
         f.write(f".class {main_file_name + '_main'}:Obj\n")
         f.write('\n')
