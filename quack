@@ -5,4 +5,4 @@ IFS="." read -a quackfilename <<< "$1"
 binaryname="${quackfilename[0]}"
 
 ./quackc $1
-./bin/tiny_vm -L OBJ $binaryname
+./bin/tiny_vm -L OBJ ${quackfilename[0]}"_main"

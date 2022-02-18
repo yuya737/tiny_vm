@@ -41,9 +41,15 @@ class RootObjClass(QuackClass):
     def get_path_to_subclass(self, class_name: str) -> List[str]:
         ret = []
         assert(self.get_path_to_subclass_helper(self, class_name, ret))
+        # self.get_path_to_subclass_helper(self, class_name, ret)
         return ret
 
     def find_LCA(self, class_name_1: str, class_name_2: str) -> str:
+        # None is the bottom type so...
+        if not class_name_1:
+            return class_name_2
+        if not class_name_2:
+            return class_name_1
         path_to_class_1 = self.get_path_to_subclass(class_name_1)
         path_to_class_2 = self.get_path_to_subclass(class_name_2)
 

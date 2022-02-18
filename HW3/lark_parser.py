@@ -431,9 +431,13 @@ def type_check(RootNode: ASTNode) -> Dict[str, str]:
 def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict: Dict[str, str]) -> None:
     # instr = RootNode.r_eval(var_dict)
     ProgramNode = RootNode.children[0]
+
+    # Run an initialization check
+    ProgramNode.init_check([], False)
+
     *class_list, bare_statement_block_node = ProgramNode.children
     for qclass in class_list:
-        qclass.type_eval({}, False)
+        qclass.type_eval({})
     for qclass in class_list:
         class_name = qclass.children[0].class_name
         with open(f'{class_name}.asm', 'w') as f:
@@ -450,7 +454,7 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
     main_file_name = quack_file.rstrip('.qk')
     with open(main_file_name + '_main.asm', 'w') as f:
         bare_statement_block_local_var_dict = {}
-        bare_statement_block_node.type_eval(bare_statement_block_local_var_dict, False)
+        bare_statement_block_node.type_eval(bare_statement_block_local_var_dict)
         instr = bare_statement_block_node.r_eval(bare_statement_block_local_var_dict)
         f.write(f".class {main_file_name + '_main'}:Obj\n")
         f.write('\n')
@@ -460,7 +464,6 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
         for i in instr:
             f.write(i)
             f.write('\n')
-        f.write('\thalt\n')
         f.write('\treturn 0\n')
 
 

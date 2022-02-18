@@ -6,5 +6,6 @@ jsonname="OBJ/${quackfilename[0]}.json"
 
 python HW3/lark_parser.py $1 $asmname builtinclass.json
 python assemble.py $asmname $jsonname
+python assemble.py ${quackfilename[0]}"_main.asm" "OBJ/"${quackfilename[0]}"_main.json"
 echo $asmname
 echo $jsonname
