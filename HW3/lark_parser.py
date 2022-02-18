@@ -444,9 +444,9 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
             instr = qclass.r_eval({})
             for i in instr:
                 # Replace self constructor and field reference on 'self', except class declaration
-                if i == f'new {class_name}':
-                    i = 'new $'
-                if i.startswith('store') or i.startswith('load') and f'{class_name}:' in i:
+                if i == f'\tnew {class_name}':
+                    i = '\tnew $'
+                if (i.startswith('\tstore') or i.startswith('\tload') or i.startswith('\tcall')) and f'{class_name}:' in i:
                     i = i.replace(f'{class_name}:', '$:')
                 f.write(i)
                 f.write('\n')

@@ -2,8 +2,8 @@
   "class_name": "Nothing",
   "super": "Obj",
   "methods": [ "$constructor",
-    "string",
-    "print",
+    "STR",
+    "PRINT",
     "equals"
   ],
   "fields": []

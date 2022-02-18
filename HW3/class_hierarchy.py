@@ -19,8 +19,8 @@ class QuackClass():
 
 class RootObjClass(QuackClass):
     def __init__(self):
-        Obj_methods = [QuackClassMethod("string", [], "String"),
-                       QuackClassMethod("print", [], "Nothing"),
+        Obj_methods = [QuackClassMethod("STR", [], "String"),
+                       QuackClassMethod("PRINT", [], "Nothing"),
                        QuackClassMethod("equals", ["Obj"], "Boolean")
                        ]
         super().__init__("Obj", "Obj", Obj_methods, {})
