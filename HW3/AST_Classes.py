@@ -330,7 +330,7 @@ class MethodcallNode(ASTNode):
                     break
 
             if not method_found_in_a_superclass:
-                raise NotImplementedError(f'Function {self.m_name} for {caller_type} is not defined or bt any of its super classes {super_class_chain}')
+                raise NotImplementedError(f'Function {self.m_name} for {caller_type} is not defined or by any of its super classes {super_class_chain}')
 
         quackFunction = quackFunctionEntry[0]
 
@@ -536,7 +536,8 @@ class ClassNode(ASTNode):
         for item in constructor_scope_local_var_dict.keys():
             if item.startswith('this.'):
                 local_var_dict[item] = constructor_scope_local_var_dict[item]
-                field_var_dict[item.lstrip('this.')] = constructor_scope_local_var_dict[item]
+                # field_var_dict[item.lstrip('this.')] = constructor_scope_local_var_dict[item]
+                field_var_dict[item[5:]] = constructor_scope_local_var_dict[item]
 
         # Make sure every field that its superclass defines is defined with a compatible assignment
         for superclass_field_name, superclass_field_type in ch.find_class(super_class).fields_list.items():
