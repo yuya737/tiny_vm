@@ -7,12 +7,12 @@
                 "ret": "Nothing"
 
             },
-            "string": {
+            "STR": {
                 "params": [],
                 "ret": "String"
 
             },
-            "print": {
+            "PRINT": {
                 "params": [],
                 "ret": "Nothing"
 
@@ -38,12 +38,12 @@
                 "ret": "Nothing"
 
             },
-            "string": {
+            "STR": {
                 "params": [],
                 "ret": "String"
 
             },
-            "print": {
+            "PRINT": {
                 "params": [],
                 "ret": "Nothing"
 
@@ -133,12 +133,12 @@
                 "ret": "Nothing"
 
             },
-            "string": {
+            "STR": {
                 "params": [],
                 "ret": "String"
 
             },
-            "print": {
+            "PRINT": {
                 "params": [],
                 "ret": "Nothing"
 
@@ -204,12 +204,12 @@
                 "ret": "Nothing"
 
             },
-            "string": {
+            "STR": {
                 "params": [],
                 "ret": "String"
 
             },
-            "print": {
+            "PRINT": {
                 "params": [],
                 "ret": "Nothing"
 
@@ -235,12 +235,12 @@
                 "ret": "Nothing"
 
             },
-            "string": {
+            "STR": {
                 "params": [],
                 "ret": "String"
 
             },
-            "print": {
+            "PRINT": {
                 "params": [],
                 "ret": "Nothing"
 

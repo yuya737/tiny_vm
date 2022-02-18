@@ -367,7 +367,11 @@ class MakeAssemblyTree(Transformer):
         return ThisReferenceLexpNode(lst[0].value)
 
     def constructorcall(self, lst) -> ASTNode:
-        caller_name, arguments = lst
+        caller_name, *arguments = lst
+        if arguments:
+            arguments = arguments[0]
+        else:
+            argumetns = None
         print(f'In constructor call with {caller_name} with arguments {arguments}')
         return ConstructorCall(caller_name.value, arguments)
 

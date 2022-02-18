@@ -296,10 +296,13 @@ class MethodcallNode(ASTNode):
         self.children.append(methodargs)
         self.m_name = m_name
 
+        # Type checking will check the caller type - can be a superclass
+        self.caller_type = None
+
     def r_eval(self, local_var_dict: Dict[str, str]):
         caller, methodargs = self.children
         methodargs_r_eval = methodargs.r_eval(local_var_dict) if methodargs else []
-        caller_type = caller.type_eval(local_var_dict)
+        caller_type = self.caller_type
         return (methodargs_r_eval
                 + caller.r_eval(local_var_dict)
                 + [f'\tcall {caller_type}:{self.m_name}'])
@@ -314,14 +317,28 @@ class MethodcallNode(ASTNode):
 
         # Make sure this function exists
         quackFunctionEntry = [entry for entry in quackClassEntry.methods_list if entry.method_name == self.m_name]
+        # Check its superclass in order, if its not defined in this class
         if not quackFunctionEntry:
-            raise NotImplementedError(f'Function {self.m_name} for {caller_type} is not defined')
+            method_found_in_a_superclass = False
+            # path to subclass reversed, but itself
+            super_class_chain = ch.get_path_to_subclass(caller_type)[-2::-1]
+            for super_class in super_class_chain:
+                quackFunctionEntry = [entry for entry in ch.find_class(super_class).methods_list if entry.method_name == self.m_name]
+                if quackFunctionEntry: # If the function is found in a super class edit the caller type
+                    method_found_in_a_superclass = True
+                    caller_type = super_class
+                    break
+
+            if not method_found_in_a_superclass:
+                raise NotImplementedError(f'Function {self.m_name} for {caller_type} is not defined or bt any of its super classes {super_class_chain}')
 
         quackFunction = quackFunctionEntry[0]
+
 
         # Make sure that the arguments are the right type. If there are no arguments, make sure that the funtion is supposed to take no parameters
         args_types = methodargs.type_eval(local_var_dict) if methodargs else []
         ch.is_legal_invocation(caller_type, self.m_name, args_types)
+        self.caller_type = caller_type
 
         return quackFunction.ret
 
@@ -474,7 +491,11 @@ class ClassNode(ASTNode):
                 method_block.r_eval(self.method_scope_local_var_dict))
 
     def type_eval(self, local_var_dict: Dict[str, str]):
+        global ch
         class_signature, constructor_statement_block, method_block = self.children
+        class_name = class_signature.class_name
+        super_class = class_signature.super_class
+        class_formal_args = class_signature.children[0]
 
         class_signature.type_eval(local_var_dict)
 
@@ -483,7 +504,6 @@ class ClassNode(ASTNode):
         populate_local_var_dict_with_initialized_vars(constructor_scope_local_var_dict, self.constructor_scope_local_var_list)
 
         # Populate types in constructor_scope_local_var_dict
-        class_formal_args = class_signature.children[0]
         for constructor_parameter_name, constructor_parameter_type in zip(class_formal_args.arg_names, class_formal_args.arg_types):
             # print('Adding: ', constructor_parameter_name, constructor_parameter_type)
             constructor_scope_local_var_dict[constructor_parameter_name] = constructor_parameter_type
@@ -518,11 +538,18 @@ class ClassNode(ASTNode):
                 local_var_dict[item] = constructor_scope_local_var_dict[item]
                 field_var_dict[item.lstrip('this.')] = constructor_scope_local_var_dict[item]
 
+        # Make sure every field that its superclass defines is defined with a compatible assignment
+        for superclass_field_name, superclass_field_type in ch.find_class(super_class).fields_list.items():
+            if superclass_field_name not in field_var_dict:
+                raise TypeError(f"{class_name}'s superclass {super_class} defines {superclass_field_name} but {class_name} does not")
+            if not ch.is_legal_assignment(superclass_field_type, field_var_dict[superclass_field_name]):
+                raise TypeError(f"{class_name}'s superclass {super_class} defines {superclass_field_name} as an {superclass_field_type} and {field_var_dict[superclass_field_name]} is not a compatible assignment")
+
+
         # Add class to class hierachy
-        class_name = class_signature.class_name
-        super_class = class_signature.super_class
+
         # Add constructor to the method list
-        methods_list = [class_hierarchy.QuackClassMethod('$constructor', class_formal_args.arg_types, None)]
+        methods_list = [class_hierarchy.QuackClassMethod('$constructor', class_formal_args.arg_types, class_name)]
 
         for method_node in method_block.children:
             method_name = method_node.method_name
@@ -532,7 +559,6 @@ class ClassNode(ASTNode):
             methods_list.append(class_hierarchy.QuackClassMethod(method_name, params_list, ret_type))
 
         new_class_to_add = class_hierarchy.QuackClass(class_name, super_class, methods_list, field_var_dict)
-        global ch
         ch.add_class_to_hierarchy(new_class_to_add)
         class_hierarchy.pretty_print(ch)
 
@@ -742,7 +768,7 @@ class ClassSignatureNode(ASTNode):
 
 
     def pretty_label(self) -> str:
-        return "ClassSignatureNode"
+        return f"ClassSignatureNode - {self.class_name}, SuperClass: {self.super_class}"
 
 class ClassMethodNode(ASTNode):
     """Class Method"""
@@ -1101,12 +1127,10 @@ class ConstructorCall(ASTNode):
 
     def r_eval(self, local_var_dict: Dict[str, str]):
         constructor_arguments = self.children[0]
-        num_constructor_arguments = len(constructor_arguments.children)
-        ret = constructor_arguments.r_eval(local_var_dict)
-        # ret += [f'\troll {num_constructor_arguments}']
-        ret += [f'\tnew {self.caller_name}']
-        ret += [f'\tcall {self.caller_name}:$constructor']
-        return ret
+        constructorargs_r_eval = constructor_arguments.r_eval(local_var_dict) if constructor_arguments else []
+        return (constructorargs_r_eval +
+                [f'\tnew {self.caller_name}'] +
+                [f'\tcall {self.caller_name}:$constructor'])
 
     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
         # return self.children[0].c_eval(true_branch, false_branch, local_var_dict)
