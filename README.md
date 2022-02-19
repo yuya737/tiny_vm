@@ -1,5 +1,7 @@
-# Instructions for HW2 - Nano Quack (01/28/22)
+# Instructions (02/19/22)
 
-The lark parser lives at `HW2/lark_parser.py` and takes as argument an input quack expression and the path to the desired `.asm` file and . I have used `python lark_parser.py test_input Main.asm` - ran inside `HW2/`. (The sample input from class is under `HW2/test_input`).
+The parser/code generation components lives in `main/*py`. `AST_classes.py` defines all the node in the AST and their behavior, `class_hierarchy.py` defines the class heirarchy and related functions and `lark_parser.py` acts as the driver.
 
-Once the `Main.asm` is built, calling `python assemble.py HW2/Main.asm OBJ/Main.json; ./bin/tiny_vm -L OBJ Main` from the main directory will compile the assembly code, and run it
+`quackc` and `quack` are provided to compile `*qk` files and takes a single argument. Consider some `S.qk` that defines classes `A,B,C` and a statement block at the end. `quackc` will generate `A.asm, B.asm, C.asm` and `S_main.asm` before calling `assemble.py` to compile them to `OBJ/A.json, OBJ/B.json, OBJ/C.json` and `OBJ/S_main.json`. 
+
+The behavior of `quack` amounts to calling `quackc` and then calling the tiny_vm on the `*_main` function
