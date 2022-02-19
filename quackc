@@ -9,7 +9,7 @@ if [[ $? != 0 ]] ;  then
 fi;
 
 files=`cat final_file_list`
-rm -f temp_file
+rm -f final_file_list
 
 for output_asm in ${files[@]}; do
     python assemble.py ${output_asm}.asm OBJ/${output_asm}.json

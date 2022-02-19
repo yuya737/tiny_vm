@@ -457,11 +457,11 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
                 f.write('\n')
         final_file_list.append(class_name)
 
-    with open(output_asm + '.asm', 'w') as f:
+    with open(output_asm + '_main.asm', 'w') as f:
         bare_statement_block_local_var_dict = {}
         bare_statement_block_node.type_eval(bare_statement_block_local_var_dict)
         instr = bare_statement_block_node.r_eval(bare_statement_block_local_var_dict)
-        f.write(f".class {output_asm}:Obj\n")
+        f.write(f".class {output_asm + '_main'}:Obj\n")
         f.write('\n')
         f.write('.method $constructor\n')
         if bare_statement_block_local_var_dict.keys():
@@ -471,7 +471,7 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
             f.write('\n')
         f.write('\treturn 0\n')
 
-    final_file_list.append(output_asm)
+    final_file_list.append(output_asm + '_main')
     return final_file_list
 
 
