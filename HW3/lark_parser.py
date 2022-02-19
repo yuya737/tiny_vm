@@ -432,7 +432,8 @@ def type_check(RootNode: ASTNode) -> Dict[str, str]:
     # print('Finished Type Checking')
     return var_dict
 
-def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict: Dict[str, str]) -> None:
+def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict: Dict[str, str]) -> List[str]:
+    final_file_list = []
     # instr = RootNode.r_eval(var_dict)
     ProgramNode = RootNode.children[0]
 
@@ -454,13 +455,13 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
                     i = i.replace(f'{class_name}:', '$:')
                 f.write(i)
                 f.write('\n')
+        final_file_list.append(class_name)
 
-    main_file_name = quack_file.rstrip('.qk')
-    with open(main_file_name + '_main.asm', 'w') as f:
+    with open(output_asm + '.asm', 'w') as f:
         bare_statement_block_local_var_dict = {}
         bare_statement_block_node.type_eval(bare_statement_block_local_var_dict)
         instr = bare_statement_block_node.r_eval(bare_statement_block_local_var_dict)
-        f.write(f".class {main_file_name + '_main'}:Obj\n")
+        f.write(f".class {output_asm}:Obj\n")
         f.write('\n')
         f.write('.method $constructor\n')
         if bare_statement_block_local_var_dict.keys():
@@ -470,6 +471,8 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
             f.write('\n')
         f.write('\treturn 0\n')
 
+    final_file_list.append(output_asm)
+    return final_file_list
 
 
 def main(quack_file, output_asm, builtinclass_json):
@@ -493,7 +496,8 @@ def main(quack_file, output_asm, builtinclass_json):
     print('Printing Transformed AST')
     pretty_print(ast)
     print('------------------------------------------------------')
-    write_to_file(quack_file, ast, output_asm, {})
+    # write to stderr for assemble.py to compile them to jsons
+    print(' '.join(write_to_file(quack_file, ast, output_asm, {})), file=sys.stderr)
 
 
 
