@@ -3,9 +3,15 @@ set -e
 
 IFS="." read -a quackfilenameroot <<< "$1"
 
-{ OUTPUT="$(python HW3/lark_parser.py $1 ${quackfilenameroot[0]} ./builtinclass.json 2>&1 1>&3 3>&-)";  } 3>&1;
-for output_asm in ${OUTPUT[@]}; do
+python HW3/lark_parser.py $1 ${quackfilenameroot[0]} ./builtinclass.json
+if [[ $? != 0 ]] ;  then
+    exit 1;
+fi;
+
+files=`cat final_file_list`
+rm -f temp_file
+
+for output_asm in ${files[@]}; do
     python assemble.py ${output_asm}.asm OBJ/${output_asm}.json
     echo "Compiled ${output_asm}.asm to OBJ/${output_asm}.json"
 done
-

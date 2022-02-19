@@ -497,9 +497,9 @@ def main(quack_file, output_asm, builtinclass_json):
     pretty_print(ast)
     print('------------------------------------------------------')
     # write to stderr for assemble.py to compile them to jsons
-    print(' '.join(write_to_file(quack_file, ast, output_asm, {})), file=sys.stderr)
-
-
+    with open('final_file_list', 'w') as f:
+        for i in write_to_file(quack_file, ast, output_asm, {}):
+            f.write(i + ' ')
 
 if __name__ == '__main__':
     if len(sys.argv) != 4:
