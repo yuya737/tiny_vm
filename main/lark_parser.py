@@ -496,9 +496,9 @@ def main(quack_file, output_asm, builtinclass_json):
     print('Printing Transformed AST')
     pretty_print(ast)
     print('------------------------------------------------------')
-    # write to stderr for assemble.py to compile them to jsons
+    final_file_list = write_to_file(quack_file, ast, output_asm, {})
     with open('final_file_list', 'w') as f:
-        for i in write_to_file(quack_file, ast, output_asm, {}):
+        for i in final_file_list:
             f.write(i + ' ')
 
 if __name__ == '__main__':

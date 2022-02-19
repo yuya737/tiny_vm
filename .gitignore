@@ -92,3 +92,11 @@ dkms.conf
 
 build/
 bin/
+
+__pycache__
+
+*qk
+*png
+/*asm
+
+mypy.ini

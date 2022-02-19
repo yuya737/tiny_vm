@@ -1,6 +1,0 @@
-i: Int = 14 + 40;
-j: Int = i/9;
-j.print();
-s: String = j.string();
-t: String = s + "is cool\n";
-t.print();
