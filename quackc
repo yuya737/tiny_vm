@@ -3,7 +3,7 @@ set -e
 
 IFS="." read -a quackfilenameroot <<< "$1"
 
-python HW3/lark_parser.py $1 ${quackfilenameroot[0]} ./builtinclass.json
+python main/lark_parser.py $1 ${quackfilenameroot[0]} ./builtinclass.json
 if [[ $? != 0 ]] ;  then
     exit 1;
 fi;
