@@ -116,7 +116,7 @@ class IfNode(ASTNode):
         #   -   Single if can't define any new fields. In other words, var_dict after and before should have
         #       the same vars that have the form this.--
         #   -   If-else can't define different fields. So, var_dict after then and after else should have
-        #       the same vars taht have the form this.--
+        #       the same vars that have the form this.--
 
 
         # Keep track for potential return statements
@@ -1036,19 +1036,24 @@ class AssignmentNode(ASTNode):
     def r_eval(self, local_var_dict: Dict[str, str]):
         lexp, rexp = self.children
         return (rexp.r_eval(local_var_dict)
-                + lexp.l_eval())
+                + lexp.l_eval(local_var_dict))
 
     def type_eval(self, local_var_dict: Dict[str, str]):
         lexp, rexp = self.children
 
         actual_type = rexp.type_eval(local_var_dict)
         declared_type = self.var_type
-        if lexp.get_value() in local_var_dict:
-            prev_inferred_type = local_var_dict[lexp.get_value()]
-        else:
-            raise SyntaxError(f"Assignment to {lexp.get_value()} is invalid. Most likely, there is a path that doesn't initialize this variable")
 
-        newly_inferred_type = None
+        if isinstance(lexp, VarReferenceNode) or isinstance(lexp, ThisReferenceLexpNode):
+            if lexp.get_value() in local_var_dict:
+                prev_inferred_type = local_var_dict[lexp.get_value()]
+            else:
+                raise SyntaxError(f"Assignment to {lexp.get_value()} is invalid. Most likely, there is a path that doesn't initialize this variable")
+        else:
+            # Its a field reference
+            prev_inferred_type = lexp.type_eval(local_var_dict)
+
+
 
         # If we are trying to assign a variable to something that doesn't return anything...
         if not actual_type:
@@ -1056,25 +1061,31 @@ class AssignmentNode(ASTNode):
         # if lexp.get_value() == 'y':
         #     breakpoint()
 
-        # If we inferred a type before ...
-        if prev_inferred_type:
-            new_candidate_type = ch.find_LCA(prev_inferred_type, actual_type)
-            local_var_dict[lexp.get_value()] = new_candidate_type
-            newly_inferred_type = new_candidate_type
-        else:
-            local_var_dict[lexp.get_value()] = actual_type
-            newly_inferred_type = actual_type
+        # Need to update local_var_dict if its a VarReference or a ThisReference
+        if isinstance(lexp, VarReferenceNode) or isinstance(lexp, ThisReferenceLexpNode):
 
-        # If a type was declared, make sure it is an actual class and make sure that it is legal with the newly inferred type. Then, honor the declared type over the acutal evalauated type
-        if declared_type:
-            if not ch.find_class(declared_type):
-                raise TypeError(f'Declared type {declared_type} is an invalid class')
-            if not ch.is_legal_assignment(declared_type, newly_inferred_type):
-                raise TypeError(f'Assignment declared {declared_type} but inferred {newly_inferred_type}')
-            local_var_dict[lexp.get_value()] = declared_type
+            newly_inferred_type = None
 
-        lexp.type_eval(local_var_dict)
-        rexp.type_eval(local_var_dict)
+            # If we inferred a type before ...
+            if prev_inferred_type:
+                new_candidate_type = ch.find_LCA(prev_inferred_type, actual_type)
+                local_var_dict[lexp.get_value()] = new_candidate_type
+                newly_inferred_type = new_candidate_type
+            else:
+                local_var_dict[lexp.get_value()] = actual_type
+                newly_inferred_type = actual_type
+
+            # If a type was declared, make sure it is an actual class and make sure that it is legal with the newly inferred type. Then, honor the declared type over the acutal evalauated type
+            if declared_type:
+                if not ch.find_class(declared_type):
+                    raise TypeError(f'Declared type {declared_type} is an invalid class')
+                if not ch.is_legal_assignment(declared_type, newly_inferred_type):
+                    raise TypeError(f'Assignment declared {declared_type} but inferred {newly_inferred_type}')
+                local_var_dict[lexp.get_value()] = declared_type
+        else: # It's a field reference
+            # Make sure that the assignment to this field is legal
+            if not ch.is_legal_assignment(lexp.type_eval(local_var_dict), actual_type):
+                raise TypeError(f'Assignment to field {lexp.field_name} is invalid. Cannot assign {actual_type} to {lexp.type_eval(local_var_dict)}')
 
         return None
 
@@ -1086,9 +1097,17 @@ class AssignmentNode(ASTNode):
     def init_check(self, local_var_list: List[str], in_constructor: bool):
         lexp, rexp = self.children
         # First check if the right hand side is a valid statement, if so add the left to the local_var_list
+        print(local_var_list)
         rexp.init_check(local_var_list, in_constructor)
-        if lexp.get_value() not in local_var_list:
-            local_var_list.append(lexp.get_value())
+
+        # If the lexp is a varreference or thisreference, check directly with the local_var_list,
+        if isinstance(lexp, VarReferenceNode) or isinstance(lexp, ThisReferenceLexpNode):
+            if lexp.get_value() not in local_var_list:
+                local_var_list.append(lexp.get_value())
+        else:
+        # If the lexp is a fieldreference, run an initialization check on that
+            lexp.init_check(local_var_list, in_constructor)
+
 
         # If there is an assignment to 'this.' (i.e. a class field) outside of the constructor report an error
         if not in_constructor and isinstance(lexp, ThisReferenceLexpNode):
@@ -1184,7 +1203,7 @@ class ThisReferenceLexpNode(ASTNode):
     def r_eval(self, local_var_dict: Dict[str, str]):
         return ['\tload $', f'\tload_field $:{self.variable}']
 
-    def l_eval(self):
+    def l_eval(self, local_var_dict: Dict[str, str]):
         return ['\tload $', f'\tstore_field $:{self.variable}']
 
     def type_eval(self, local_var_dict: Dict[str, str]):
@@ -1211,12 +1230,18 @@ class FieldReferenceLexpNode(ASTNode):
         super().__init__()
         self.children.append(atomic_expr)
         self.field_name = field_name
+        # type evaluation will populate this
+        self.referred_class = None
 
     def r_eval(self, local_var_dict: Dict[str, str]):
         atomic_expr = self.children[0]
-        atomic_expr_type = atomic_expr.type_eval(local_var_dict)
         return (atomic_expr.r_eval(local_var_dict) +
-                [f'\tload_field {atomic_expr_type}:{self.field_name}'])
+                [f'\tload_field {self.referred_class}:{self.field_name}'])
+
+    def l_eval(self, local_var_dict: Dict[str, str]):
+        atomic_expr = self.children[0]
+        return (atomic_expr.r_eval(local_var_dict) +
+                [f'\tstore_field {self.referred_class}:{self.field_name}'])
 
     def get_value(self) -> str:
         return self.value
@@ -1227,13 +1252,15 @@ class FieldReferenceLexpNode(ASTNode):
 
         # Find the class of the referred field
         referred_class = ch.find_class(atomic_expr_type)
+        self.referred_class = referred_class.class_name
         if self.field_name in referred_class.fields_list.keys():
             return referred_class.fields_list[self.field_name]
         else:
             raise ReferenceError(f'Field {self.field_name} is referenced for {atomic_expr_type} but it does not exist')
 
     def init_check(self, local_var_list: List[str], in_constructor: bool):
-        return None
+        atomic_expr = self.children[0]
+        atomic_expr.init_check(local_var_list, in_constructor)
 
 
     def pretty_label(self) -> str:
@@ -1249,9 +1276,8 @@ class VarReferenceNode(ASTNode):
     def r_eval(self, local_var_dict: Dict[str, str]):
         return [f'\tload {self.variable}']
 
-    def l_eval(self):
+    def l_eval(self, local_var_dict: Dict[str, str]):
         return [f'\tstore {self.variable}']
-
 
     def get_value(self):
         return self.variable

@@ -44,7 +44,7 @@ quack_grammar = """
 
     methodargs: rexp ("," rexp)*
 
-    assignment: lexp [":" IDENT] "=" rexp
+    assignment: lexpr [":" IDENT] "=" rexp
 
     rexp: and_expr
         | rexp "or" and_expr -> _or
@@ -82,9 +82,13 @@ quack_grammar = """
          | "true" -> true
          | "false" -> false
 
-
     lexp: IDENT             -> var_reference
         | "this" "." IDENT  -> this_reference_lexp
+
+    ?lexpr: lexp
+        | atom_expr "." IDENT -> fieldreference
+
+
 
 
     ?constant: INT       -> number
