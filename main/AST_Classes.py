@@ -184,6 +184,7 @@ class IfNode(ASTNode):
 
         if len(self.children) == 2:
             condpart, thenpart = self.children
+            condpart.init_check(local_var_list, in_constructor)
             # condpart has no initialization
 
             var_dict_before_if = local_var_list
@@ -196,6 +197,7 @@ class IfNode(ASTNode):
             #         raise SyntaxError(f'Single if statements in constructors can not define new field variables.')
         else:
             condpart, thenpart, elsepart = self.children
+            condpart.init_check(local_var_list, in_constructor)
 
             var_dict_before_if = local_var_list
 
@@ -351,7 +353,7 @@ class MethodcallNode(ASTNode):
 
     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
         bool_code = self.r_eval(local_var_dict)
-        return bool_code + [f"\tjump_if  {true_branch}", f"\tjump {false_branch}"]
+        return bool_code + [f"\tjump_if {true_branch}", f"\tjump {false_branch}"]
 
     def pretty_label(self) -> str:
         return f"MethodcallNode: {self.m_name}"
@@ -976,7 +978,10 @@ class BareStatementBlockNode(ASTNode):
         # breakpoint()
 
     def r_eval(self, local_var_dict: Dict[str, str]):
-        return [subitem for children in self.children for subitem in children.r_eval(self.bare_statement_block_local_var_dict)]
+        ret = [subitem for children in self.children for subitem in children.r_eval(self.bare_statement_block_local_var_dict)]
+        # Take care of potential returns in the bare statement. Replace with 0 because the bare statements have no arguments
+        ret = [i.replace('TOFILL', str(0)) for i in ret]
+        return ret
 
     def type_eval(self, local_var_dict: Dict[str, str]):
         # Populate variable with those initialized in this scope
@@ -1247,7 +1252,6 @@ class VarReferenceNode(ASTNode):
     def l_eval(self):
         return [f'\tstore {self.variable}']
 
-    # def c_eval(self, true_branch: str, false_branch: str) -> List[str]
 
     def get_value(self):
         return self.variable
@@ -1265,7 +1269,7 @@ class VarReferenceNode(ASTNode):
 
     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
         bool_code = self.r_eval(local_var_dict)
-        return bool_code + [f"\tjump_if  {true_branch}", f"\tjump {false_branch}"]
+        return bool_code + [f"\tjump_if {true_branch}", f"\tjump {false_branch}"]
 
     def pretty_label(self) -> str:
         return f'VarReferenceNode: {self.variable}'
@@ -1302,7 +1306,7 @@ class BoolNode(ASTNode):
 
     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]):
         bool_code = self.r_eval(local_var_dict)
-        return bool_code + [f"\tjump_if  {true_branch}", f"\tjump {false_branch}"]
+        return bool_code + [f"\tjump_if {true_branch}", f"\tjump {false_branch}"]
 
     def type_eval(self, local_var_dict: Dict[str, str]):
         return "Boolean"
@@ -1372,7 +1376,7 @@ class ComparisonNode(ASTNode):
 
     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
         bool_code = self.r_eval(local_var_dict)
-        return bool_code + [f"\tjump_if  {true_branch}", f"\tjump {false_branch}"]
+        return bool_code + [f"\tjump_if {true_branch}", f"\tjump {false_branch}"]
 
     def pretty_label(self) -> str:
         return f"ComparisonNode: {self.comp_op}"
@@ -1474,6 +1478,59 @@ class NotNode(ASTNode):
 
     def pretty_label(self) -> str:
         return "NotNode"
+
+
+class IsInstanceNode(ASTNode):
+    """IsInstance Node"""
+    def __init__(self, rexp: ASTNode, target_class: str):
+        super().__init__()
+        self.children.append(rexp)
+        self.target_class = target_class
+
+    def r_eval(self, local_var_dict: Dict[str, str]):
+        target_variable = self.children[0]
+        return target_variable.r_eval(local_var_dict)
+
+    def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]):
+        # Hacky but ¯\_(ツ)_/¯
+        ret = self.children[0].c_eval(true_branch, false_branch, local_var_dict)
+        ret.insert(ret.index('\tjump_if ' + true_branch), f'\tis_instance {self.target_class}')
+        return ret
+
+    def type_eval(self, local_var_dict: Dict[str, str]):
+        target_variable = self.children[0]
+        target_variable.type_eval(local_var_dict)
+        return "Boolean"
+
+    def init_check(self, local_var_list: List[str], in_constructor: bool):
+        target_variable = self.children[0]
+        target_variable.init_check(local_var_list, in_constructor)
+        return None
+
+    def pretty_label(self) -> str:
+        return "IsInstance"
+
+class TypeAlternativeNode(ASTNode):
+    """Type alternative node"""
+    def __init__(self, alt_name: str, type_name: str, StatementBlockNode: ASTNode):
+        super().__init__()
+        self.children.append(StatementBlockNode)
+        self.alt_name = alt_name
+        self.type_name = type_name
+
+    def r_eval(self, local_var_dict: Dict[str, str]):
+        return None
+
+    def type_eval(self, local_var_dict: Dict[str, str]):
+        return None
+
+    def init_check(self, loacl_var_list: List[str], in_constructor: bool):
+        return None
+
+    def pretty_label(self) -> str:
+        return f"TypeAlternativeNode: {self.alt_name}, {self.type_name}"
+
+
 
 def parse_builtin_classes(builtinclass_json):
     global ch

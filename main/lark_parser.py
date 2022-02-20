@@ -27,10 +27,15 @@ quack_grammar = """
     statement_block: "{" statement* "}"
 
     ?statement: rexp ";"
+        | typecase
         | assignment ";"
         | ifstmt
         | whilestmt
         | "return" rexp ";" -> return_statement
+
+    typecase: "typecase" rexp "{" type_alternative* "}"
+
+    type_alternative: IDENT ":" IDENT statement_block
 
     ifstmt: "if" rexp statement_block [("else" statement_block)] -> ifstmt
         | "if" rexp statement_block ("elif" rexp statement_block)+ "else" statement_block -> ifelseifstmt
@@ -379,14 +384,32 @@ class MakeAssemblyTree(Transformer):
         print(f'In return {lst}')
         return ReturnStatementNode(lst[0])
 
-    # # Check if the current function arguments are valid. If so, return receiver type and return type
-    # def check_if_valid_func_invocation(self, func_name: str, input_type_list: List[str]):
-    #     for candidate in self.Input_output_dtypes_dict[func_name]:
-    #         # If matching one exists return it
-    #         if input_type_list == candidate.input_dtype:
-    #             return (True, candidate.input_dtype[0], candidate.output_dtype)
+    def type_alternative(self, lst) -> ASTNode:
+        alt_name, type_name, statement_block = lst
+        print(f'In type_alternative {lst}')
+        return TypeAlternativeNode(alt_name.value, type_name.value, statement_block)
 
-    #     return (False, None, None)
+    # Typecase is a just a glorified if/else
+    def typecase(self, lst) -> ASTNode:
+        rexp, *type_alternative_list = lst
+        print(f'In typecase {lst}')
+
+        def typecase_tree_builder(cur_index: int) -> IfNode:
+            cur_item = type_alternative_list[cur_index]
+
+            # Base case is the last type_alternative_list item
+            if cur_index == len(type_alternative_list) - 1:
+                return IfNode(IsInstanceNode(rexp, cur_item.type_name),
+                              cur_item.children[0],
+                              None)
+
+            else:
+                return IfNode(IsInstanceNode(rexp, cur_item.type_name),
+                                             cur_item.children[0],
+                                             typecase_tree_builder(cur_index + 1))
+
+        return typecase_tree_builder(0)
+
 
     # def neg(self, expression: Instr_dtype_pair) -> Instr_dtype_pair:
     def neg(self, lst) -> ASTNode:
