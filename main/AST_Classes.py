@@ -1117,8 +1117,12 @@ class AssignmentNode(ASTNode):
         rexp.init_check(local_var_list, in_constructor)
 
         # If the lexp is a typecasevarreference or varreference or thisreference, check directly with the local_var_list,
-        if isinstance(lexp, VarReferenceNode) or isinstance(lexp, ThisReferenceLexpNode):
+        if isinstance(lexp, VarReferenceNode):
             if lexp.get_value() not in local_var_list:
+                local_var_list.append(lexp.get_value())
+        # If its a this assignment, only allow it in the constructor
+        elif isinstance(lexp, ThisReferenceLexpNode):
+            if in_constructor:
                 local_var_list.append(lexp.get_value())
         elif isinstance(lexp, TypeCaseVarReferenceNode):
             # Mark typecase assignment as so
@@ -1128,11 +1132,6 @@ class AssignmentNode(ASTNode):
         else:
         # If the lexp is a fieldreference, run an initialization check on that
             lexp.init_check(local_var_list, in_constructor)
-
-
-        # If there is an assignment to 'this.' (i.e. a class field) outside of the constructor report an error
-        if not in_constructor and isinstance(lexp, ThisReferenceLexpNode):
-            raise SyntaxError("Can't assign field variables outside the construcor statement block")
 
         return None
 
