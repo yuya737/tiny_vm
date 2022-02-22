@@ -184,15 +184,17 @@ int is_instance(obj_ref thing, class_ref clazz) {
     }
     assert(clazz->header.healthy_class_tag == HEALTHY);
     class_ref thing_class = thing->header.clazz;
+    log_debug("Is_instance %s, %s", thing_class->header.class_name, clazz->header.class_name);
     while (1) {
         if (thing_class == clazz) {
+            log_debug("YES");
             return 1; // True, is an instance
         }
-        if (clazz == the_class_Obj) {
+        if (thing_class == the_class_Obj) {
             return 0;  // Not an instance
         }
-        clazz = clazz->header.super;
-        assert(clazz->header.healthy_class_tag == HEALTHY);
+        thing_class = thing_class->header.super;
+        assert(thing_class->header.healthy_class_tag == HEALTHY);
     }
  }
 

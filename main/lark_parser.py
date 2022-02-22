@@ -380,7 +380,7 @@ class MakeAssemblyTree(Transformer):
         if arguments:
             arguments = arguments[0]
         else:
-            argumetns = None
+            arguments = None
         print(f'In constructor call with {caller_name} with arguments {arguments}')
         return ConstructorCall(caller_name.value, arguments)
 
@@ -398,8 +398,27 @@ class MakeAssemblyTree(Transformer):
         rexp, *type_alternative_list = lst
         print(f'In typecase {lst}')
 
-        def typecase_tree_builder(cur_index: int) -> IfNode:
+        def replace_var_reference(node: ASTNode, rexp_to_add: ASTNode, alt_name_reference_node: ASTNode):
+            if not node:
+                return
+            print(node, node.children)
+            for i in range(len(node.children)):
+                if node.children[i] == alt_name_reference_node:
+                    node.children[i] = rexp_to_add
+            for child in node.children:
+                replace_var_reference(child, rexp_to_add, alt_name_reference_node)
+
+        def typecase_tree_builder(cur_index: int, rexp_to_add: ASTNode) -> IfNode:
+            # Add assignment node
             cur_item = type_alternative_list[cur_index]
+            assignment_node = AssignmentNode(TypeCaseVarReferenceNode(cur_item.alt_name, cur_item.type_name), cur_item.type_name, rexp)
+            cur_item.children[0].children.insert(0, assignment_node)
+
+            # Exchange variable reference to the alt_name with the rexp
+            alt_name_reference_node = VarReferenceNode(cur_item.alt_name)
+
+            # replace_var_reference(cur_item.children[0], rexp_to_add, alt_name_reference_node)
+
 
             # Base case is the last type_alternative_list item
             if cur_index == len(type_alternative_list) - 1:
@@ -410,9 +429,9 @@ class MakeAssemblyTree(Transformer):
             else:
                 return IfNode(IsInstanceNode(rexp, cur_item.type_name),
                                              cur_item.children[0],
-                                             typecase_tree_builder(cur_index + 1))
+                                             typecase_tree_builder(cur_index + 1, rexp_to_add))
 
-        return typecase_tree_builder(0)
+        return typecase_tree_builder(0, rexp)
 
 
     # def neg(self, expression: Instr_dtype_pair) -> Instr_dtype_pair:
@@ -480,6 +499,8 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
                     i = '\tnew $'
                 if (i.startswith('\tstore') or i.startswith('\tload') or i.startswith('\tcall')) and f'{class_name}:' in i:
                     i = i.replace(f'{class_name}:', '$:')
+                if (i == f'\tis_instance {class_name}'):
+                    i = '\tis_instance $'
                 f.write(i)
                 f.write('\n')
         final_file_list.append(class_name)
@@ -496,6 +517,7 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
         for i in instr:
             f.write(i)
             f.write('\n')
+        f.write('\tconst nothing\n')
         f.write('\treturn 0\n')
 
     final_file_list.append(output_asm + '_main')

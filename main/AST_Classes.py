@@ -191,10 +191,11 @@ class IfNode(ASTNode):
             var_dict_after_if = local_var_list.copy()
             thenpart.init_check(var_dict_after_if, in_constructor)
 
-            # Single if can't define any new class fields in the constructor
-            # if in_constructor:
-            #     if set([item for item in var_dict_before_if if item.startswith('this.')]) != set([item for item in var_dict_after_if if item.startswith('this.')]):
-            #         raise SyntaxError(f'Single if statements in constructors can not define new field variables.')
+            # Take care of typecase - variables from TypeCaseVarAssignment will be added to local_var_list
+            for i in var_dict_after_if:
+                if isinstance(i, tuple) and i[0] == 'TYPECASE':
+                    local_var_list.append(i)
+
         else:
             condpart, thenpart, elsepart = self.children
             condpart.init_check(local_var_list, in_constructor)
@@ -212,11 +213,14 @@ class IfNode(ASTNode):
                 if i not in local_var_list:
                     local_var_list.append(i)
 
-            # # If if-else is in the constructor, make sure that both branches define the same field variables
-            # if in_constructor:
-            #     if set([item for item in var_dict_after_then if item.startswith('this.')]) != set([item for item in var_dict_after_else if item.startswith('this.')]):
-            #         breakpoint()
-            #         raise SyntaxError(f'Control flows inside constructor block need to define the same field variables.')
+            # Take care of typecase - variables from TypeCaseVarAssignment will be added to local_var_list
+            for i in var_dict_after_then:
+                if isinstance(i, tuple) and i[0] == 'TYPECASE':
+                    local_var_list.append(i)
+            for i in var_dict_after_else:
+                if isinstance(i, tuple) and i[0] == 'TYPECASE':
+                    local_var_list.append(i)
+
         return None
 
 
@@ -806,7 +810,15 @@ class ClassMethodNode(ASTNode):
         method_declaration = [f'.method {self.method_name}']
 
         # Local variables in a function is everyhing that local_var_dict picks out that isn't a field or a function variable
-        local_vars_in_function = [item for item in self.method_scope_local_var_dict if item not in formal_args.arg_names and not item.startswith('this.')]
+        # local_vars_in_function = [item for item in self.method_scope_local_var_dict if item not in formal_args.arg_names and not item.startswith('this.')]
+        local_vars_in_function = []
+        for item in self.method_scope_local_var_dict:
+            if isinstance(item, tuple):
+                local_vars_in_function.append(item[1])
+            else:
+                if item not in formal_args.arg_names and not item.startswith('this.'):
+                    local_vars_in_function.append(item)
+        # local_vars_in_function = [item for item in self.method_scope_local_var_dict if item not in formal_args.arg_names and not item.startswith('this.')]
 
         # Write out local variable declaration
         if local_vars_in_function:
@@ -1054,7 +1066,6 @@ class AssignmentNode(ASTNode):
             prev_inferred_type = lexp.type_eval(local_var_dict)
 
 
-
         # If we are trying to assign a variable to something that doesn't return anything...
         if not actual_type:
             raise TypeError("Can't assign a variable to something a function that doesn't return anything")
@@ -1062,7 +1073,7 @@ class AssignmentNode(ASTNode):
         #     breakpoint()
 
         # Need to update local_var_dict if its a VarReference or a ThisReference
-        if isinstance(lexp, VarReferenceNode) or isinstance(lexp, ThisReferenceLexpNode):
+        if  isinstance(lexp, VarReferenceNode) or isinstance(lexp, ThisReferenceLexpNode):
 
             newly_inferred_type = None
 
@@ -1080,8 +1091,13 @@ class AssignmentNode(ASTNode):
                 if not ch.find_class(declared_type):
                     raise TypeError(f'Declared type {declared_type} is an invalid class')
                 if not ch.is_legal_assignment(declared_type, newly_inferred_type):
+                    # If its a TypeCaseVarReference, don't check legal assignment. It's forced
                     raise TypeError(f'Assignment declared {declared_type} but inferred {newly_inferred_type}')
                 local_var_dict[lexp.get_value()] = declared_type
+        elif isinstance(lexp, TypeCaseVarReferenceNode):
+            local_var_dict[lexp.get_value()] = prev_inferred_type
+            if not ch.find_class(declared_type):
+                raise TypeError(f'Declared type {declared_type} in TypeCase is an invalid class')
         else: # It's a field reference
             # Make sure that the assignment to this field is legal
             if not ch.is_legal_assignment(lexp.type_eval(local_var_dict), actual_type):
@@ -1100,10 +1116,15 @@ class AssignmentNode(ASTNode):
         print(local_var_list)
         rexp.init_check(local_var_list, in_constructor)
 
-        # If the lexp is a varreference or thisreference, check directly with the local_var_list,
+        # If the lexp is a typecasevarreference or varreference or thisreference, check directly with the local_var_list,
         if isinstance(lexp, VarReferenceNode) or isinstance(lexp, ThisReferenceLexpNode):
             if lexp.get_value() not in local_var_list:
                 local_var_list.append(lexp.get_value())
+        elif isinstance(lexp, TypeCaseVarReferenceNode):
+            # Mark typecase assignment as so
+            if lexp.get_value() not in local_var_list:
+                local_var_list.append(lexp.get_value())
+                local_var_list.append(('TYPECASE', lexp.get_value()))
         else:
         # If the lexp is a fieldreference, run an initialization check on that
             lexp.init_check(local_var_list, in_constructor)
@@ -1297,8 +1318,46 @@ class VarReferenceNode(ASTNode):
         bool_code = self.r_eval(local_var_dict)
         return bool_code + [f"\tjump_if {true_branch}", f"\tjump {false_branch}"]
 
+    def __eq__(self, other):
+        return isinstance(other, VarReferenceNode) and (self.variable == other.variable)
+
     def pretty_label(self) -> str:
         return f'VarReferenceNode: {self.variable}'
+
+class TypeCaseVarReferenceNode(ASTNode):
+    """VarReferecnce Node"""
+    def __init__(self, variable: str, forced_type: str):
+        super().__init__()
+        self.variable = variable
+        self.forced_type = forced_type
+
+    def r_eval(self, local_var_dict: Dict[str, str]):
+        return [f'\tload {self.variable}']
+
+    def l_eval(self, local_var_dict: Dict[str, str]):
+        return [f'\tstore {self.variable}']
+
+    def get_value(self):
+        return self.variable
+
+    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+        return self.forced_type
+
+    def init_check(self, local_var_list: List[str], in_constructor: bool):
+        return None
+
+    # def get_prev_defined_type(self, local_var_dict: Dict[str, str]):
+    #     return local_var_dict.get(self.variable, None)
+
+    def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
+        bool_code = self.r_eval(local_var_dict)
+        return bool_code + [f"\tjump_if {true_branch}", f"\tjump {false_branch}"]
+
+    def __eq__(self, other):
+        return isinstance(other, VarReferenceNode) and (self.variable == other.variable)
+
+    def pretty_label(self) -> str:
+        return f'TypeCaseVarReferenceNode: {self.variable}'
 
 
 class ConstNode(ASTNode):
@@ -1430,12 +1489,15 @@ class AndNode(ASTNode):
                 )
 
     def type_eval(self, local_var_dict: Dict[str, str]):
+        left, right = self.children
+        left.type_eval(local_var_dict)
+        right.type_eval(local_var_dict)
         return "Boolean"
 
     def init_check(self, local_var_list: List[str], in_constructor: bool):
         left, right = self.children
-        left.init_check(local_var_list)
-        right.init_check(local_var_list)
+        left.init_check(local_var_list, in_constructor)
+        right.init_check(local_var_list, in_constructor)
         return None
 
     def pretty_label(self) -> str:
@@ -1469,8 +1531,8 @@ class OrNode(ASTNode):
 
     def init_check(self, local_var_list: List[str], in_constructor: bool):
         left, right = self.children
-        left.init_check(local_var_list)
-        right.init_check(local_var_list)
+        left.init_check(local_var_list, in_constructor)
+        right.init_check(local_var_list, in_constructor)
         return None
 
     def pretty_label(self) -> str:
@@ -1534,7 +1596,7 @@ class IsInstanceNode(ASTNode):
         return None
 
     def pretty_label(self) -> str:
-        return "IsInstance"
+        return f"IsInstance {self.target_class}"
 
 class TypeAlternativeNode(ASTNode):
     """Type alternative node"""
