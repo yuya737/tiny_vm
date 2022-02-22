@@ -26,7 +26,7 @@ quack_grammar = """
 
     statement_block: "{" statement* "}"
 
-    ?statement: rexp ";"
+    ?statement: rexp ";" -> bare_right_expression
         | typecase
         | assignment ";"
         | ifstmt
@@ -46,7 +46,7 @@ quack_grammar = """
 
     assignment: lexpr [":" IDENT] "=" rexp
 
-    rexp: and_expr
+    ?rexp: and_expr
         | rexp "or" and_expr -> _or
 
     ?and_expr: not_expr
@@ -360,6 +360,10 @@ class MakeAssemblyTree(Transformer):
     def rexp(self, lst) -> ASTNode:
         print(f'In rexp NAME:{lst[0]}')
         return RexpNode(lst[0])
+
+    def bare_right_expression(self, lst) -> ASTNode:
+        print(f'In barerexp NAME:{lst[0]}')
+        return BareRexpNode(lst[0])
 
     def var_reference(self, lst) -> ASTNode:
         referenced_variable = lst[0].value

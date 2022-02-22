@@ -1147,7 +1147,6 @@ class RexpNode(ASTNode):
         self.children.append(rexp)
 
     def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
-        # Bare right expression need a pop to get rid the thing it returns (whatever that is)
         return self.children[0].r_eval(local_var_dict)
 
     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
@@ -1162,6 +1161,31 @@ class RexpNode(ASTNode):
 
     def pretty_label(self) -> str:
         return "RexpNode"
+
+class BareRexpNode(ASTNode):
+    """Rexp Node"""
+    def __init__(self, rexp: ASTNode):
+        super().__init__()
+        self.children.append(rexp)
+
+    def r_eval(self, local_var_dict: Dict[str, str]) -> List[str]:
+        # Bare right expression need a pop to get rid the thing it returns (whatever that is)
+        return (self.children[0].r_eval(local_var_dict) +
+                ['\tpop']
+                )
+
+    def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
+        return self.children[0].c_eval(true_branch, false_branch, local_var_dict)
+
+    def type_eval(self, local_var_dict: Dict[str, str]) -> str:
+        return self.children[0].type_eval(local_var_dict)
+
+    def init_check(self, local_var_list: List[str], in_constructor: bool):
+        self.children[0].init_check(local_var_list, in_constructor)
+        return None
+
+    def pretty_label(self) -> str:
+        return "BareRexpNode"
 
 class ConstructorCall(ASTNode):
     """Rexp Node"""
