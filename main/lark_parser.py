@@ -524,6 +524,10 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
         f.write('\tconst nothing\n')
         f.write('\treturn 0\n')
 
+    print('\nPrinting Class Hierarchy')
+    print_class_hierarchy()
+    print('------------------------------------------------------')
+
     final_file_list.append(output_asm + '_main')
     return final_file_list
 
@@ -543,9 +547,6 @@ def main(quack_file, output_asm, builtinclass_json):
     ast = tree.transform(quack(input_str))
     print('------------------------------------------------------')
     pydot__tree_to_png(quack(input_str), 'a.png')
-    print('Printing Class Hierarchy')
-    print_class_hierarchy()
-    print('------------------------------------------------------')
     print('Printing Transformed AST')
     pretty_print(ast)
     print('------------------------------------------------------')
