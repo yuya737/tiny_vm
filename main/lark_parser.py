@@ -326,27 +326,28 @@ class MakeAssemblyTree(Transformer):
     def eq(self, lst) -> ASTNode:
         left, right = lst
         print(f'In eq {left}, {right}')
-        return ComparisonNode(left, right, "==")
+        return MethodcallNode(left, 'EQUALS', MethodargsNode([right]))
+        # return ComparisonNode(left, right, "==")
 
     def lt(self, lst) -> ASTNode:
         left, right = lst
         print(f'In lt {left}, {right}')
-        return ComparisonNode(left, right, "<")
+        return MethodcallNode(left, 'LESS', MethodargsNode([right]))
 
     def gt(self, lst) -> ASTNode:
         left, right = lst
         print(f'In gt {left}, {right}')
-        return ComparisonNode(left, right, ">")
+        return MethodcallNode(left, 'MORE', MethodargsNode([right]))
 
     def geq(self, lst) -> ASTNode:
         left, right = lst
         print(f'In geq {left}, {right}')
-        return ComparisonNode(left, right, ">=")
+        return MethodcallNode(left, 'ATLEAST', MethodargsNode([right]))
 
     def leq(self, lst) -> ASTNode:
         left, right = lst
         print(f'In leq {left}, {right}')
-        return ComparisonNode(left, right, "<=")
+        return MethodcallNode(left, 'ATMOST', MethodargsNode([right]))
 
 
     def type(self, lst) -> str:
