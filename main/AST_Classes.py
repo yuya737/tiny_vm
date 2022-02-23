@@ -1378,67 +1378,67 @@ class BoolNode(ASTNode):
 
 
 
-class ComparisonNode(ASTNode):
-    """Comparisons are the leaves of conditional branches
-    and can also return boolean values
-    """
-    def __init__(self, left: ASTNode, right: ASTNode, comp_op: str):
-        super().__init__()
-        self.children.append(left)
-        self.children.append(right)
-        self.comp_op = comp_op
+# class ComparisonNode(ASTNode):
+#     """Comparisons are the leaves of conditional branches
+#     and can also return boolean values
+#     """
+#     def __init__(self, left: ASTNode, right: ASTNode, comp_op: str):
+#         super().__init__()
+#         self.children.append(left)
+#         self.children.append(right)
+#         self.comp_op = comp_op
 
 
-    def r_eval(self, local_var_dict: Dict[str, str]):
-        """Called if we want a boolean VALUE rather than a branch"""
-        left, right = self.children
-        left_code = left.r_eval(local_var_dict)
-        right_code = right.r_eval(local_var_dict)
-        caller_type = left.type_eval(local_var_dict)
+#     def r_eval(self, local_var_dict: Dict[str, str]):
+#         """Called if we want a boolean VALUE rather than a branch"""
+#         left, right = self.children
+#         left_code = left.r_eval(local_var_dict)
+#         right_code = right.r_eval(local_var_dict)
+#         caller_type = left.type_eval(local_var_dict)
 
-        if self.comp_op == "==":
-            return right_code + left_code + [f'\tcall {caller_type}:EQUALS']
-        if self.comp_op == "<":
-            return right_code + left_code + [f'\tcall {caller_type}:LESS']
-        if self.comp_op == ">":
-            return right_code + left_code + [f'\tcall {caller_type}:MORE']
-        if self.comp_op == "<=":
-            return right_code + left_code + [f'\tcall {caller_type}:ATMOST']
-        if self.comp_op == ">=":
-            return right_code + left_code + [f'\tcall {caller_type}:ATLEAST']
+#         if self.comp_op == "==":
+#             return right_code + left_code + [f'\tcall {caller_type}:EQUALS']
+#         if self.comp_op == "<":
+#             return right_code + left_code + [f'\tcall {caller_type}:LESS']
+#         if self.comp_op == ">":
+#             return right_code + left_code + [f'\tcall {caller_type}:MORE']
+#         if self.comp_op == "<=":
+#             return right_code + left_code + [f'\tcall {caller_type}:ATMOST']
+#         if self.comp_op == ">=":
+#             return right_code + left_code + [f'\tcall {caller_type}:ATLEAST']
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
-        left, right = self.children
+#     def type_eval(self, local_var_dict: Dict[str, str]):
+#         left, right = self.children
 
-        caller_type = left.type_eval(local_var_dict)
-        right_type = right.type_eval(local_var_dict)
-        quackClassEntry = ch.find_class(caller_type)
+#         caller_type = left.type_eval(local_var_dict)
+#         right_type = right.type_eval(local_var_dict)
+#         quackClassEntry = ch.find_class(caller_type)
 
-        # If equals, make sure that the equals exists
-        if self.comp_op == "==":
-            ch.is_legal_invocation(caller_type, 'EQUALS', [right_type])
-        if self.comp_op == "<":
-            ch.is_legal_invocation(caller_type, 'LESS', [right_type])
-        if self.comp_op == ">":
-            ch.is_legal_invocation(caller_type, 'MORE', [right_type])
-        if self.comp_op == "<=":
-            ch.is_legal_invocation(caller_type, 'ATMOST', [right_type])
-        if self.comp_op == ">=":
-            ch.is_legal_invocation(caller_type, 'ATLEAST', [right_type])
-        return "Boolean"
+#         # If equals, make sure that the equals exists
+#         if self.comp_op == "==":
+#             ch.is_legal_invocation(caller_type, 'EQUALS', [right_type])
+#         if self.comp_op == "<":
+#             ch.is_legal_invocation(caller_type, 'LESS', [right_type])
+#         if self.comp_op == ">":
+#             ch.is_legal_invocation(caller_type, 'MORE', [right_type])
+#         if self.comp_op == "<=":
+#             ch.is_legal_invocation(caller_type, 'ATMOST', [right_type])
+#         if self.comp_op == ">=":
+#             ch.is_legal_invocation(caller_type, 'ATLEAST', [right_type])
+#         return "Boolean"
 
-    def init_check(self, local_var_list: List[str], in_constructor: bool):
-        left, right = self.children
-        left.init_check(local_var_list, in_constructor)
-        right.init_check(local_var_list, in_constructor)
-        return None
+#     def init_check(self, local_var_list: List[str], in_constructor: bool):
+#         left, right = self.children
+#         left.init_check(local_var_list, in_constructor)
+#         right.init_check(local_var_list, in_constructor)
+#         return None
 
-    def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
-        bool_code = self.r_eval(local_var_dict)
-        return bool_code + [f"\tjump_if {true_branch}", f"\tjump {false_branch}"]
+#     def c_eval(self, true_branch: str, false_branch: str, local_var_dict: Dict[str, str]) -> List[str]:
+#         bool_code = self.r_eval(local_var_dict)
+#         return bool_code + [f"\tjump_if {true_branch}", f"\tjump {false_branch}"]
 
-    def pretty_label(self) -> str:
-        return f"ComparisonNode: {self.comp_op}"
+#     def pretty_label(self) -> str:
+#         return f"ComparisonNode: {self.comp_op}"
 
 class AndNode(ASTNode):
     """Boolean and, short circuit; can be evaluated for jump or for boolean value"""

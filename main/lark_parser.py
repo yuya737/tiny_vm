@@ -533,6 +533,51 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
     return final_file_list
 
 
+def ast_pydot__tree_to_png(tree: ASTNode, filename: str, rankdir: 'Literal["TB", "LR", "BT", "RL"]'="LR", **kwargs) -> None:
+    graph = pydot__tree_to_graph(tree, rankdir, **kwargs)
+    graph.write_png(filename)
+
+
+def pydot__tree_to_dot(tree: ASTNode, filename, rankdir="LR", **kwargs):
+    graph = pydot__tree_to_graph(tree, rankdir, **kwargs)
+    graph.write(filename)
+
+
+def pydot__tree_to_graph(tree: ASTNode, rankdir="LR", **kwargs):
+
+    import pydot  # type: ignore[import]
+    graph = pydot.Dot(graph_type='digraph', rankdir=rankdir, **kwargs)
+
+    i = [0]
+
+    def new_leaf(leaf):
+        label = leaf.pretty_label() if leaf else 'NONE'
+        node = pydot.Node(i[0], label=label)
+        i[0] += 1
+        graph.add_node(node)
+        return node
+
+    def _to_pydot(subtree):
+
+        color = hash(subtree.__class__.__name__) & 0xffffff
+        color |= 0x808080
+
+        subnodes = [_to_pydot(child) if child and len(child.children) > 0 else new_leaf(child)
+                    for child in subtree.children]
+
+        node = pydot.Node(i[0], style="filled", fillcolor="#%x" % color, label=subtree.pretty_label())
+        i[0] += 1
+        graph.add_node(node)
+
+        for subnode in subnodes:
+            graph.add_edge(pydot.Edge(node, subnode))
+
+        return node
+
+    _to_pydot(tree)
+    return graph
+
+
 def main(quack_file, output_asm, builtinclass_json):
     quack_parser = Lark(quack_grammar, parser='lalr')
     # quack_parser = Lark(quack_grammar)
@@ -547,7 +592,8 @@ def main(quack_file, output_asm, builtinclass_json):
     print('------------------------------------------------------')
     ast = tree.transform(quack(input_str))
     print('------------------------------------------------------')
-    pydot__tree_to_png(quack(input_str), 'a.png')
+    pydot__tree_to_png(quack(input_str), 'CST.png')
+    ast_pydot__tree_to_png(ast, 'AST.png')
     print('Printing Transformed AST')
     pretty_print(ast)
     print('------------------------------------------------------')
