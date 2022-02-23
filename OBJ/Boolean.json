@@ -1,0 +1,13 @@
+{
+  "class_name": "Bool",
+  "super": "Obj",
+  "methods": [ "$constructor",
+    "STR",
+    "PRINT",
+    "equals",
+    "AND",
+    "OR",
+    "NOT"
+  ],
+  "fields": []
+}
