@@ -677,56 +677,6 @@ class ClassMethodBlockNode(ASTNode):
     def pretty_label(self) -> str:
         return "ClassMethodBlockNode"
 
-
-# class ClassBodyNode(ASTNode):
-#     """Class Body Node"""
-#     def __init__(self, statement_list: List[ASTNode], method_list: List[ASTNode]):
-#         super().__init__()
-#         self.children += statement_list
-#         self.children += method_list
-#         self.num_constructor_statement = len(statement_list)
-
-#     def r_eval(self, local_var_dict: Dict[str, str], num_constructor_arguments: int):
-#         ret = []
-#         statement_list = self.children[:self.num_constructor_statement]
-#         method_list = self.children[self.num_constructor_statement:]
-
-#         # Constructor lines
-#         for statement in statement_list:
-#             ret += statement.r_eval(local_var_dict)
-
-#         ret += ['\tload $', f'\treturn {num_constructor_arguments}']
-
-#         # Class Methods
-#         for method in method_list:
-#             ret += method.r_eval(local_var_dict)
-
-#         return ret
-
-#     def type_eval(self, local_var_dict: Dict[str, str]):
-#         for child in self.children:
-#             child.type_eval(local_var_dict)
-#         return None
-
-#     # Get a list of field variables
-#     def get_field_variables(self, field_var_dict: Dict[str, str], temp_local_var_dict: Dict[str, str]) -> None:
-#         for possible_field_assignment in self.children[:self.num_constructor_statement]:
-#             possible_field_assignment.get_field_variables(field_var_dict, temp_local_var_dict)
-
-#     def pretty_label(self) -> str:
-#         return "ClassBodyNode"
-
-# class ReturnNode(ASTNode):
-#     """Return statment node"""
-#     def __init__(self, rexp: ASTNode):
-#         super().__init__()
-#         self.children.append(rexp)
-
-#     def r_eval(self, local_var_dict: Dict[str, str]):
-#         return
-
-
-
 class ClassSignatureNode(ASTNode):
     """Class Signature Node"""
     def __init__(self, class_name: str,  formal_args: ASTNode, super_class: str):
@@ -743,10 +693,11 @@ class ClassSignatureNode(ASTNode):
         # Write out the class declaration
         class_declaration = [f'.class {self.class_name}:{self.super_class}']
 
-        # Write out class fieds
+        # Write out class fields, except for those inherited from super
         field_declaration = []
         for variable in ch.find_class(self.class_name).fields_list:
-            field_declaration += [f'.field {variable}']
+            if variable not in ch.find_class(self.super_class).fields_list:
+                field_declaration += [f'.field {variable}']
 
         # Write out method forward declarations
         method_forward_declaration = []
