@@ -576,7 +576,7 @@ class ClassNode(ASTNode):
         self.method_scope_local_var_dict = method_scope_local_var_dict.copy()
 
         # Type check the class methods
-        method_block.type_eval(method_scope_local_var_dict)
+        method_block.type_eval(method_scope_local_var_dict, super_class)
 
     def init_check(self, local_var_list: List[str], in_constructor: bool):
         class_signature, constructor_statement_block, method_block = self.children
@@ -647,12 +647,13 @@ class ClassMethodBlockNode(ASTNode):
             ret += child.r_eval(local_var_dict.copy())
         return ret
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    # Need the superclass to check compatability
+    def type_eval(self, local_var_dict: Dict[str, str], super_class: str):
         for method in self.children:
             count = 1
             print(f'In Class method type check for {method.method_name} iteration number: {count}')
             cur_local_var_dict = local_var_dict.copy()
-            method.type_eval(cur_local_var_dict)
+            method.type_eval(cur_local_var_dict, super_class)
             print(cur_local_var_dict)
 
             # Try additional passes through to make sure that variable types don't change
@@ -660,7 +661,7 @@ class ClassMethodBlockNode(ASTNode):
             while True:
                 count += 1
                 print(f'In Class method type check for {method.method_name} iteration number: {count}')
-                method.type_eval(cur_local_var_dict)
+                method.type_eval(cur_local_var_dict, super_class)
                 print(cur_local_var_dict)
                 if temp_cur_local_var_dict == cur_local_var_dict:
                     break
@@ -792,7 +793,8 @@ class ClassMethodNode(ASTNode):
 
         return method_declaration + args_declaration + local_var_declaration + statement_block_instructions
 
-    def type_eval(self, local_var_dict: Dict[str, str]):
+    # Need the superclass to check compatability
+    def type_eval(self, local_var_dict: Dict[str, str], super_class: str):
         formal_args, statement_block = self.children
 
         method_scope_local_var_dict = local_var_dict
@@ -823,6 +825,23 @@ class ClassMethodNode(ASTNode):
         # Save the variable scope for this method for code generation
         self.method_scope_local_var_dict = method_scope_local_var_dict
         local_var_dict = method_scope_local_var_dict.copy()
+
+
+        # Check superclass compatability
+
+        super_class_entry = ch.find_class(super_class)
+        super_class_method_match = [entry for entry in super_class_entry.methods_list if entry.method_name == self.method_name]
+        if super_class_method_match:
+            # For every overriding method, make sure it has the same number of arguments as the method it overrides
+            if not len(super_class_method_match[0].params) == len(formal_args.arg_names):
+                raise SyntaxError(f"{self.method_name} is an overriding method. It's superclass {super_class} takes {len(super_class_method_match[0].params)} parameter(s) but defined to take {len(formal_args.arg_names)} parameter(s).")
+            # For every argument, make sure that a_inherited < a
+            for index in range(len(super_class_method_match[0].params)):
+                if not ch.is_legal_argument_for_overriding_class(formal_args.arg_types[index], super_class_method_match[0].params[index]):
+                    raise TypeError(f"Overriding method {self.method_name} defined to take {formal_args.arg_types[index]} but its superclass {super_class} defines {super_class_method_match[0].params[index]} at position {index}. This is an incompatible assignment")
+            # Make sure the return type is a subclass of r_inherited
+            if not ch.is_legal_assignment(super_class_method_match[0].ret, self.ret_type):
+                raise TypeError(f"Overriding method {self.method_name} defined to return {self.ret_type} but its superclass {super_class} is defined to return {super_class_method_match[0].ret}. This is an incompatible assignment")
 
         return None
 
@@ -1531,6 +1550,8 @@ class NotNode(ASTNode):
         return statement.c_eval(false_branch, true_branch, local_var_dict)
 
     def type_eval(self, local_var_dict: Dict[str, str]):
+        statement = self.children[0]
+        statement.type_eval(local_var_dict)
         return "Boolean"
 
     def init_check(self, local_var_list: List[str], in_constructor: bool):

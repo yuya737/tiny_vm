@@ -72,6 +72,14 @@ class RootObjClass(QuackClass):
         # Return if path_to_actual_class starts with path_to_expected_class. In other words, if actual_class is a subclass of expected_class
         return path_to_actual_class[:len(path_to_expected_class)] == path_to_expected_class
 
+    # Make sure that type 'actual_class' can be assigned to 'expected_class'
+    def is_legal_argument_for_overriding_class(self, actual_argument_class: str, superclass_argument_class: str) -> bool:
+        path_to_actual_class = self.get_path_to_subclass(actual_argument_class)
+        path_to_superclass_class = self.get_path_to_subclass(superclass_argument_class)
+
+        # Return if path_to_actual_class starts with path_to_expected_class. In other words, if superclass_class is a subclass of actual_class
+        return path_to_superclass_class[:len(path_to_actual_class)] == path_to_actual_class
+
     def is_legal_invocation(self, class_name: str, method_name: str, passed_types: List[str]):
         class_entry = self.find_class(class_name)
         # Make sure the class exists
