@@ -89,7 +89,7 @@ quack_grammar = """
         | atom_expr "." IDENT -> fieldreference
 
     COMMENT: "//" /(.)+/ NEWLINE
-        | "/*"  /(.)+/ "*/"
+        | "/*" /(.|\n)+/x "*/"
 
     ?constant: INT       -> number
         | ESCAPED_STRING    -> string
@@ -519,8 +519,9 @@ def write_to_file(quack_file: str, RootNode: ASTNode, output_asm: str, var_dict:
         f.write(f".class {output_asm + '_main'}:Obj\n")
         f.write('\n')
         f.write('.method $constructor\n')
-        if bare_statement_block_local_var_dict.keys():
-            f.write(f".local {','.join(bare_statement_block_local_var_dict.keys())}\n")
+        bare_statement_block_local_var_list = [item[1] if isinstance(item, tuple) else item for item in bare_statement_block_local_var_dict.keys()]
+        if bare_statement_block_local_var_list:
+            f.write(f".local {','.join(bare_statement_block_local_var_list)}\n")
         for i in instr:
             f.write(i)
             f.write('\n')

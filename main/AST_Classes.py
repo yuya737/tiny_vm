@@ -90,6 +90,14 @@ class IfNode(ASTNode):
         if elsepart:
             self.children.append(elsepart)
 
+        # Type checking will populate this
+        self.thenscope_local_var_dict = None
+        self.elsescope_local_var_dict = None
+
+        # Initialization check will populate this
+        self.thenscope_local_var_list = None
+        self.elsescope_local_var_list = None
+
     def r_eval(self, local_var_dict: Dict[str, str]):
         """Evaluate for value"""
         if len(self.children) == 2:
@@ -128,6 +136,7 @@ class IfNode(ASTNode):
             var_dict_before_if = local_var_dict
 
             var_dict_after_if = local_var_dict.copy()
+            populate_local_var_dict_with_initialized_vars(var_dict_after_if, self.thenscope_local_var_list)
 
             final_ret_type = thenpart.type_eval(var_dict_after_if)
 
@@ -143,6 +152,7 @@ class IfNode(ASTNode):
             var_dict_before_if = local_var_dict
 
             var_dict_after_then = local_var_dict.copy()
+            populate_local_var_dict_with_initialized_vars(var_dict_after_then, self.thenscope_local_var_list)
             thenpart_ret_type = thenpart.type_eval(var_dict_after_then)
 
             # Update return type of the statement bloc
@@ -154,6 +164,7 @@ class IfNode(ASTNode):
                     final_ret_type = thenpart_ret_type
 
             var_dict_after_else = local_var_dict.copy()
+            populate_local_var_dict_with_initialized_vars(var_dict_after_else, self.elsescope_local_var_list)
             elsepart_ret_type = elsepart.type_eval(var_dict_after_else)
 
             # Update return type of the statement bloc
@@ -188,39 +199,65 @@ class IfNode(ASTNode):
             condpart.init_check(local_var_list, in_constructor)
             # condpart has no initialization
 
-            var_dict_before_if = local_var_list
-            var_dict_after_if = local_var_list.copy()
-            thenpart.init_check(var_dict_after_if, in_constructor)
+            var_list_before_if = local_var_list
+            var_list_after_if = local_var_list.copy()
+            thenpart.init_check(var_list_after_if, in_constructor)
 
             # Take care of typecase - variables from TypeCaseVarAssignment will be added to local_var_list
-            for i in var_dict_after_if:
+            for i in var_list_after_if:
                 if isinstance(i, tuple) and i[0] == 'TYPECASE':
                     local_var_list.append(i)
+                    continue
+                # Take care of variable that are defined within the if/else block scope
+                if i not in local_var_list:
+                    # If it's already a tuple get the value
+                    if isinstance(i, tuple):
+                        i = i[1]
+                    local_var_list.append(('OTHERSCOPE', i))
+
+            self.thenscope_local_var_list = var_list_after_if
 
         else:
             condpart, thenpart, elsepart = self.children
             condpart.init_check(local_var_list, in_constructor)
 
-            var_dict_before_if = local_var_list
+            var_list_before_if = local_var_list
 
-            var_dict_after_then = local_var_list.copy()
-            thenpart_ret_type = thenpart.init_check(var_dict_after_then, in_constructor)
+            var_list_after_then = local_var_list.copy()
+            thenpart_ret_type = thenpart.init_check(var_list_after_then, in_constructor)
 
-            var_dict_after_else = local_var_list.copy()
-            elsepart_ret_type = elsepart.init_check(var_dict_after_else, in_constructor)
+            var_list_after_else = local_var_list.copy()
+            elsepart_ret_type = elsepart.init_check(var_list_after_else, in_constructor)
 
             # local_var_list doesn't lose values
-            for i in list(set(var_dict_after_then) & set(var_dict_after_else)):
+            for i in list(set(var_list_after_then) & set(var_list_after_else)):
                 if i not in local_var_list:
                     local_var_list.append(i)
 
             # Take care of typecase - variables from TypeCaseVarAssignment will be added to local_var_list
-            for i in var_dict_after_then:
+            for i in var_list_after_then:
                 if isinstance(i, tuple) and i[0] == 'TYPECASE':
                     local_var_list.append(i)
-            for i in var_dict_after_else:
+                    continue
+                # Take care of variable that are defined within the if/else block scope
+                if i not in local_var_list:
+                    # If it's already a tuple get the value
+                    if isinstance(i, tuple):
+                        i = i[1]
+                    local_var_list.append(('OTHERSCOPE', i))
+            for i in var_list_after_else:
                 if isinstance(i, tuple) and i[0] == 'TYPECASE':
                     local_var_list.append(i)
+                    continue
+                # Take care of variable that are defined within the if/else block scope
+                if i not in local_var_list:
+                    # If it's already a tuple get the value
+                    if isinstance(i, tuple):
+                        i = i[1]
+                    local_var_list.append(('OTHERSCOPE', i))
+
+            self.thenscope_local_var_list = var_list_after_then
+            self.elsescope_local_var_list = var_list_after_else
 
         return None
 
@@ -238,6 +275,12 @@ class WhileNode(ASTNode):
         super().__init__()
         self.children.append(condpart)
         self.children.append(statementblock)
+
+        # Type checking will populate this
+        self.whilescope_local_var_dict = None
+
+        # Initialization check will populate this
+        self.whilescope_local_var_list = None
 
     def r_eval(self, local_var_dict: Dict[str, str]):
         """Evaluate for value"""
@@ -262,6 +305,7 @@ class WhileNode(ASTNode):
 
         # Pass in a copy of local_var_dict to type eval because new variables in while are to be ignored after the loop
         var_dict_after_block = local_var_dict.copy()
+        populate_local_var_dict_with_initialized_vars(var_dict_after_block, self.whilescope_local_var_list)
         statementblock_ret_type = statementblock.type_eval(var_dict_after_block)
 
         # Update local_var_dict - (only need to update item types. Since while can't add new variables, the only thing that happens is taking the LCA of variables that was previously declared. var_dict never loses or adds items here)
@@ -281,6 +325,16 @@ class WhileNode(ASTNode):
         # Pass in a copy of local_var_list to type eval because new variables in while are to be ignored after the loop
         var_list_after_block = local_var_list.copy()
         statementblock_ret_type = statementblock.init_check(var_list_after_block, in_constructor)
+
+        # If there's a variable that's only defined in the while scope - save it so that we can allocate memory for it
+        for variable in var_list_after_block:
+            if variable not in local_var_list:
+                # If it's already a tuple get the value
+                if isinstance(variable, tuple):
+                    variable = variable[1]
+                local_var_list.append(('OTHERSCOPE', variable))
+
+        self.whilescope_local_var_list = var_list_after_block
 
         # # While can't define any new class fields in the constructor
         # if in_constructor:
@@ -743,7 +797,8 @@ class ClassMethodNode(ASTNode):
         local_vars_in_function = []
         for item in self.method_scope_local_var_dict:
             if isinstance(item, tuple):
-                local_vars_in_function.append(item[1])
+                if item[1] not in local_vars_in_function:
+                    local_vars_in_function.append(item[1])
             else:
                 if item not in formal_args.arg_names and not item.startswith('this.'):
                     local_vars_in_function.append(item)
@@ -869,20 +924,20 @@ class ProgramNode(ASTNode):
         # self.children.append(program)
 
         # Run topological ordering and reorder the class nodes so that we always load the classes in the right order
-        class_list_name = [class_node.children[0].class_name for class_node in class_list]
-        superclass_list_name = [class_node.children[0].super_class for class_node in class_list]
+        # class_list_name = [class_node.children[0].class_name for class_node in class_list]
+        # superclass_list_name = [class_node.children[0].super_class for class_node in class_list]
 
-        DG = dependency_graph.Dependency_Graph()
-        for i in range(len(class_list_name)):
-            DG.addEdge(class_list_name[i], superclass_list_name[i])
-        topoOrder = DG.topologicalSort()
+        # DG = dependency_graph.Dependency_Graph()
+        # for i in range(len(class_list_name)):
+        #     DG.addEdge(class_list_name[i], superclass_list_name[i])
+        # topoOrder = DG.topologicalSort()
 
-        # Drop the Obj class from the ordering
-        topoOrder.remove("Obj")
+        # # Drop the Obj class from the ordering
+        # topoOrder.remove("Obj")
 
-        reordered_class_list = []
-        for i in topoOrder:
-            reordered_class_list.append(class_list[class_list_name.index(i)])
+        # reordered_class_list = []
+        # for i in topoOrder:
+        #     reordered_class_list.append(class_list[class_list_name.index(i)])
 
         # self.children += reordered_class_list
         self.children += class_list
@@ -1025,6 +1080,7 @@ class AssignmentNode(ASTNode):
             if lexp.get_value() in local_var_dict:
                 prev_inferred_type = local_var_dict[lexp.get_value()]
             else:
+                breakpoint()
                 raise SyntaxError(f"Assignment to {lexp.get_value()} is invalid. Most likely, there is a path that doesn't initialize this variable")
         else:
             # Its a field reference
