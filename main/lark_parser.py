@@ -88,8 +88,8 @@ quack_grammar = """
     ?lexpr: lexp
         | atom_expr "." IDENT -> fieldreference
 
-
-
+    COMMENT: "//" /(.)+/ NEWLINE
+        | "/*"  /(.)+/ "*/"
 
     ?constant: INT       -> number
         | ESCAPED_STRING    -> string
@@ -100,8 +100,10 @@ quack_grammar = """
     %import common.INT
     %import common.ESCAPED_STRING
     %import common.WS
+    %import common.NEWLINE
 
     %ignore WS
+    %ignore COMMENT
 """
         # | logic_expr
 

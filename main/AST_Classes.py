@@ -1,6 +1,7 @@
 from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Type, Union
 
 import class_hierarchy
+import dependency_graph
 
 ch: class_hierarchy.RootObjClass
 
@@ -448,30 +449,6 @@ class StatementBlockNode(ASTNode):
     def pretty_label(self) -> str:
         return f"StatementBlockNode: length {len(self.children)}"
 
-class ProgramNode(ASTNode):
-    """Class  Node"""
-    def __init__(self, class_list: List[ASTNode], BareStatementBlockNode: ASTNode):
-        super().__init__()
-        # self.children.append(program)
-        self.children += class_list
-        self.children.append(BareStatementBlockNode)
-        # self.num_classes = len(class_list)
-
-    def r_eval(self, local_var_dict: Dict[str, str]):
-        return ([subitem for child in self.children for subitem in child.r_eval(local_var_dict)])
-
-    def type_eval(self, local_var_dict: Dict[str, str]):
-        for child in self.children:
-            child.type_eval(local_var_dict)
-        return None
-
-    def init_check(self, local_var_list: List[str], in_constructor: bool):
-        for child in self.children:
-            child.init_check(local_var_list, in_constructor)
-        return None
-
-    def pretty_label(self) -> str:
-        return "ProgramNode"
 
 class ClassNode(ASTNode):
     """Class Node"""
@@ -890,6 +867,24 @@ class ProgramNode(ASTNode):
     def __init__(self, class_list: List[ASTNode], bare_statement_block: ASTNode):
         super().__init__()
         # self.children.append(program)
+
+        # Run topological ordering and reorder the class nodes so that we always load the classes in the right order
+        class_list_name = [class_node.children[0].class_name for class_node in class_list]
+        superclass_list_name = [class_node.children[0].super_class for class_node in class_list]
+
+        DG = dependency_graph.Dependency_Graph()
+        for i in range(len(class_list_name)):
+            DG.addEdge(class_list_name[i], superclass_list_name[i])
+        topoOrder = DG.topologicalSort()
+
+        # Drop the Obj class from the ordering
+        topoOrder.remove("Obj")
+
+        reordered_class_list = []
+        for i in topoOrder:
+            reordered_class_list.append(class_list[class_list_name.index(i)])
+
+        # self.children += reordered_class_list
         self.children += class_list
         self.children.append(bare_statement_block)
         # self.num_classes = len(class_list)
