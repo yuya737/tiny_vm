@@ -22,7 +22,7 @@ class RootObjClass(QuackClass):
         Obj_methods = [QuackClassMethod("$constructor", [], "Obj"),
                        QuackClassMethod("STR", [], "String"),
                        QuackClassMethod("PRINT", [], "Nothing"),
-                       QuackClassMethod("equals", ["Obj"], "Boolean")
+                       QuackClassMethod("EQUALS", ["Obj"], "Boolean")
                        ]
         super().__init__("Obj", "Obj", Obj_methods, {})
 
