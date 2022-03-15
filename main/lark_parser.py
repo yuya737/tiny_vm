@@ -80,6 +80,7 @@ quack_grammar = """
          | "-" atom          -> neg
          | "(" rexp ")"
          | "true" -> true
+         | "none" -> nothing
          | "false" -> false
 
     lexp: IDENT             -> var_reference
@@ -200,6 +201,10 @@ class MakeAssemblyTree(Transformer):
     def false(self, lst) -> ASTNode:
         print(f'In true {lst}')
         return BoolNode("false")
+
+    def nothing(self, lst) -> ASTNode:
+        print(f'In nothing {lst}')
+        return NothingNode()
 
     def methodcall(self, lst) -> ASTNode:
         caller, m_name, *methodargs = lst

@@ -1423,6 +1423,23 @@ class ConstNode(ASTNode):
     def pretty_label(self) -> str:
         return f"ConstNode {self.value}"
 
+class NothingNode(ASTNode):
+    """Constant"""
+    def __init__(self):
+        super().__init__()
+
+    def r_eval(self, local_var_dict: Dict[str, str]):
+        return ["\tconst nothing"]
+
+    def type_eval(self, local_var_dict: Dict[str, str]):
+        return "Nothing"
+
+    def init_check(self, local_var_list: List[str], in_constructor: bool):
+        return None
+
+    def pretty_label(self) -> str:
+        return "NothingNode"
+
 
 class BoolNode(ASTNode):
     """Boolean """

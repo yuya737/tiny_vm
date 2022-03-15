@@ -4,7 +4,7 @@
   "methods": [ "$constructor",
     "STR",
     "PRINT",
-    "equals"
+    "EQUALS"
   ],
   "fields": []
 }
