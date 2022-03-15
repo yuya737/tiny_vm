@@ -1,0 +1,26 @@
+class Hand() {
+    
+}
+
+class LeftHand(x: Int) extends Hand {
+    this.x = x;
+    def foo(): String { return "I am LEFTHAND"; }
+}
+
+class RightHand(x: Int) extends Hand {
+    this.x = x;
+    def foo(): String { return "I am RIGHTHAND"; }
+    
+}
+class Bot(x: Int) {
+    if x > 0 {
+        this.hand = LeftHand(3);
+    } else {
+        this.hand = LeftHand(7);
+    }
+}
+
+x = Bot(3);
+x.hand.foo().PRINT();
+    
+

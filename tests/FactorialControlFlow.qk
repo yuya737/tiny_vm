@@ -1,0 +1,26 @@
+// Testing while loop logic by generating factorial numbers
+
+factorial = 1; // The accumulator
+iterator = 0; // The iterator for our loop
+num_iters = 10; // The number of iterations
+
+"This program should PRINT out ".PRINT();
+num_iters.PRINT();
+" factorial numbers\n\n".PRINT();
+
+
+while iterator < num_iters {
+    // Perform calculation
+    iterator = iterator + 1;
+    factorial = factorial * iterator;
+    
+    // PRINT out info
+    "Iteration ".PRINT();
+    iterator.PRINT();
+    ": ".PRINT();
+    factorial.PRINT();
+    "\n".PRINT();
+}
+
+"Done\n".PRINT();
+
