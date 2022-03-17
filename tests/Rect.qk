@@ -68,9 +68,8 @@ z = Square(Pt(3,3), 5);
 o = Square(Pt(3,3), 0);
 o.ur.foo(5);
 
-
-if o == z {
-    "YES".PRINT();
+if z==Square(Pt(3,3), 5) {
+    90.PRINT();
 } else {
     "NO".PRINT();
 }
