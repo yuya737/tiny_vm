@@ -1,0 +1,167 @@
+\RequirePackage{filecontents}
+\begin{filecontents*}{mybib.bib}
+    @article{paper,
+        author = {Pearce, David J.},
+        title = {A Lightweight Formalism for Reference Lifetimes and Borrowing in Rust},
+        year = {2021},
+        issue_date = {March 2021},
+        publisher = {Association for Computing Machinery},
+        address = {New York, NY, USA},
+        volume = {43},
+        number = {1},
+        issn = {0164-0925},
+        url = {https://doi.org/10.1145/3443420},
+        doi = {10.1145/3443420},
+        abstract = {Rust is a relatively new programming language that has gained significant traction since its v1.0 release in 2015. Rust aims to be a systems language that competes with C/C++. A claimed advantage of Rust is a strong focus on memory safety without garbage collection. This is primarily achieved through two concepts, namely, reference lifetimes and borrowing. Both of these are well-known ideas stemming from the literature on region-based memory management and
+            linearity/uniqueness. Rust brings both of these ideas together to form a coherent programming model. Furthermore, Rust has a strong focus on stack-allocated data and, like C/C++ but unlike Java, permits references to local variables.Type checking in Rust can be viewed as a two-phase process: First, a traditional type checker operates in a flow-insensitive fashion; second, a borrow checker enforces an ownership invariant using a flow-sensitive analysis. In this article, we present a
+            lightweight formalism that captures these two phases using a flow-sensitive type system that enforces “type and borrow safety.” In particular, programs that are type and borrow safe will not attempt to dereference dangling pointers. Our calculus core captures many aspects of Rust, including copy- and move-semantics, mutable borrowing, reborrowing, partial moves, and lifetimes. In particular, it remains sufficiently lightweight to be easily digested and understood and, we argue,
+            still captures the salient aspects of reference lifetimes and borrowing. Furthermore, extensions to the core can easily add more complex features (e.g., control-flow, tuples, method invocation). We provide a soundness proof to verify our key claims of the calculus. We also provide a reference implementation in Java with which we have model checked our calculus using over 500B input programs. We have also fuzz tested the Rust compiler using our calculus against 2B programs and, to date,
+        found one confirmed compiler bug and several other possible issues.},
+        journal = {ACM Trans. Program. Lang. Syst.},
+        month = {apr},
+        articleno = {3},
+        numpages = {73},
+        keywords = {Rust, model checking, ownership, type theory}
+    }
+\end{filecontents*}
+\documentclass[acmlarge, noacm, 11pt]{acmart}
+
+% \acmConference[]{Parallel Processing}{CIS 631}{Fall 2020}
+\settopmatter{printfolios=false}
+\settopmatter{printacmref=false} % Removes citation information below abstract
+\renewcommand\footnotetextcopyrightpermission[1]{} % removes footnote with conference information in first column
+% \pagestyle{plain} % removes running headers
+
+%%
+%% \BibTeX command to typeset BibTeX logo in the docs
+\AtBeginDocument{%
+    \providecommand\BibTeX{{%
+\normalfont B\kern-0.5em{\scshape i\kern-0.25em b}\kern-0.8em\TeX}}}
+
+\newenvironment{tightItemize}{
+    \begin{itemize}
+        \setlength{\itemsep}{1pt}
+        \setlength{\parskip}{0pt}
+        \setlength{\parsep}{0pt}
+}{\end{itemize}
+}
+
+\usepackage{graphicx}
+\usepackage{svg}
+\usepackage{minted}
+\usemintedstyle{bw}
+\usepackage{listings}
+\usepackage{minted}
+
+
+
+\usepackage[ruled,vlined]{algorithm2e}
+
+\usepackage{multirow}
+\usepackage{multicol}
+\usepackage{makecell}
+
+\usepackage{tikz} % To generate the plot from csv
+\usepackage{pgfplots}
+
+
+\fancyfoot{}
+
+%%
+%% end of the preamble, start of the body of the document source.
+\begin{document}
+
+%%
+%% The "title" command has an optional parameter,
+%% allowing the author to define a "short title" to be used in page headers.
+\title{CIS 561 - Paper Review}
+
+%%
+%% The "author" command and its associated commands are used to define
+%% the authors and their affiliations.
+%% Of note is the shared affiliation of the first two authors, and the
+%% "authornote" and "authornotemark" commands
+%% used to denote shared contribution to the research.
+\author{Yuya Kawakami}
+\bibliographystyle{ACM-Reference-Format}
+% \affiliation{%
+%   \institution{University of Oregon}
+% \city{Eugene}
+%   \state{Oregon}
+% }
+ \email{ykawakam@uoregon.edu}
+
+\maketitle
+\pagestyle{empty}
+\thispagestyle{empty}
+
+\section{Introduction}
+We review Pearce's \textit{A Lightweight Formalism for Reference Lifetimes and Borrowing in Rust}~\cite{paper}. 
+%
+The intention for this review is not to review the formalization that Peace presents and its correctness.
+%
+Rather, the goal for this review to understand the following question - "How does Rust enable \texit{compile-time} garbage collection?"
+%
+The short answer to the above is the following.
+%
+Rust enables compile-time garbage collection through a strict ownership model.
+%
+At a basic level, any object on the heap has one and only one \texit{owner}. 
+%
+Other things can make references to it, but it has one owner.
+%
+Under this setup, Rust can automatically free memory, by recursively dropping memory when the owners go out of scope.
+
+Of course, the additional detail is that Rust also needs to be able to figure out the lifetimes of variables.
+%
+Although in the basic setup that Pearce presents, this corresponds well to the curly braces for primitives.
+
+We will first present some examples that Pearce uses to highlight some of Rust's capabilities
+
+\section{Rust}
+A key component that allows Rust's compile-time garbage collection is, as mentioned prior, the ownership design.
+%
+In essence, Rust enforces that no two variables can own the same value.
+%
+Pearce introduces this as \textit{Ownership invariance}.
+%
+Though, this is slightly relaxed when in the context of borrowing, the ownership design allows Rust to safely drop and deallocate any location that a variable \textit{owns}, when that variables goes out of scope.
+%
+Note that allowing exactly one owner allows this - we can be sure that this doesn't `break' some other variable.
+
+Another key feature is Rust's borrowing concept.
+%
+Borrowing allows members to access the shared resources, but in language like C, one often counters race conditions. 
+%
+Especially for HPC applications, where many threads often access and write into shared resources, avoiding race conditions is critical.
+%
+However, in Rust, the language is designed such that no two \textit{mutable} borrowed reference can exist in one lifetime.
+%
+Distinguished by \mintinline{rust}{&mut x, &x}, Rust draws a line between references through which the original variable can be altered and those that cannot.
+%
+By default, references are immutable - speaking to the safety-centered design of Rust.
+
+Determining the lifetimes of variables is a powerful tool that Rust provides.  Consider the following snippet:
+\begin{minted}
+[
+bgcolor=lightgray
+]{rust}
+fn f(p : &i32) -> &i32 {
+    let x = 1;
+    let y = &x;
+    return y;
+}
+\end{minted}
+As Pearce describes, this is a classic example of returning a reference to a stack-allocated data.
+%
+C for example, will allow the equivalent code with no complaint.
+%
+However, Rust understands that the lifetime of \mintinline{rust}{x} is longer than that of \mintinline{rust}{y}; hence, rejecting the program.
+
+
+
+\bibliography{mybib}
+\end{document}
+\endinput
+
+
