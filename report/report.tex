@@ -53,6 +53,8 @@
 \usepackage{listings}
 \usepackage{minted}
 
+\newcommand{\rs}[1]{\mintinline{rust}{#1}}
+
 
 
 \usepackage[ruled,vlined]{algorithm2e}
@@ -74,7 +76,7 @@
 %%
 %% The "title" command has an optional parameter,
 %% allowing the author to define a "short title" to be used in page headers.
-\title{CIS 561 - Paper Review}
+\title{CIS 561 - Paper Review: \textit{A Lightweight Formalism for Reference Lifetimes and Borrowing in Rust}}
 
 %%
 %% The "author" command and its associated commands are used to define
@@ -158,6 +160,81 @@ C for example, will allow the equivalent code with no complaint.
 %
 However, Rust understands that the lifetime of \mintinline{rust}{x} is longer than that of \mintinline{rust}{y}; hence, rejecting the program.
 
+An feature of Rust that is worth mentioning is difference between \textit{move} and \textit{copy} semantics.
+%
+In C, or any common language, we assume the statement \mintinline{rust}{let y = x} to mean to \textit{copy} the value stored in \rs{x} to the location defined in \rs{y}.
+%
+However, this is not the case in Rust.
+%
+By default, such statement \textit{moves} the value stored at \rs{x} to \rs{y}; thus, leaving \rs{x} undefined.
+%
+This is the what is referred to as \textit{move} semantics in Rust.
+%
+We say `by default', since primitives types like \rs{i32} actually implement \textit{copy} semantics so if \rs{y},\rs{x} were integers, it would have \textit{copied} the value leaving \rs{x} with still the same value.
+%
+But, strings in Rust, for example, do not implement the \textit{copy} trait by default so a statement like \rs{let y = x} would indeed leave \rs{x} undefined.
+
+\section{Pearce's formalism}
+Pearce presents a what they describe as a `lightweight calculus' for Rust. 
+%
+In short, this is a stripped down subset of Rust that retains some of the more interesting features of Rust as we discussed like lifetime tracking, borrowing, move/copy semantics.
+%
+For the purposes of this report, we focus on the \rs{drop} function presented in page 3:17, as this highlights the answer to the intention of this report - "How does Rust enable \textit{compile} time garbage collection?"
+
+The \rs{drop}$(S, \psi)$ function is where the automatic de-allocation occurs in Pearce's formalism.
+%
+What is interesting, (but perhaps expectedly) the \rs{drop} function is defined recursively.
+%
+The idea being, that once one leaves a lifetime \rs{m}, we need to recursively drop locations owned by variables in that scope.
+
+Definition 3.4 \textit{(Drop}) is written as follows.
+%
+Let $S$ be a program store.
+%
+Then, the function \rs{drop}$(S, m)$ is defined as \rs{drop}$(S, \psi)$ where $\psi =\{l^\bullet\, |\, l \to \langle v^\bot\rangle^m\in S\}$.
+
+Without getting to the details of Pearce's formalism, $\psi$ defers to the set of all variables defined in the current program store $S$ (essentially a list of varialbles) that \textit{owns} a variable defined in the lifetime \rs{m}.
+%
+(In this formalism, the $\bullet$ denotes \textit{ownership} or a owned reference, and the superscript \rs{m} refers to the lifetime)
+
+Pearce defines \rs{drop}$(S, \psi)$ as follows.
+\begin{align*}
+    \rs{drop}(S, \emptyset) &= S  \\ 
+    \rs{drop}$(S, \psi\cup \{v^\bot\})  &= \rs{drop}(S,\psi) \tag{if $v^\bot\neq l^\bullet$} \\ 
+    \rs{drop}$(S, \psi\cup \{l^\bullet\}) &= \rs{drop}(S - \{l\to \langle v^\bullet\rangle^*\}, \psi\cup\{v^\bot\}) \tag{where $S(l) = \langle v^\bot\rangle^*$}
+\end{align*}
+Note here that the supersciprt $*$ refers to a reference to something with a global lifetime.
+%
+In other words, refeneces to a heap-allocated object.
+
+The first definition when $\psi$ is the empty set is trivial.
+%
+If the set of variables that \textit{owns} something defined in the current lifetime is empty (i.e. there is no such element), then the program store is unchanged - there is no need for any de-allocation.
+
+Next, Pearce considers the case all the partial values which aren't owned reference. 
+%
+Similar to before, we can ignore these since there is no need to de-allocate them.
+%
+This corresponds to the second case.
+
+Finally, we consider the third case.
+%
+Here, we see the dropping in action. 
+%
+For every \textit{owned} references in $S$, we remove them the program store.
+%
+Due to the recursive nature, Rust manages to clean up the memory by tracking all the owned references.
+
+\section{conclusion}
+In this short review, we tried to answer the question - "How does Rust enable \textit{compile} time garbage collection?".
+%
+Rust enable this via the strict enforcement of ownership (and the distinction with borrowing) and tracking the lifetime of variables. 
+%
+With that information Rust is able to cleverly drop appropriate locations in memory as seen in Pearce's formalism.
+
+Especially in the context of HPC, I found Rust automatic handling of race condition particualy powerful.
+%
+Although \mintinline{C}{const} can have similar effects, having immutable and mutable references built in to the language brings power and confort.
 
 
 \bibliography{mybib}
